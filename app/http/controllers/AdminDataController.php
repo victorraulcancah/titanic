@@ -261,7 +261,7 @@ where u.usuario_id = '{$_POST['usr']}'";
     
     public function obtenerRutasClientes(){
         $result = array();
-        $sql="SELECT * FROM rutas_vendedor
+        $sql="SELECT id_ruta FROM rutas_vendedor
             GROUP BY id_ruta
             ORDER BY id_ruta";
         $stm = $this->conexion->query($sql);

@@ -3,7 +3,11 @@
 
 class TableData { 
  	private $_db;
+	
 	public function __construct() {
+		// Suprimir warnings para evitar romper JSON
+		error_reporting(E_ERROR | E_PARSE);
+		ini_set('display_errors', '0');
 		try {			
 			$host		= HOST_SS;
 			$database	= DATABASE_SS;

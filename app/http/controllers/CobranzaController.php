@@ -13,8 +13,27 @@ class CobranzaController extends Controller
     }
     public function render()
     {
-        $getAll = $this->cobranza->getAllCobranzas();
-        echo json_encode($getAll);
+        try {
+            $getAll = $this->cobranza->getAllCobranzas();
+            
+            if ($getAll === null || $getAll === false) {
+                http_response_code(500);
+                echo json_encode([
+                    "error" => "Error al obtener cobranzas",
+                    "message" => "La consulta no retornó datos válidos"
+                ]);
+                return;
+            }
+            
+            echo json_encode($getAll);
+        } catch (Exception $e) {
+            http_response_code(500);
+            error_log("Error en CobranzaController::render - " . $e->getMessage());
+            echo json_encode([
+                "error" => "Error al procesar cobranzas",
+                "message" => $e->getMessage()
+            ]);
+        }
     }
     public function renderDeudas()
     {
