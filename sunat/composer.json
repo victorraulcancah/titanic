@@ -1,0 +1,43 @@
+{
+    "name": "greenter/demo",
+    "description": "Demostración de Greenter",
+    "keywords": ["greenter", "facturacion-electronica", "sunat"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Giancarlos Salas",
+            "email": "giansalex@gmail.com"
+        }
+    ],
+    "homepage": "https://github.com/thegreenter/demo",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.2",
+        "ext-json": "*",
+        "greenter/lite": "^4.3",
+        "greenter/report": "^4.3",
+        "greenter/htmltopdf": "^4.3",
+        "greenter/data": "^4.3",
+      "ext-curl": "*"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^0.12.33"
+    },
+    "scripts": {
+        "post-install-cmd": "@php composer/PostInstall.php",
+        "reset-cache": "@php composer/ClearCache.php",
+        "lint": "phpstan analyse",
+        "lint:ci": "phpstan analyse --error-format=github"
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "config": {
+        "optimize-autoloader": true,
+        "classmap-authoritative": true
+    }
+}

@@ -1,0 +1,19 @@
+Venta: 154, fecha: 2025-05-12
+
+Prod: insert into productos_ventas 
+        values ('123', '154', '1.00', '220.00', '4.7000', '1', 'Kilos', '4', '50') - trueProd: insert into productos_ventas 
+        values ('126', '154', '1.00', '185.00', '4.5000', '1', 'Kilos', '4', '50') - trueProd: insert into productos_ventas 
+        values ('132', '154', '1.00', '135.00', '2.5000', '1', 'Kilos', '4', '50') - trueProd: insert into productos_ventas 
+        values ('170', '154', '1.00', '960.00', '300.0000', '1', 'Unidad', '4', '3') - trueProd: insert into productos_ventas 
+        values ('284', '154', '1.00', '624.00', '205.0000', '1', 'Unidad', '4', '3') - trueProd: insert into productos_ventas 
+        values ('15', '154', '15.00', '77.00', '78.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('88', '154', '1.00', '364.00', '180.0000', '1', 'Unidad', '1', '2') - trueProd: insert into productos_ventas 
+        values ('289', '154', '1.00', '230.00', '235.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('353', '154', '30.00', '17.50', '17.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('351', '154', '20.00', '18.00', '18.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('144', '154', '8.00', '145.00', '143.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('236', '154', '1.00', '150.00', '2.9000', '1', 'Kilos', '1', '50') - trueProd: insert into productos_ventas 
+        values ('17', '154', '10.00', '38.00', '46.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('337', '154', '8.00', '73.00', '72.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('342', '154', '1.00', '525.00', '9.7000', '1', 'Kilos', '', '50') - trueProd: insert into productos_ventas 
+        values ('300', '154', '1.00', '235.00', '4.6000', '1', 'Kilos', '4', '50') - true

@@ -1,0 +1,9 @@
+Venta: 202, fecha: 2025-08-19
+
+Prod: insert into productos_ventas 
+        values ('214', '202', '1.00', '116.00', '26.0000', '5', 'Sacos', '1', '4') - trueProd: insert into productos_ventas 
+        values ('176', '202', '1.00', '34.00', '5.8000', '5', 'Kilos', '1', '5') - trueProd: insert into productos_ventas 
+        values ('96', '202', '1.00', '37.00', '33.0000', '5', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('222', '202', '1.00', '32.50', '6.2000', '5', 'Kilos', '1', '5') - trueProd: insert into productos_ventas 
+        values ('293', '202', '1.00', '70.00', '12.5000', '5', 'Kilos', '1', '5') - trueProd: insert into productos_ventas 
+        values ('133', '202', '1.00', '5.50', '5.0000', '5', 'Sacos', '1', '1') - true

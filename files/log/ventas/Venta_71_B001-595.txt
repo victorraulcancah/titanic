@@ -1,0 +1,16 @@
+Venta: 71, fecha: 2024-05-18
+
+Prod: insert into productos_ventas 
+        values ('4953', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4954', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4955', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4956', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4957', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4958', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4959', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4960', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4961', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4962', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4963', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4964', '71', '1.00', '88.00', '62.0000', '5') - trueProd: insert into productos_ventas 
+        values ('4965', '71', '1.00', '88.00', '62.0000', '5') - true

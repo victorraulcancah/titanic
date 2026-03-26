@@ -1,0 +1,6 @@
+Venta: 114, fecha: 2024-08-03
+
+Prod: insert into productos_ventas 
+        values ('993', '114', '1.00', '40.00', '30.0000', '5') - trueProd: insert into productos_ventas 
+        values ('994', '114', '1.00', '40.00', '30.0000', '5') - trueProd: insert into productos_ventas 
+        values ('1096', '114', '1.00', '75.00', '60.0000', '5') - true

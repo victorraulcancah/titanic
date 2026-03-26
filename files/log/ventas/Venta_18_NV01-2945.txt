@@ -1,0 +1,11 @@
+Venta: 18, fecha: 2024-04-14
+
+Prod: insert into productos_ventas 
+        values ('3', '18', '1', '78.0000', '48.0000', '') - trueProd: insert into productos_ventas 
+        values ('5', '18', '1', '78.0000', '48.0000', '') - trueProd: insert into productos_ventas 
+        values ('30', '18', '1', '78.0000', '48.0000', '') - trueProd: insert into productos_ventas 
+        values ('29', '18', '1', '78.0000', '48.0000', '') - trueProd: insert into productos_ventas 
+        values ('28', '18', '1', '78.0000', '48.0000', '') - trueProd: insert into productos_ventas 
+        values ('32', '18', '1', '78.0000', '48.0000', '') - trueProd: insert into productos_ventas 
+        values ('55', '18', '1', '78.0000', '48.0000', '') - trueProd: insert into productos_ventas 
+        values ('54', '18', '1', '78.0000', '48.0000', '') - true

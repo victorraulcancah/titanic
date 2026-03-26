@@ -1,0 +1,7 @@
+Venta: 141, fecha: 2025-02-08
+
+Prod: insert into productos_ventas 
+        values ('358', '141', '1.00', '112.50', '3.5000', '5', 'Kilos', '', '') - trueProd: insert into productos_ventas 
+        values ('89', '141', '1.00', '202.00', '201.0000', '5', 'Unidad', '', '') - trueProd: insert into productos_ventas 
+        values ('123', '141', '1.00', '52.00', '4.7000', '5', 'Kilos', '', '') - trueProd: insert into productos_ventas 
+        values ('331', '141', '1.00', '72.00', '6.5000', '5', 'Kilos', '', '') - true

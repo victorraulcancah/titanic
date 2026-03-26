@@ -1,0 +1,7 @@
+Venta: 162, fecha: 2025-05-13
+
+Prod: insert into productos_ventas 
+        values ('16', '162', '1.00', '69.00', '67.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('342', '162', '1.00', '49.00', '9.7000', '1', 'Kilos', '1', '5') - trueProd: insert into productos_ventas 
+        values ('120', '162', '2.00', '68.00', '6.2000', '1', 'Kilos', '', '10') - trueProd: insert into productos_ventas 
+        values ('319', '162', '1.00', '38.50', '6.0000', '1', 'Kilos', '', '5') - true

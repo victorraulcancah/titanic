@@ -1,0 +1,39 @@
+Venta: 195, fecha: 2025-07-22
+
+Prod: insert into productos_ventas 
+        values ('96', '195', '1.00', '36.00', '40.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('236', '195', '1.00', '32.00', '2.9000', '1', 'Kilos', '1', '10') - trueProd: insert into productos_ventas 
+        values ('142', '195', '1.00', '65.00', '6.2000', '1', 'Kilos', '1', '10') - trueProd: insert into productos_ventas 
+        values ('284', '195', '1.00', '195.00', '190.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('50', '195', '1.00', '93.00', '90.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('120', '195', '1.00', '162.50', '6.6000', '1', 'Kilos', '1', '25') - trueProd: insert into productos_ventas 
+        values ('123', '195', '1.00', '40.00', '3.8000', '1', 'Kilos', '1', '10') - trueProd: insert into productos_ventas 
+        values ('321', '195', '1.00', '55.00', '5.2000', '1', 'Kilos', '1', '10') - trueProd: insert into productos_ventas 
+        values ('298', '195', '1.00', '35.00', '5.8000', '1', 'Kilos', '1', '5') - trueProd: insert into productos_ventas 
+        values ('342', '195', '1.00', '100.00', '9.7000', '1', 'Kilos', '1', '10') - trueProd: insert into productos_ventas 
+        values ('222', '195', '1.00', '62.00', '6.2000', '1', 'Kilos', '1', '10') - trueProd: insert into productos_ventas 
+        values ('310', '195', '1.00', '19.00', '3.5000', '1', 'Kilos', '1', '5') - trueProd: insert into productos_ventas 
+        values ('383', '195', '1.00', '20.00', '3.4000', '1', 'Kilos', '1', '5') - trueProd: insert into productos_ventas 
+        values ('319', '195', '1.00', '70.00', '6.0000', '1', 'Kilos', '1', '10') - trueProd: insert into productos_ventas 
+        values ('358', '195', '1.00', '45.00', '3.5000', '1', 'Kilos', '1', '10') - trueProd: insert into productos_ventas 
+        values ('345', '195', '1.00', '20.50', '3.0000', '1', 'Kilos', '1', '5') - trueProd: insert into productos_ventas 
+        values ('367', '195', '1.00', '175.00', '35.0000', '1', 'Unidad', '1', '5') - trueProd: insert into productos_ventas 
+        values ('40', '195', '1.00', '17.50', '18.5000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('37', '195', '1.00', '17.50', '18.5000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('35', '195', '1.00', '17.50', '18.5000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('36', '195', '1.00', '17.50', '18.5000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('46', '195', '1.00', '17.50', '17.5000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('33', '195', '1.00', '17.50', '18.5000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('38', '195', '1.00', '17.50', '18.5000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('12', '195', '1.00', '264.00', '64.0000', '1', 'Unidad', '1', '4') - trueProd: insert into productos_ventas 
+        values ('15', '195', '1.00', '77.00', '78.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('5', '195', '1.00', '82.00', '80.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('177', '195', '1.00', '144.00', '2.8800', '1', 'Unidad', '1', '48') - trueProd: insert into productos_ventas 
+        values ('327', '195', '1.00', '27.50', '4.8000', '1', 'Kilos', '1', '5') - trueProd: insert into productos_ventas 
+        values ('110', '195', '1.00', '640.00', '126.0000', '1', 'Unidad', '1', '5') - trueProd: insert into productos_ventas 
+        values ('85', '195', '1.00', '178.00', '186.0000', '1', 'Unidad', '1', '1') - trueProd: insert into productos_ventas 
+        values ('375', '195', '1.00', '150.00', '33.0000', '1', 'Unidad', '', '5') - trueProd: insert into productos_ventas 
+        values ('352', '195', '1.00', '20.00', '17.0000', '1', 'Unidad', '', '1') - trueProd: insert into productos_ventas 
+        values ('346', '195', '1.00', '28.00', '28.0000', '1', 'Unidad', '', '1') - trueProd: insert into productos_ventas 
+        values ('200', '195', '1.00', '30.00', '28.5000', '1', 'Unidad', '', '1') - trueProd: insert into productos_ventas 
+        values ('195', '195', '1.00', '30.00', '28.5000', '1', 'Unidad', '', '1') - true

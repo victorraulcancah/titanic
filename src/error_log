@@ -1,0 +1,2 @@
+[26-Dec-2025 08:39:46 America/Lima] PHP Warning:  require(./utils/config.php): failed to open stream: No such file or directory in /home/magusqao/titanicsac.com/src/launcher.php on line 6
+[26-Dec-2025 08:39:46 America/Lima] PHP Fatal error:  require(): Failed opening required './utils/config.php' (include_path='.:/opt/alt/php74/usr/share/pear') in /home/magusqao/titanicsac.com/src/launcher.php on line 6

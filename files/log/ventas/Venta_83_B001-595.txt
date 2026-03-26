@@ -1,0 +1,56 @@
+Venta: 83, fecha: 2024-06-04
+
+Prod: insert into productos_ventas 
+        values ('4924', '83', '1', '7.5000', '3.0000', '') - trueProd: insert into productos_ventas 
+        values ('5522', '83', '1', '9.0000', '5.0000', '') - trueProd: insert into productos_ventas 
+        values ('5543', '83', '1', '6.0000', '3.0000', '') - trueProd: insert into productos_ventas 
+        values ('1192', '83', '1', '20.0000', '14.0000', '') - trueProd: insert into productos_ventas 
+        values ('1634', '83', '1', '9.5000', '5.2500', '') - trueProd: insert into productos_ventas 
+        values ('5541', '83', '1', '6.0000', '3.0000', '') - trueProd: insert into productos_ventas 
+        values ('7960', '83', '1', '48.0000', '30.0000', '') - trueProd: insert into productos_ventas 
+        values ('9426', '83', '1', '6.5000', '4.5800', '') - trueProd: insert into productos_ventas 
+        values ('9688', '83', '1', '9.0000', '4.5800', '') - trueProd: insert into productos_ventas 
+        values ('9680', '83', '1', '11.0000', '6.0840', '') - trueProd: insert into productos_ventas 
+        values ('9679', '83', '1', '10.0000', '6.0840', '') - trueProd: insert into productos_ventas 
+        values ('9934', '83', '1', '10.0000', '5.0000', '') - trueProd: insert into productos_ventas 
+        values ('9923', '83', '1', '9.0000', '4.5800', '') - trueProd: insert into productos_ventas 
+        values ('15084', '83', '1', '10.0000', '6.0000', '') - trueProd: insert into productos_ventas 
+        values ('15085', '83', '1', '10.0000', '6.0000', '') - trueProd: insert into productos_ventas 
+        values ('1137', '83', '1', '62.0000', '42.0000', '') - trueProd: insert into productos_ventas 
+        values ('1138', '83', '1', '62.0000', '42.0000', '') - trueProd: insert into productos_ventas 
+        values ('1153', '83', '1', '72.0000', '42.0000', '') - trueProd: insert into productos_ventas 
+        values ('1149', '83', '1', '72.0000', '42.0000', '') - trueProd: insert into productos_ventas 
+        values ('1179', '83', '1', '72.0000', '42.0000', '') - trueProd: insert into productos_ventas 
+        values ('1178', '83', '1', '72.0000', '42.0000', '') - trueProd: insert into productos_ventas 
+        values ('1177', '83', '1', '72.0000', '42.0000', '') - trueProd: insert into productos_ventas 
+        values ('1176', '83', '1', '72.0000', '42.0000', '') - trueProd: insert into productos_ventas 
+        values ('7129', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7128', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7127', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7135', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7134', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7136', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7137', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7157', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7158', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7159', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7160', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7186', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7187', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7240', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7298', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7297', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7296', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7341', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7340', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7339', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7338', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7384', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7385', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('7386', '83', '1', '11.0000', '4.1670', '') - trueProd: insert into productos_ventas 
+        values ('8306', '83', '1', '8.5000', '4.0000', '') - trueProd: insert into productos_ventas 
+        values ('8305', '83', '1', '8.5000', '4.0000', '') - trueProd: insert into productos_ventas 
+        values ('8304', '83', '1', '8.5000', '4.0000', '') - trueProd: insert into productos_ventas 
+        values ('8303', '83', '1', '8.5000', '4.0000', '') - trueProd: insert into productos_ventas 
+        values ('8334', '83', '1', '8.5000', '4.0000', '') - trueProd: insert into productos_ventas 
+        values ('8333', '83', '1', '8.5000', '4.0000', '') - true
