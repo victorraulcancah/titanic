@@ -844,11 +844,16 @@
                                 class: "text-center",
                                 render: function(data, type, row) {
 
+                                    let dbPago = (row.tipo_pago || '').toUpperCase();
                                     let listaOpc = ["Efectivo", "Plin", "Yape", "BCP", "BBVA"]
                                         .map(item => {
-                                            if (item == row.tipo_pago) return `<option selected>${item}</option>`
-                                            else return `<option>${item}</option>`
-
+                                            let uiItem = item.toUpperCase();
+                                            // Match exact uppercase, or if the DB string includes the option (e.g. "TRANSFERENCIA BANCO BCP" includes "BCP")
+                                            if (uiItem === dbPago || dbPago.includes(uiItem)) {
+                                                return `<option selected value="${item}">${item}</option>`;
+                                            } else {
+                                                return `<option value="${item}">${item}</option>`;
+                                            }
                                         })
 
                                     // Permitir editar si no está pagado, o si está pagado pero es admin (rol 1)

@@ -35,7 +35,7 @@
                     <a href="/compras/add" class="btn btn-primary button-link">
                         <i class="fa fa-plus "></i> Agregar Compra
                     </a>
-                    <a target="_blank" class="btn btn-info" href="https://lencika.com/reporte/compras"><i class="fa fa-file"></i> Exportar Reporte</a>
+                    <a target="_blank" class="btn btn-info" href="<?= URL::to('/reporte/compras') ?>"><i class="fa fa-file"></i> Exportar Reporte</a>
                    
                 </div>
 
