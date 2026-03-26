@@ -4,6 +4,7 @@
 
 class Cobranza
 {
+    public $conectar;
     public function __construct()
     {
         $this->conectar = (new Conexion())->getConexion();
