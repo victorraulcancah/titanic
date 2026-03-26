@@ -12,6 +12,10 @@ class Conexion
     {
         $this->conn = new mysqli($this->servername, $this->username, $this->password, $this->bd);
         $this->conn->set_charset("utf8");
+        
+        // Desactivar ONLY_FULL_GROUP_BY para compatibilidad
+        $this->conn->query("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+        
         return $this->conn;
     }
 

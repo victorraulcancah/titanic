@@ -346,9 +346,14 @@ class VentasController extends Controller
 
     public function listarVentas()
     {
+        // Limpiar cualquier output previo
+        if (ob_get_level()) ob_clean();
+        
         require_once "app/clases/serverside.php";
+        header('Content-Type: application/json');
         header('Pragma: no-cache');
         header('Cache-Control: no-store, no-cache, must-revalidate');
+        
         $table_data = new TableData();
         $where = ($_SESSION['rol'] == 1) ? "" : "where sucursal = {$_SESSION["sucursal"]} ";
         $table_data->get("view_ventas", "id_venta", [

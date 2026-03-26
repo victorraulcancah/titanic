@@ -451,6 +451,8 @@
             method: "POST",
             dataType: "json", // Asegúrate de que la respuesta sea JSON
             success: function(data) {
+                console.log("Datos recibidos:", data);
+                
                 // Filtrar los datos para incluir solo los que no están totalmente pagados
                 const datosFiltrados = data.filter(row => {
                     const total = parseFloat(row.total);
@@ -625,8 +627,14 @@
                     ],
                 });
             },
-            error: function(error) {
+            error: function(xhr, status, error) {
                 console.error("Error al cargar los datos:", error);
+                console.error("Status:", status);
+                console.error("Response Status:", xhr.status);
+                console.error("Response Text:", xhr.responseText);
+                
+                // Mostrar mensaje al usuario
+                alert("Error al cargar los datos de cobranzas. Revisa la consola para más detalles.");
             }
         });
         // agregando 10/04/2025
