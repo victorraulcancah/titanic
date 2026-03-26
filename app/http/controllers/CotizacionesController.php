@@ -229,7 +229,9 @@ class CotizacionesController extends Controller
                 $data["cuotas"][] = [
                     'cuotaid' => $cuota['cuota_coti_id'],
                     'fecha' => $cuota['fecha'],
-                    'monto' => $cuota['monto']
+                    'monto' => $cuota['monto'],
+                    'estado' => $cuota['estado'],
+                    'tipo_pago' => $cuota['tipo_pago']
                 ];
             }
         }

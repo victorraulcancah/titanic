@@ -6,6 +6,7 @@ class Cobranza
 {
     private $conectar; // Declarar la propiedad para evitar deprecated warning en PHP 8.2+
     
+
     public function __construct()
     {
         $this->conectar = (new Conexion())->getConexion();

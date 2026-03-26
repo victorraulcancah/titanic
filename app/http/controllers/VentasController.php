@@ -1099,10 +1099,51 @@ class VentasController extends Controller
 
             $resultado["res"] = true;
             $array_detalle = json_decode($_POST['listaPro'], true);
+
+            // Si proviene de cotización, limpiamos SOLO las cuotas que estaban originalmente NO PAGADAS (estado='0' o null).
+            // Mantenemos las pagadas originales para no perder su registro histórico.
+            if (isset($_POST['cotiId'])) {
+                $sqlCotiDel = "DELETE FROM cuotas_cotizacion WHERE id_coti='{$_POST['cotiId']}' AND (estado='0' OR estado IS NULL)";
+                $c_venta->exeSQL($sqlCotiDel);
+            }
+
             foreach ($listaPagos as $diaP) {
+                $montoVal = floatval($diaP['monto']);
+                if ($montoVal <= 0) {
+                    continue; // Saltar cuotas vacías (como las generadas en 0.00 por defecto)
+                }
+
+                // Preserve estado from frontend
+                $estadoP = isset($diaP['estado']) ? $diaP['estado'] : '1';
+                
+                // Insertar la cuota en la venta
                 $sql = "insert into dias_ventas set id_venta='{$c_venta->getIdVenta()}',
-                    monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='0'";
+                    monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='$estadoP', tipo_pago='{$diaP['metodo_nombre']}'";
                 $c_venta->exeSQL($sql);
+
+                // Sincronizar con cuotas_cotizacion
+                if (isset($_POST['cotiId'])) {
+                    $cuotaId = isset($diaP['cuotaid']) ? trim($diaP['cuotaid']) : '';
+                    $existeCoti = 0;
+                    if (!empty($cuotaId)) {
+                        $checkS = $c_venta->exeSQL("SELECT count(*) as c FROM cuotas_cotizacion WHERE cuota_coti_id='{$cuotaId}'")->fetch_assoc();
+                        if ($checkS) {
+                            $existeCoti = $checkS['c'];
+                        }
+                    }
+
+                    if ($existeCoti > 0) {
+                        // Actualizar la cuota que se preservó (la que históricamente ya estaba pagada en la cotización)
+                        $sqlCotiInst = "UPDATE cuotas_cotizacion SET monto='{$diaP['monto']}', fecha='{$diaP['fecha']}', estado='1', tipo_pago='{$diaP['metodo_nombre']}' WHERE cuota_coti_id='{$cuotaId}'";
+                        $c_venta->exeSQL($sqlCotiInst);
+                    } else {
+                        // Insertar nueva cuota (las que se borraron por ser impagas, o las nuevas añadidas)
+                        $sqlCotiInst = "insert into cuotas_cotizacion set id_coti='{$_POST['cotiId']}',
+                            monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='1', tipo_pago='{$diaP['metodo_nombre']}'";
+                        $c_venta->exeSQL($sqlCotiInst);
+                    }
+                }
+
                 $dataSend['dias_pagos'][] = [
                     "monto" => $diaP['monto'],
                     "fecha" => $diaP['fecha']

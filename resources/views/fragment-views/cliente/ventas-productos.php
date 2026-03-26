@@ -253,7 +253,7 @@ if (isset($_GET["coti"])) {
                                         <div class="col-md-6 form-group">
                                             <label class="control-label">Documento</label>
                                             <div class="col-md-12">
-                                                <select @change="onChangeTiDoc($event)" v-model="venta.tipo_doc" class="form-control">
+                                                <select :disabled="isCoti" @change="onChangeTiDoc($event)" v-model="venta.tipo_doc" class="form-control">
                                                     <option value="1">BOLETA DE VENTA</option>
                                                     <option value="2">FACTURA</option>
                                                     <option value="6">NOTA DE VENTA</option>
@@ -262,7 +262,7 @@ if (isset($_GET["coti"])) {
                                         </div>
                                         <div class="col-md-6 form-group">
                                             <label class="control-label">Tipo Pago</label>
-                                            <select v-model="venta.tipo_pago" @change="changeTipoPago" class="form-control">
+                                            <select :disabled="isCoti" v-model="venta.tipo_pago" @change="changeTipoPago" class="form-control">
                                                 <option value="1">Contado</option>
                                                 <option value="2">Crédito</option>
                                             </select>
@@ -476,6 +476,7 @@ if (isset($_GET["coti"])) {
                                         <th>#</th>
                                         <th>Fecha</th>
                                         <th>Monto</th>
+                                        <th>Método</th>
                                         <th>Acción</th>
                                     </tr>
                                 </thead>
@@ -484,6 +485,11 @@ if (isset($_GET["coti"])) {
                                         <td></td>
                                         <td><input type="date" v-model="item.fecha"></td>
                                         <td><input type="number" step="0.01" v-model="item.monto" /></td>
+                                        <td>
+                                            <select v-model="item.metodo" class="form-control">
+                                                <option v-for="(valuem, keym) in metodosPago" :value="valuem.id_metodo_pago" :key="keym">{{ valuem.nombre }}</option>
+                                            </select>
+                                        </td>
                                         <td><button type="button" class="btn btn-danger btn-sm" @click="quitardiaspago(index)"><i class="fa fa-times"></i></button></td>
                                     </tr>
                                 </tbody>
@@ -525,7 +531,7 @@ if (isset($_GET["coti"])) {
 
                 </div>
                 <div class="modal-footer">
-                    <a href="https://lencika.com/ventas" class="btn btn-secondary">Cerrar</a>
+                    <a href="<?= URL::to('/ventas') ?>" class="btn btn-secondary">Cerrar</a>
                 </div>
             </div>
         </div>
@@ -764,7 +770,8 @@ if (isset($_GET["coti"])) {
                 dataKey: '',
                 listaTempProd: [],
                 itemsLista: [],
-                pointSel: 1
+                pointSel: 1,
+                isCoti: <?= isset($_GET['coti']) ? 'true' : 'false' ?>
             },
             watch: {
                 'venta.dias_pago'(newValue) {
@@ -1111,10 +1118,23 @@ if (isset($_GET["coti"])) {
                             vue.venta.nom_cli = resp.cliente_nom
                             vue.venta.dir_cli = resp.cliente_dir1
                             vue.venta.dir2_cli = resp.cliente_dir2
+                            if (vue.isCoti) {
+                                vue.venta.tipo_doc = '6'
+                                vue.venta.tipo_pago = '2'
+                            }
                             /*   vue.venta.cotizacion = $('#cotizacion').val() */
                             vue.usar_precio = resp.usar_precio
                             setTimeout(function() {
-                                vue.venta.dias_lista = resp.cuotas
+                                vue.venta.dias_lista = resp.cuotas.map(c => {
+                                    let foundMethod = null;
+                                    if (c.tipo_pago) {
+                                        let uiItem = c.tipo_pago.toUpperCase();
+                                        foundMethod = vue.metodosPago.find(m => m.nombre.toUpperCase() === uiItem || m.nombre.toUpperCase().includes(uiItem));
+                                    }
+                                    c.metodo = foundMethod ? foundMethod.id_metodo_pago : (c.id_metodo_pago || 12);
+                                    c.estado = '1';
+                                    return c
+                                })
                             }, 1000)
                             vue.buscarSNdoc();
 
@@ -1260,6 +1280,16 @@ if (isset($_GET["coti"])) {
 
                             var continuar = true;
                             var mensaje = '';
+                            if (this.isCoti) {
+                                let totalCalculado = 0;
+                                this.venta.dias_lista.forEach(el => {
+                                    totalCalculado += parseFloat(el.monto || 0);
+                                });
+                                if (Math.abs(totalCalculado - this.venta.total) > 0.01) {
+                                    continuar = false;
+                                    mensaje = 'El total de las cuotas (' + totalCalculado.toFixed(2) + ') debe ser igual al total de la venta (' + parseFloat(this.venta.total).toFixed(2) + ')';
+                                }
+                            }
 
 
 
@@ -1310,7 +1340,9 @@ if (isset($_GET["coti"])) {
                                         let dd = String(fechaBase.getDate()).padStart(2, '0');
                                         this.venta.dias_lista.push({
                                             fecha: `${yyyy}-${mm}-${dd}`,
-                                            monto: (0).toFixed(2)
+                                            monto: (0).toFixed(2),
+                                            metodo: 12,
+                                            estado: '1'
                                         });
                                     }
                                 }
@@ -1329,7 +1361,11 @@ if (isset($_GET["coti"])) {
                                         datosUbigeoGuiaRemosion: localStorage.getItem('datosUbigeoGuiaRemosion'),
                                         idCoti: idCoti
                                     }
-                                    data.dias_lista = JSON.stringify(data.dias_lista)
+                                    data.dias_lista = JSON.stringify(this.venta.dias_lista.map(dd => {
+                                        let met = this.metodosPago.find(m => m.id_metodo_pago == dd.metodo);
+                                        dd.metodo_nombre = met ? met.nombre : 'Efectivo';
+                                        return dd;
+                                    }))
                                     /*console.log(data);
                                     return*/
                                     /*  console.log(data); */
@@ -1340,7 +1376,6 @@ if (isset($_GET["coti"])) {
                                     _ajax("/ajs/ventas/add", "POST",
                                         data,
                                         function(resp) {
-                                            vuee.enProceso = true
                                             console.log(resp);
 
                                             let desde = localStorage.getItem('desde')
@@ -1348,6 +1383,8 @@ if (isset($_GET["coti"])) {
                                              dataGuia = JSON.parse(dataGuia) */
                                             /*   return */
                                             if (resp.res) {
+                                                // No resetear enProceso a true si tiene éxito para evitar re-envíos
+                                                vuee.enProceso = false;
 
                                                 /*   console.log(resp);
                                                   return */
@@ -1383,7 +1420,9 @@ if (isset($_GET["coti"])) {
                                                     )
                                                 }
                                             } else {
-                                                alertAdvertencia("No se pudo Guardar la Venta")
+                                                // Si hubo error, permitimos volver a intentarlo
+                                                vuee.enProceso = true;
+                                                alertAdvertencia("Alerta", resp.msj)
                                             }
                                         }
                                     )
@@ -1526,7 +1565,9 @@ if (isset($_GET["coti"])) {
                         // Cuota 1: Total
                         this.venta.dias_lista.push({
                             fecha: this.venta.fecha || fechaBase.toISOString().split('T')[0],
-                            monto: (this.venta.total > 0 ? this.venta.total : 0).toFixed(2)
+                            monto: (this.venta.total > 0 ? this.venta.total : 0).toFixed(2),
+                            metodo: 12,
+                            estado: '1'
                         });
 
                         // Cuotas 2-5: 0 y +1 día cada una
@@ -1540,7 +1581,9 @@ if (isset($_GET["coti"])) {
 
                             this.venta.dias_lista.push({
                                 fecha: `${yyyy}-${mm}-${dd}`,
-                                monto: (0).toFixed(2)
+                                monto: (0).toFixed(2),
+                                metodo: 12,
+                                estado: '1'
                             });
                         }
                     }
@@ -1549,7 +1592,9 @@ if (isset($_GET["coti"])) {
                     let fecha_ = new Date()
                     let data = {
                         fecha: this.formatDate(fecha_),
-                        monto: 0
+                        monto: 0,
+                        metodo: 12,
+                        estado: '1'
                     };
                     this.venta.dias_lista.push(data);
                     /* if (listD.length > 0) {
