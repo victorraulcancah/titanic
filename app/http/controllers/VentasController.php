@@ -969,6 +969,32 @@ class VentasController extends Controller
             return;
         }
 
+        // VALIDACIÓN: Si viene de cotización, verificar que esté completamente pagada
+        if (isset($_POST['cotiId']) && !empty($_POST['cotiId'])) {
+            $cotiId = $_POST['cotiId'];
+            $sqlValidarPago = "SELECT 
+                SUM(CASE WHEN estado='1' THEN monto ELSE 0 END) as total_pagado,
+                SUM(monto) as total_cuotas,
+                COUNT(*) as total_registros,
+                COUNT(CASE WHEN estado='1' THEN 1 END) as cuotas_pagadas
+                FROM cuotas_cotizacion 
+                WHERE id_coti = '$cotiId'";
+            
+            $resultValidar = $this->conexion->query($sqlValidarPago);
+            if ($resultValidar) {
+                $dataPago = $resultValidar->fetch_assoc();
+                
+                // Verificar si hay cuotas pendientes de pago
+                if ($dataPago['total_registros'] > 0 && $dataPago['cuotas_pagadas'] < $dataPago['total_registros']) {
+                    echo json_encode([
+                        'res' => false,
+                        'msj' => 'No se puede crear la venta. La cotización tiene pagos pendientes. Debe completar todos los pagos en Cobranzas antes de convertirla en venta.'
+                    ]);
+                    return;
+                }
+            }
+        }
+
         $dataSend = [];
         $dataSend["certGlobal"] = false;
 

@@ -203,8 +203,8 @@ if (isset($_GET["coti"])) {
                                         <th>Item</th>
                                         <th>Producto</th>
                                         <th>Cantidad</th>
-                                        <th>Medida</th>
                                         <th>P. Unit.</th>
+                                        <th>T. precio</th>
                                         <th>Parcial</th>
                                         <th></th>
                                     </tr>
@@ -214,9 +214,8 @@ if (isset($_GET["coti"])) {
                                         <td>{{index+1}}</td>
                                         <td>{{item.descripcion}}</td>
                                         <td><span v-if="!item.edicion">{{item.cantidad}} {{nombreMedida(item.presentacion)}} / {{item.presentacionCnt}}{{item.medida}}</span><input v-if="item.edicion" v-model="item.cantidad"></td>
-                                        <td> </td>
                                         <td><span v-if="!item.edicion">{{formatoDecimal(item.precioVenta)}}</span><input v-if="item.edicion" v-model="item.precioVenta"></td>
-
+                                        <td>{{formatoDecimal(item.precioVenta*item.cantidad)}}</td>
                                         <td>{{formatoDecimal(item.precioVenta*item.cantidad)}}</td>
                                         <td><button @click="eliminarItemPro(index)" type="button" class="btn btn-danger btn-sm">
                                                 <i class="fa fa-times"></i>
@@ -260,14 +259,14 @@ if (isset($_GET["coti"])) {
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 form-group">
+                                        <div hidden class="col-md-6 form-group">
                                             <label class="control-label">Tipo Pago</label>
                                             <select :disabled="isCoti" v-model="venta.tipo_pago" @change="changeTipoPago" class="form-control">
                                                 <option value="1">Contado</option>
                                                 <option value="2">Crédito</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-12 form-group">
+                                        <div hidden class="col-md-12 form-group">
                                             <label class="control-label">Método Pago</label>
                                             <select class="form-control" v-model='venta.metodo'>
                                                 <option v-for="(value, key) in metodosPago" :value="value.id_metodo_pago" :key="key">{{ value.nombre }}</option>
@@ -335,7 +334,7 @@ if (isset($_GET["coti"])) {
                                             </div>
                                         </div>
                                     </div>
-                                    <div v-if="venta.tipo_pago=='2'" class="form-group ">
+                                    <div hidden v-if="venta.tipo_pago=='2'" class="form-group ">
                                         <label class="control-label">Días de pago</label>
                                         <div class="col-lg-12">
                                             <input @focus="focusDiasPagos" v-model="venta.dias_pago" type="text" class="form-control text-center">

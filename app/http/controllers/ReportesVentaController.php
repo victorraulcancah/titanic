@@ -3995,11 +3995,11 @@ class ReportesVentaController extends Controller
       $multi = $prod['cantidad'] * $prod['presenta_cnt'];
       $rowHTML = $rowHTML . "
               <tr>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
+                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
                 <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$multi}  </td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'><strong>{$prod['descripcion']}</strong></td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
+                <td class='' style=' font-size: 11px; text-align: left;border-left: 1px solid #363636;'>{$prod['descripcion']}</td>
+                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td>
+                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
               </tr>
             ";
       $contador++;
@@ -4033,18 +4033,18 @@ class ReportesVentaController extends Controller
             ";
       $contador++;
     }
-    $cntRowEE = 37;
+    $cntRowEE = 44;
     $rowHTMLTERT = "";
     for ($tert = 0; $tert < ($cntRowEE - $contador) - $menosRowsNumH; $tert++) {
-      $rowHTMLTERT = $rowHTMLTERT . "
-        <tr>
-            <td class='' style=' font-size: 9px; text-align: center;border-left: 1px solid #363636; color: white'>.</td>
-            <td class='' style=' font-size: 9px; text-align: center;border-left: 1px solid #363636; '> </td>
-            <td class='' style=' font-size: 9px; text-align: center;border-left: 1px solid #363636; '> </td>
-            <td class='' style=' font-size: 9px; text-align: center;border-left: 1px solid #363636; '> </td>
-            <td class='' style=' font-size: 9px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'></td>
-          </tr>";
-      
+      $rowHTMLTERT = $rowHTMLTERT . " <tr>
+        <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; color: white'>.</td>
+        <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; '> </td>
+        <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; '> </td>
+        <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; '> </td>
+        
+        
+        <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'> </td>
+      </tr>";
     }
 
 
@@ -4065,27 +4065,26 @@ class ReportesVentaController extends Controller
             </div>
             </div>";
     /**/
-    $this->mpdf->WriteFixedPosHTML("<div><img style='width: 410px;height: 120px;' src='" .
-      URL::to('files/logos/' . $datoEmpresa['logo']) . "'></div>", 15, 5, 110, 120);
+    $this->mpdf->WriteFixedPosHTML("<img style='max-width: 300px;max-height: 85px' src='" . URL::to('files/logos/' . $datoEmpresa['logo']) . "'>", 15, 5, 150, 120);
 
     $this->mpdf->WriteFixedPosHTML($htmlCuadroHead, 0, 5, 195, 130);
-    $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Central Telefónica: </strong> {$datoEmpresa['telefono']}</span>", 15, 38, 210, 130);
+    $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Central Telefónica: </strong> {$datoEmpresa['telefono']}</span>", 15, 27, 210, 130);
 
     /* $sql = "select * from ventas where id_venta=" . $venta;
     $datoVenta = $this->conexion->query($sql)->fetch_assoc(); */
 
     $datoSucursal = $this->conexion->query("SELECT * FROM sucursales WHERE cod_sucursal ='{$datoVenta['sucursal']}' AND empresa_id=" . $datoVenta['id_empresa'])->fetch_assoc();
     if ($datoVenta['sucursal'] == '1') {
-      $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Dirección:</strong> <span style='font-size: 10px'>{$datoEmpresa['direccion']}</span></span>", 15, 42, 120, 130);
+      $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Dirección:</strong> <span style='font-size: 10px'>{$datoEmpresa['direccion']}</span></span>", 15, 37, 120, 130);
     } else {
       if (is_null($datoSucursal)) {
-        $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Dirección:</strong> <span style='font-size: 10px'>{$datoEmpresa['direccion']}</span></span>", 15, 42, 120, 130);
+        $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Dirección:</strong> <span style='font-size: 10px'>{$datoEmpresa['direccion']}</span></span>", 15, 37, 120, 130);
       } else {
-        $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Dirección:</strong> <span style='font-size: 10px'>{$datoSucursal['direccion']}</span></span>", 15, 42, 120, 130);
+        $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Dirección:</strong> <span style='font-size: 10px'>{$datoSucursal['direccion']}</span></span>", 15, 37, 120, 130);
       }
     }
 
-    $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Email: </strong> info@titanicsac.com | Web: www.titanicsac.com</span>", 15, 46, 210, 130);
+    $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Email: </strong> info@titanicsac.com | Web: www.titanicsac.com</span>", 15, 32, 210, 130);
 
 
     $totalOpGratuita = number_format($totalOpGratuita, 2, '.', ',');
@@ -4108,69 +4107,55 @@ class ReportesVentaController extends Controller
 
     $monedaVisual = $datoVenta["moneda"] == "1" ? "SOLES" : 'DOLAR';
 
-    $html = "<div style='width: 1000%;padding-top: 150px; overflow: hidden;clear: both;'>
+    $html = "<div style='width: 100%;padding-top: 110px; overflow: hidden;clear: both;'>
         <div style='width: 100%;border: 1px solid black'>
-        <div style='width: 55%; float: left; '>
-        
+        <div style='width: 100%; float: left; '>
         <table style='width:100%'>
-          <tr>
-            <td style=' font-size: 11px;text-align: left'><strong>RUC/DNI:</strong></td>
-            <td style=' font-size: 11px;'>{$resultC['documento']}</td>
-          </tr>
-          <tr>
-            <td style=' font-size: 11px;text-align: left'><strong>CLIENTE:</strong></td>
-            <td style=' font-size: 11px;'>{$resultC['datos']}</td>
-          </tr>
-          <tr>
-            <td style=' font-size: 11px;text-align: left'><strong>DIRECCIÓN:</strong></td>
-            <td style=' font-size: 11px;'>{$resultC['direccion']}</td>
-          </tr>
-          <tr>
-            <td style=' font-size: 11px;text-align: left'><strong>NRO GUÍA:</strong></td>
-            <td style=' font-size: 11px;'>$guiaRealionada</td>
-          </tr>
-         
-        </table>
-        </div>
-        <div style='width: 45%; float: left'>
-        <table style='width:100%'>
-        
-          <tr>
-            <td style=' font-size: 11px;text-align: left'><strong>FECHA EMISIÓN:</strong></td>
-            <td style=' font-size: 11px;'>$fecha_emision</td>
-          </tr>
-          <tr>
-            <td style=' font-size: 11px;text-align: left'><strong>FECHA VENCIMIENTO:</strong></td>
-            <td style=' font-size: 11px;'>$fecha_vencimiento</td>
-          </tr>
-          
            <tr>
-            <td style=' font-size: 11px;text-align: left'><strong>MONEDA:</strong></td>
-            <td style=' font-size: 11px;'>$monedaVisual</td>
-          </tr>
-          <tr>
-            <td style=' font-size: 11px;text-align: left'><strong>PAGO:</strong></td>
-            <td style=' font-size: 11px;'>$tipo_pagoC</td>
-          </tr>
+            <td style='font-size: 11px; padding: 2px;'><strong>CLIENTE:</strong> {$resultC['datos']}</td>
+            <td style='font-size: 11px; padding: 2px;'><strong>CELULAR:</strong> {$resultC['telefono']}</td>
+        </tr>
+        <tr>
+            <td style='font-size: 11px; padding: 2px;'><strong>DIRECCIÓN:</strong> {$resultC['direccion']}</td>
+            <td style='font-size: 11px; padding: 2px;'><strong>NRO GUÍA:</strong> $guiaRealionada</td>
+        </tr>
+        <tr>
+            <td style='font-size: 11px; padding: 2px;'><strong>RUC/DNI:</strong> {$resultC['documento']}</td>
+            <td style='font-size: 11px; padding: 2px;'><strong>FECHA EMISIÓN:</strong> $fecha_emision</td>
+        </tr>
+        <tr>
+            <td style='font-size: 11px; padding: 2px;'><strong>MONEDA:</strong> $monedaVisual</td>
+            <td style='font-size: 11px; padding: 2px;'><strong>PAGO:</strong> $tipo_pagoC</td>
+        </tr>
         </table>
         </div>
-       <div style='text-align: center'><span style='font-size: 11px;'> $pagoData</span></div>
         </div>
         
         
         </div>
-        $tabla_cuotas
-        <div style='width: 100%; padding-top: 20px;'>
+        <div style='width: 100%; padding-top: 5px;'>
         <table style='width:100%;border-bottom: 1px solid #363636;border-collapse: collapse;'>
-          <tr style='border-bottom: 1px solid #363636;border-collapse: collapse;'>
-            <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 5%;'><strong>ITEM</strong></td>
-            <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 8%;'><strong>CANTIDAD</strong></td>
-            <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 65%;'><strong>DESCRIPCION</strong></td>
-            <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>PRECIO</strong></td> 
-            <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 12%;'><strong>SUB TOTAL</strong></td>
+            <tr style='border-bottom: 1px solid #363636;border-collapse: collapse;'>
+             <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 30px;'><strong>ITEM</strong></td>
+             <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 60px;'><strong>CANTIDAD</strong></td>
+          <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>DESCRIPCION</strong></td>
+          <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 60px;'><strong>PRECIO</strong></td> 
+          <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 90px;'><strong>SUB TOTAL</strong></td>
+            
           </tr>
           $rowHTML
           $rowHTMLTERT
+              <tr>
+                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-bottom: 1px solid #363636;color: white'>.</td>
+                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-bottom: 1px solid #363636;'> </td>
+                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-bottom: 1px solid #363636;'> </td>
+                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-bottom: 1px solid #363636;'> </td> 
+                
+                
+                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;border-bottom: 1px solid #363636;'> </td>
+              </tr>
+         
+        
         </table>
         </div>
 
@@ -4184,46 +4169,42 @@ class ReportesVentaController extends Controller
       $totalOpgravado = $total;
     }
     $dominio = DOMINIO;
-    $footerHtml = "<div style='height: 10px;width: 100%; padding-bottom: 0px;font-size: 10px;border-right: 1px solid;border-bottom: 1px solid;border-left: 1px solid;'>. SON: | $totalLetras</div>
-        
-        
-        <div style='width: 100%; height: 10px;margin-top: 3px;'>
-        <div style='float: left; width: 20%;height: 10px '>
-        $qrImage
-        
-        <div style='position: absolute; left: 80px; top: 90px;'></div>
-        
+    $simbolfff22 = $datoVenta['moneda'] == 1 ? 'S/' : '$';
+    $footerHtml = "
+    <div style='height: 10px;width: 100%; padding-bottom: 0px;font-size: 10px;border: 1px solid black;'>. SON: | $totalLetras</div>
+    
+    <div style='width: 100%;margin-top: 10px;'>
+        <div style='float: left; width: 20%;'>
+            $qrImage
+            <div style='position: absolute; left: 80px; top: 5px;'></div>
         </div>
-         <div style='width: 50%; padding-bottom: 5px;font-size: 12px; float: left; padding-top: 10px;'>
+        <div style='width: 45%; padding-bottom: 5px;font-size: 12px; float: left; padding-top: 10px;'>
             <div style='width: 100%'></div>
             <div style='width: 95%; padding: 3px; font-size: 10px;height: 90px '>
-            $hash_Doc
-            Detalle:<br>
-            Representación impresa de la $tipo_documeto_venta <br>Este documento puede ser validado en $dominio
-            <br><br><b>Observaciones:</b> {$datoVenta['observacion']}
-            </div> 
-         </div>
-         <div style='width: 30%;'>
-         <table style='width: 100%;border-top: 1px solid #363636;border-bottom: 1px solid #363636;border-right: 1px solid #363636;border-collapse: collapse;'>
-          
-          <tr>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right'>Total Op. Gravado:</td>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right' >$totalOpgravado</td>
-          </tr>
-          <tr>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right'>IGV:</td>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right' >$igv</td>
-          </tr>
-          
-          <tr>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right'>Total a Pagar</td>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right' >$total</td>
-          </tr>
-          
-        </table>
-         </div>
-         
-        </div> ";
+                $hash_Doc
+                Detalle:<br>
+                Representación impresa de la $tipo_documeto_venta <br>Este documento puede ser validado en $dominio
+                <br><br><b>Observaciones:</b> {$datoVenta['observacion']}
+            </div>
+        </div>
+        <div style='width: 35%; float: right;'>
+            <table style='width: 100%;border-top: 1px solid #363636;border-bottom: 1px solid #363636;border-right: 1px solid #363636;border-collapse: collapse;'>
+                <tr>
+                    <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right;padding-right: 5px;'>Total Op. Gravado:</td>
+                    <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right;padding-right: 5px;' >$totalOpgravado</td>
+                </tr>
+                <tr>
+                    <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right;padding-right: 5px;'>IGV:</td>
+                    <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right;padding-right: 5px;' >$igv</td>
+                </tr>
+                <tr>
+                    <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right;padding-right: 5px;'>Total a Pagar</td>
+                    <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right;padding-right: 5px;' >$simbolfff22 $total</td>
+                </tr>
+            </table>
+        </div>
+    </div> 
+      ";
     $html .= $footerHtml;
     $this->mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
     
