@@ -7,7 +7,7 @@
         }
     }*/
 
-   require_once '/home/magusqao/titanicsac.com/app/clases/funciones.php';
+   require_once __DIR__ . '/../clases/funciones.php';
 
 
     class Database

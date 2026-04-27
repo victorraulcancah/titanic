@@ -369,9 +369,7 @@
                                 render: function(data, type, row) {
                                     if (row.estado == '0') {
                                         return `<div class="text-center">
-                                            <div class="btn-group"><button  data-id="${Number(
-                                            row.dias_compra_id
-                                        )}" class="btn btn-success btnPagar btn-sm"><i class="fas fa-money-bill"></i> </button></div></div>`;
+                                            <div class="btn-group"><button data-id="${Number(row.dias_compra_id)}" data-monto="${row.monto}" class="btn btn-success btnPagar btn-sm"><i class="fas fa-money-bill"></i> </button></div></div>`;
                                     }
                                     if (row.estado == '1') {
                                         return `<div class="text-center">
@@ -388,30 +386,45 @@
             })
         });
         $("#datatableDiasCompras").on("click", ".btnPagar ", function(event) {
-
-            var table = $("#tablaMaquina").DataTable();
-            var trid = $(this).closest("tr").attr("id");
             var id = $(this).data("id");
+            var montoTotal = parseFloat($(this).data("monto")).toFixed(2);
+
+            // Cerrar el modal de Bootstrap antes de abrir SweetAlert para evitar conflicto de focus trap
+            var bsModal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+            if (bsModal) bsModal.hide();
+
             Swal.fire({
-                title: '¿Desea pagar la cuota N° ' + id + ' ? ',
-                icon: 'warning',
+                title: 'Pagar cuota N° ' + id,
+                input: 'text',
+                inputLabel: 'Monto a pagar (máx. S/ ' + montoTotal + ')',
+                inputValue: montoTotal,
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Si'
+                confirmButtonText: 'Pagar',
+                cancelButtonText: 'Cancelar',
+                preConfirm: function(monto) {
+                    monto = parseFloat(monto);
+                    if (!monto || monto <= 0) {
+                        Swal.showValidationMessage('Ingrese un monto válido');
+                        return false;
+                    }
+                    if (monto > parseFloat(montoTotal)) {
+                        Swal.showValidationMessage('No puede pagar más que S/ ' + montoTotal);
+                        return false;
+                    }
+                    return monto;
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     $("#loader-menor").show()
                     $.ajax({
                         type: 'POST',
                         url: _URL + '/ajs/pagar/cuota/pago',
-                        data: {id : id},
+                        data: { id: id, monto_pagado: result.value },
                         success: function(resp) {
                             $("#loader-menor").hide()
-                            let data = JSON.parse(resp)
-                            console.log(data);
                             location.reload();
-                            /*  */
                         }
                     });
                 }

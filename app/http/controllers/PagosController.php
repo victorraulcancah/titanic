@@ -12,19 +12,17 @@ class PagosController extends Controller
     public function render()
     {
         try {
-            $sql = "SELECT com.id_compra,CONCAT(com.serie, ' | ' , com.numero) AS factura,com.moneda ,com.fecha_emision,com.fecha_vencimiento,CONCAT(pro.ruc,' | ' ,pro.razon_social) AS cliente,
-            com.total,            
-                CASE 
-                WHEN dc.estado = '1'  AND dc.id_compra = dc.id_compra THEN SUM(dc.monto)
-                WHEN dc.estadO= '0' THEN '0'
-                END AS pagado,
-               (com.total - SUM(dc.monto) ) AS saldo
+            $sql = "SELECT com.id_compra, CONCAT(com.serie, ' | ', com.numero) AS factura, com.moneda, com.fecha_emision, com.fecha_vencimiento,
+                CONCAT(pro.ruc, ' | ', pro.razon_social) AS cliente,
+                com.total,
+                IFNULL(SUM(CASE WHEN dc.estado = '1' THEN dc.monto ELSE 0 END), 0) AS pagado,
+                (com.total - IFNULL(SUM(CASE WHEN dc.estado = '1' THEN dc.monto ELSE 0 END), 0)) AS saldo
                 FROM compras AS com
-                INNER JOIN dias_compras AS dc ON  com.id_compra=dc.id_compra 
-                INNER JOIN proveedores AS pro ON com.id_proveedor=pro.proveedor_id
-                WHERE com.id_tipo_pago = 2  and com.id_empresa='{$_SESSION['id_empresa']}'
-                and com.sucursal='{$_SESSION['sucursal']}'
-                GROUP BY dc.id_compra,dc.estado  
+                INNER JOIN dias_compras AS dc ON com.id_compra = dc.id_compra
+                INNER JOIN proveedores AS pro ON com.id_proveedor = pro.proveedor_id
+                WHERE com.id_tipo_pago = 2 AND com.id_empresa='{$_SESSION['id_empresa']}'
+                AND com.sucursal='{$_SESSION['sucursal']}'
+                GROUP BY com.id_compra
             ";
             $fila = mysqli_query($this->conectar, $sql);
             return json_encode(mysqli_fetch_all($fila, MYSQLI_ASSOC));
@@ -69,10 +67,36 @@ class PagosController extends Controller
     }
     public function pagarCuota()
     {
-        $sql = "UPDATE dias_compras set estado = '1' where dias_compra_id='{$_POST['id']}'";
-        $result = $this->conectar->query($sql);
+        $id      = intval($_POST['id']);
+        $montoPagado = isset($_POST['monto_pagado']) ? floatval($_POST['monto_pagado']) : null;
 
-        echo json_encode($result);
+        // Obtener la cuota actual
+        $cuota = $this->conectar->query("SELECT * FROM dias_compras WHERE dias_compra_id = '$id'")->fetch_assoc();
+        if (!$cuota) {
+            echo json_encode(["res" => false, "msg" => "Cuota no encontrada"]);
+            return;
+        }
+
+        $montoTotal = floatval($cuota['monto']);
+
+        // Si no se envió monto o es igual/mayor al total → pago completo
+        if ($montoPagado === null || $montoPagado >= $montoTotal) {
+            $sql = "UPDATE dias_compras SET estado = '1' WHERE dias_compra_id = '$id'";
+            $this->conectar->query($sql);
+            echo json_encode(["res" => true]);
+            return;
+        }
+
+        // Pago parcial: actualizar cuota actual con el monto pagado y marcarla pagada
+        $saldo = round($montoTotal - $montoPagado, 2);
+        $this->conectar->query("UPDATE dias_compras SET estado = '1', monto = '$montoPagado' WHERE dias_compra_id = '$id'");
+
+        // Crear nueva cuota con el saldo pendiente
+        $idCompra = intval($cuota['id_compra']);
+        $fecha    = $this->conectar->real_escape_string($cuota['fecha']);
+        $this->conectar->query("INSERT INTO dias_compras (id_compra, monto, fecha, estado) VALUES ('$idCompra', '$saldo', '$fecha', 0)");
+
+        echo json_encode(["res" => true, "parcial" => true, "saldo" => $saldo]);
     }
 
     public function pagarCuotaVentas()

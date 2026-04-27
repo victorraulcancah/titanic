@@ -161,30 +161,40 @@ class ReportesVentaController extends Controller
     where id_empresa = '{$idEmpresa}'")->fetch_assoc();
 
 
-    $sql = "SELECT * FROM clientes WHERE id_cliente = $id";
-    $result = $this->conexion->query($sql)->fetch_assoc();
+    // Obtener cuotas/pagos de la compra
+    $cuotasHtml = "";
+    $totalPagado = 0;
+    $cuotasResult = $this->conexion->query("SELECT dias_compra_id, monto, fecha, estado FROM dias_compras WHERE id_compra = $id ORDER BY dias_compra_id ASC");
+    if ($cuotasResult) {
+      foreach ($cuotasResult as $cuota) {
+        $estadoLabel = $cuota['estado'] == '1' ? 'Pagado' : 'Pendiente';
+        $estadoColor = $cuota['estado'] == '1' ? '#28a745' : '#dc3545';
+        $monto = number_format($cuota['monto'], 2, '.', '');
+        if ($cuota['estado'] == '1') $totalPagado += floatval($cuota['monto']);
+        $cuotasHtml .= "<tr>
+          <td style='font-size: 9px'>{$cuota['dias_compra_id']}</td>
+          <td style='font-size: 9px'>{$cuota['fecha']}</td>
+          <td style='font-size: 9px'>{$monto}</td>
+          <td style='font-size: 9px; color:{$estadoColor}'>{$estadoLabel}</td>
+        </tr>";
+      }
+    }
+    $totalPagadoFmt = number_format($totalPagado, 2, '.', '');
 
     $html = "
-     
     <div style='width: 100%; '>
         <div style='width: 100%; text-align: center;'>
-                <h2 style=''>REPORTE DE VENTAS POR COMPRAS</h2>
-              
+            <h2>REPORTE DE COMPRA</h2>
         </div>
         <div style='width: 100%;'>
             <table style='width: 100%;'>
-            <tr>
-            <td>EMPRESA:</td>
-            <td>{$empresa["ruc"]} | {$empresa['razon_social']}</td>
-        </tr>
+                <tr><td>EMPRESA:</td><td>{$empresa['ruc']} | {$empresa['razon_social']}</td></tr>
             </table>
         </div>
-        
-        <div style='width: 100%; margin-top:40px;'>
-            <table style='width: 100%; text-align: center;' >
+        <div style='width: 100%; margin-top:20px;'>
+            <table style='width: 100%; text-align: center;'>
                 <thead>
                 <tr>
-                  
                     <th style='width: 10%;'>Fecha</th>
                     <th style='width: auto;'>Dirección</th>
                     <th style='width: auto;'>Factura</th>
@@ -192,16 +202,32 @@ class ReportesVentaController extends Controller
                     <th style='width: 10%;'>Tipo Pago</th>
                     <th style='width: 10%;'>Días Pagos</th>
                     <th style='width: 10%;'>Total</th>
-                  
-              
                 </tr>
                 </thead>
-               <tbody>
-                $rowHmtl
-                </tbody>
+                <tbody>$rowHmtl</tbody>
             </table>
         </div>
-        
+        <div style='width: 100%; margin-top:30px;'>
+            <h4 style='font-size: 11px;'>DETALLE DE PAGOS</h4>
+            <table style='width: 100%; text-align: center;'>
+                <thead>
+                <tr>
+                    <th style='width: 10%;'>ID</th>
+                    <th style='width: 20%;'>Fecha</th>
+                    <th style='width: 20%;'>Monto</th>
+                    <th style='width: 20%;'>Estado</th>
+                </tr>
+                </thead>
+                <tbody>$cuotasHtml</tbody>
+                <tfoot>
+                <tr>
+                    <td colspan='2' style='font-size:9px; text-align:right;'><b>Total Pagado:</b></td>
+                    <td style='font-size:9px;'><b>{$totalPagadoFmt}</b></td>
+                    <td></td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
     </div>
     ";
     $this->mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
