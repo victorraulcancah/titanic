@@ -55,9 +55,9 @@ class CombinarReporteController extends Controller
         $this->mpdf = new \Mpdf\Mpdf([
             "format" => [210, 297], // Tamaño A4 en mm (ancho, alto)
             "mode" => "utf-8",
-
         ]);
 
+        $this->mpdf->WriteHTML("body { color: #000000; font-weight: bold; } * { color: #000000; font-weight: bold; }", \Mpdf\HTMLParserMode::HEADER_CSS);
 
         $sql = "SELECT cotizacion_id FROM cotizaciones WHERE numero = '$numero'";
         $resultado = $this->conexion->query($sql);
@@ -206,12 +206,11 @@ class CombinarReporteController extends Controller
 
             $rowHTML = $rowHTML . "
               <tr>
-                
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>{$prod['codigo']}</td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$cnt4 </td>
-                <td class='' style=' font-size: 11px; text-align: left;border-left: 1px solid #363636;'>{$prod['descripcion']}</td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$total_paquetes_fmt</td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$peso_total_fmt Kg</td>
+                <td class='' style='font-size: 13px; font-weight: bold; text-align: center;border-left: 1px solid #363636;'>{$prod['codigo']}</td>
+                <td class='' style='font-size: 13px; font-weight: bold; text-align: center;border-left: 1px solid #363636;'>$cnt4 </td>
+                <td class='' style='font-size: 13px; font-weight: bold; text-align: left;border-left: 1px solid #363636;'>{$prod['descripcion']}</td>
+                <td class='' style='font-size: 13px; font-weight: bold; text-align: center;border-left: 1px solid #363636;'>$total_paquetes_fmt</td>
+                <td class='' style='font-size: 13px; font-weight: bold; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$peso_total_fmt Kg</td>
               </tr>
             ";
             $contador++;
@@ -250,9 +249,9 @@ class CombinarReporteController extends Controller
             </div>";
         $this->mpdf->WriteFixedPosHTML("<img style='max-width: 300px;max-height: 85px' src='" . URL::to('files/logos/' . $datoEmpresa['logo']) . "'>", 15, 5, 150, 120);
         $this->mpdf->WriteFixedPosHTML($htmlCuadroHead ?? '', 0, 5, 195, 130);
-        $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Central Telefónica: </strong> {$datoEmpresa['telefono']}</span>", 15, 27, 210, 130);
-        $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Email: </strong> info@titanicsac.com | Web: www.titanicsac.com</span>", 15, 32, 210, 130);
-        $this->mpdf->WriteFixedPosHTML("<span style=' font-size: 12px'><strong>Dirección:</strong> <span style='font-size: 10px'>{$datoEmpresa['direccion']}</span></span>", 15, 37, 120, 130);
+        $this->mpdf->WriteFixedPosHTML("<b><font color='#000000' size='2'>Central Telefónica: {$datoEmpresa['telefono']}</font></b>", 15, 27, 210, 130);
+        $this->mpdf->WriteFixedPosHTML("<b><font color='#000000' size='2'>Email: info@titanicsac.com | Web: www.titanicsac.com</font></b>", 15, 32, 210, 130);
+        $this->mpdf->WriteFixedPosHTML("<b><font color='#000000' size='2'>Dirección: {$datoEmpresa['direccion']}</font></b>", 15, 37, 120, 130);
 
         $totalOpGratuita = number_format($totalOpGratuita, 2, '.', ',');
         $totalOpExonerada = number_format($totalOpExonerada, 2, '.', ',');
@@ -273,18 +272,18 @@ class CombinarReporteController extends Controller
        <div style='width: 100%; float: left; '>
         <table style='width:100%'>
            <tr>
-            <td style='font-size: 11px; padding: 2px;'><strong>RUC/DNI: </strong>{$resultC['documento']}</td>
-            <td style='font-size: 11px; padding: 2px;'><strong>CLIENTE:</strong>{$resultC['datos']}</td>
-            <td style='font-size: 11px; padding: 2px;'><strong>DIRECCIÓN:</strong> {$resultC['direccion']}</td>
+            <td style='font-size: 13px; font-weight: bold; padding: 2px;'><strong>RUC/DNI: </strong>{$resultC['documento']}</td>
+            <td style='font-size: 13px; font-weight: bold; padding: 2px;'><strong>CLIENTE:</strong>{$resultC['datos']}</td>
+            <td style='font-size: 13px; font-weight: bold; padding: 2px;'><strong>DIRECCIÓN:</strong> {$resultC['direccion']}</td>
         </tr>
         <tr>
-            <td style='font-size: 11px; padding: 2px;'><strong>VENDEDOR:</strong> {$resultVemedor['nombres']}</td>
-            <td style='font-size: 11px; padding: 2px;'><strong>FECHA:</strong>$fecha_emision</td>
-            <td style='font-size: 11px; padding: 2px;'><strong>MONEDA:</strong>$monedaVisual</td>
+            <td style='font-size: 13px; font-weight: bold; padding: 2px;'><strong>VENDEDOR:</strong> {$resultVemedor['nombres']}</td>
+            <td style='font-size: 13px; font-weight: bold; padding: 2px;'><strong>FECHA:</strong>$fecha_emision</td>
+            <td style='font-size: 13px; font-weight: bold; padding: 2px;'><strong>MONEDA:</strong>$monedaVisual</td>
         </tr>
         <tr>
-            <td style='font-size: 11px; padding: 2px;'><strong>PAGO:</strong> Contado</td>
-            <td style='font-size: 11px; padding: 2px;'><strong>CELULAR:</strong>{$resultC['telefono']}</td>
+            <td style='font-size: 13px; font-weight: bold; padding: 2px;'><strong>PAGO:</strong> Contado</td>
+            <td style='font-size: 13px; font-weight: bold; padding: 2px;'><strong>CELULAR:</strong>{$resultC['telefono']}</td>
         </tr>
         </table>
         </div>
@@ -295,14 +294,13 @@ class CombinarReporteController extends Controller
         <div style='width: 100%; padding-top: 5px;'>
         <table style='width:100%;border-bottom: 1px solid #363636;border-collapse: collapse;'>
             <tr style='border-bottom: 1px solid #363636;border-collapse: collapse;'>
-             <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>ITEM</strong></td>
-            <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>Cantidad</strong></td>
-           
-            <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>DESCRIPCION</strong></td>
-            <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>PAQUETES</strong></td>
-            <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>PESO (Kg)</strong></td>
-            <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>PRECIO</strong></td> 
-            <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>SUB TOTAL</strong></td>
+             <td style='font-size: 14px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>ITEM</strong></td>
+            <td style='font-size: 14px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>Cantidad</strong></td>
+            <td style='font-size: 14px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>DESCRIPCION</strong></td>
+            <td style='font-size: 14px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>PAQUETES</strong></td>
+            <td style='font-size: 14px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>PESO (Kg)</strong></td>
+            <td style='font-size: 14px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>PRECIO</strong></td>
+            <td style='font-size: 14px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>SUB TOTAL</strong></td>
             
           </tr>
           $rowHTML
@@ -338,8 +336,8 @@ class CombinarReporteController extends Controller
             }
             $simbolfff = $datoVenta['moneda'] == 2 ? 'S/' : '$';
             $monedahtmlDol = "<tr>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right'>Total a Pagar</td>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right' >$simbolfff $totalDolar</td>
+            <td style='border-left:1px solid #363636;text-align:right;padding-right:4px;'><b><font color='#000000' size='2'>Total a Pagar</font></b></td>
+            <td style='border-left:1px solid #363636;text-align:right;'><b><font color='#000000' size='2'>$simbolfff $totalDolar</font></b></td>
           </tr>";
         }
 
@@ -399,40 +397,41 @@ class CombinarReporteController extends Controller
 
 
         $htmlFooter = "
-          <div style='height: 10px;width: 100%; padding-bottom: 0px;font-size: 10px;border: 1px solid black;'>. SON: | $totalLetras</div>
-          
-          <div style='width: 100%;margin-top: 5px;'>
-              <div style='float: left; width: 100%;'>
-                  $qrImage
-              </div>
-              <div style='width: 65%; padding-bottom: 5px;font-size: 12px; float: left; padding-top: 5px;'>
-                  <div style='width: 100%'></div>
-                  <div style='width: 95%; padding: 3px; font-size: 10px;'>
-                       $hash_Doc
-                       Observaciones:<br>
-                       $observacion <br>
-                       Saldo Pendiente:
-                      $SaldoPendientePagar
-                  </div>
-              </div>
-              <div style='width: 35%;'>
-                  <table style='width: 100%;border-top: 1px solid #363636;border-bottom: 1px solid #363636;border-right: 1px solid #363636;border-collapse: collapse;'>
-                      <tr style=''>
-                          <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right;padding-right: 5px;'>Totalp Op. Gravado:</td>
-                          <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right' >$totalOpgravado</td>
-                      </tr>
-                      <tr>
-                          <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right;padding-right: 5px;'>IGV:</td>
-                          <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right;' >$igv</td>
-                      </tr>
-                      <tr>
-                          <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right;padding-right: 5px;'>Total a Pagar</td>
-                          <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right;' >$simbolfff22 $total</td>
-                      </tr>
-                      $monedahtmlDol
-                  </table>
-              </div>
-          </div> 
+          <table style='width:100%;border-collapse:collapse;'>
+            <tr>
+              <td colspan='2' style='border:1px solid black;padding:2px;'>
+                <b><font color='#000000' size='2'>. SON: | $totalLetras</font></b>
+              </td>
+            </tr>
+            <tr>
+              <td style='width:65%;vertical-align:top;padding:3px;'>
+                $qrImage
+                <b><font color='#000000' size='2'>
+                  $hash_Doc
+                  Observaciones:<br>
+                  $observacion<br>
+                  Saldo Pendiente: $SaldoPendientePagar
+                </font></b>
+              </td>
+              <td style='width:35%;vertical-align:top;'>
+                <table style='width:100%;border-top:1px solid #363636;border-bottom:1px solid #363636;border-right:1px solid #363636;border-collapse:collapse;'>
+                  <tr>
+                    <td style='border-left:1px solid #363636;text-align:right;padding-right:4px;'><b><font color='#000000' size='2'>Totalp Op. Gravado:</font></b></td>
+                    <td style='border-left:1px solid #363636;text-align:right;'><b><font color='#000000' size='2'>$totalOpgravado</font></b></td>
+                  </tr>
+                  <tr>
+                    <td style='border-left:1px solid #363636;text-align:right;padding-right:4px;'><b><font color='#000000' size='2'>IGV:</font></b></td>
+                    <td style='border-left:1px solid #363636;text-align:right;'><b><font color='#000000' size='2'>$igv</font></b></td>
+                  </tr>
+                  <tr>
+                    <td style='border-left:1px solid #363636;text-align:right;padding-right:4px;'><b><font color='#000000' size='2'>Total a Pagar</font></b></td>
+                    <td style='border-left:1px solid #363636;text-align:right;'><b><font color='#000000' size='2'>$simbolfff22 $total</font></b></td>
+                  </tr>
+                  $monedahtmlDol
+                </table>
+              </td>
+            </tr>
+          </table>
       ";
         // $this->mpdf->WriteFixedPosHTML($htmlFooter, 52.5, 240, 142, 130);
         $this->mpdf->WriteFixedPosHTML($htmlFooter, 15.5, 225, 180, 130);
@@ -1063,8 +1062,8 @@ class CombinarReporteController extends Controller
                 }
                 $simbolfff = $datoVenta['moneda'] == 2 ? 'S/' : '$';
                 $monedahtmlDol = "<tr>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px; text-align: right'>Total a Pagar</td>
-            <td style='border-left: 1px solid #363636;border-collapse: collapse; font-size: 12px;  text-align: right' >$simbolfff $totalDolar</td>
+            <td style='border-left:1px solid #363636;text-align:right;padding-right:4px;'><b><font color='#000000' size='2'>Total a Pagar</font></b></td>
+            <td style='border-left:1px solid #363636;text-align:right;'><b><font color='#000000' size='2'>$simbolfff $totalDolar</font></b></td>
           </tr>";
             }
 
@@ -2111,6 +2110,7 @@ class CombinarReporteController extends Controller
             "margin_top" => 5,      // Margen superior en milímetros
             "margin_bottom" => 5,   // Margen inferior en milímetros
         ]);
+        $mpdf->WriteHTML("* { color: #000000; font-weight: bold; }", \Mpdf\HTMLParserMode::HEADER_CSS);
 
         $camion = $_GET['camion'] ?? "";
         $fechaSeleccionada = $_GET['fechaSeleccionada'] ?? "";
@@ -2370,15 +2370,14 @@ class CombinarReporteController extends Controller
                 $multi = $prod['cantidad'] * $prod['presenta_cnt'];
                 $rowHTML = $rowHTML . "
               <tr>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
-                <td class='' style='font-size: 10px; text-align: center; border-left: 1px solid #363636;'>$multi</td>
-                <td class='' style=' font-size: 10px; text-align: left;border-left: 1px solid #363636;'><strong>{$prod['descripcion']}</strong></td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['cantidad']} </td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['presenta_cnt']}  </td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td> 
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
+                <td style='font-size: 10px; font-weight: bold; color: #000000; text-align: center;border-left: 1px solid #363636;'>$contador</td>
+                <td style='font-size: 10px; font-weight: bold; color: #000000; text-align: center; border-left: 1px solid #363636;'>$multi</td>
+                <td style='font-size: 10px; font-weight: bold; color: #000000; text-align: left;border-left: 1px solid #363636;'>{$prod['descripcion']}</td>
+                <td style='font-size: 10px; font-weight: bold; color: #000000; text-align: center;border-left: 1px solid #363636;'>{$prod['cantidad']}</td>
+                <td style='font-size: 10px; font-weight: bold; color: #000000; text-align: center;border-left: 1px solid #363636;'>{$prod['presenta_cnt']}</td>
+                <td style='font-size: 10px; font-weight: bold; color: #000000; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td>
+                <td style='font-size: 10px; font-weight: bold; color: #000000; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
               </tr>
-              
             ";
                 $contador++;
             }
@@ -2476,8 +2475,8 @@ class CombinarReporteController extends Controller
             $tableconson = "
                 <table style='width: 100%;border: 1px solid #363636;margin-top: 3px;'>
                     <tr>
-                        <td style=style='height: 10px;width: 100%; padding-bottom: 0px;'>
-                        <span style='font-size: 8px'>SON: | $totalLetras</span>
+                        <td style='padding: 2px;'>
+                        <b><font color='#000000' size='2'>SON: | $totalLetras</font></b>
                         </td>
                     </tr>
                 </table>";
@@ -2501,34 +2500,22 @@ class CombinarReporteController extends Controller
             // $mpdf->SetAutoPageBreak(true, 50);
             $tablaFooter = "<table style='width: 100%;'>
                 <tr>
-                    <td style='width: 50%;'>
-                        <div style='width: 95%; padding: 3px; font-size: 10px;height: 90px '>
-                      $hash_Doc
-                      Observaciones:<br>
-                       $observacion <br>
-                       Saldo Pendiente:
-                      $SaldoPendientePagar
-                  </div>
-                 </div>
+                    <td style='width: 50%; vertical-align: top; padding: 3px;'>
+                        <b><font color='#000000' size='2'>
+                        $hash_Doc
+                        Observaciones:<br>
+                        $observacion<br>
+                        Saldo Pendiente: $SaldoPendientePagar
+                        </font></b>
                     </td>
-                    <td style='width: 50%;text-align: right;'>
-                        <table style='width: 50%; border: 1px solid #363636; border-collapse: collapse;margin-right: 0px;'>
-                        <!--
+                    <td style='width: 50%; text-align: right; vertical-align: top;'>
+                        <table style='width: 50%; border: 1px solid #363636; border-collapse: collapse;'>
                         <tr>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right; padding-right: 3px;'>Total Op. Gravado:</td>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right;'>$totalOpgravado</td>
-                        </tr>
-                        <tr>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right; padding-right: 3px;'>IGV:</td>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right;'>$igv</td>
-                        </tr>
-                        -->
-                        <tr>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right; padding-right: 3px;'>Total a Pagar:</td>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right;'>$simbol00022 $total</td>
+                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right; padding-right: 3px;'><b><font color='#000000'>Total a Pagar:</font></b></td>
+                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right;'><b><font color='#000000'>$simbol00022 $total</font></b></td>
                         </tr>
                         $monedahtmlDol
-                    </table>
+                        </table>
                     </td>
                 </tr>
             </table>";
@@ -3033,7 +3020,7 @@ class CombinarReporteController extends Controller
 
             $query_productos = "SELECT p.codigo,
                 pc.id_producto, p.descripcion,
-                pc.presenta_cnt AS total_medida, pc.medida,
+                pc.presenta_cnt AS total_medida, pc.medida, pc.presenta,
                 SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * pc.presenta_cnt) AS total_multiplicado
                     FROM productos_cotis pc
                     INNER JOIN productos p ON p.id_producto = pc.id_producto
@@ -3044,12 +3031,12 @@ class CombinarReporteController extends Controller
                 $query_productos .= " AND pc.medida = '$medida'";
             }
 
-            // Consolidado Camión: agrupa sin presenta_cnt (junta todas las presentaciones)
+            // Consolidado Camión: ahora agrupa con presenta_cnt (separa por presentación)
             // Consolidado por Mercados: agrupa con presenta_cnt (separa por presentación)
             if ($tipo == "porCamionConsolidado") {
-                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion ORDER BY p.descripcion ASC";
+                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida, pc.presenta ORDER BY p.descripcion ASC";
             } else {
-                $query_productos .= " GROUP BY pc.id_producto, pc.presenta_cnt, pc.medida ORDER BY p.descripcion ASC";
+                $query_productos .= " GROUP BY pc.id_producto, pc.presenta_cnt, pc.medida, pc.presenta ORDER BY p.descripcion ASC";
             }
 
             // Ejecutar la consulta
@@ -3076,13 +3063,23 @@ class CombinarReporteController extends Controller
 
                 // Generar filas según el tipo
                 if ($tipo == 'porCamionConsolidado') {
-                    // Consolidado Camión: solo 4 columnas (item, Código, M, PRODUCTO)
+                    // Consolidado Camión: 7 columnas (item, Código, M, PRODUCTO, UNIDAD, MEDIDA, CANTIDAD)
+                    
+                    $unidad = !empty($prod['medida']) ? $prod['medida'] : $this->getNomMedida($prod['presenta']);
+                    if (empty($unidad)) $unidad = "-";
+                    
+                    $medida_val = rtrim(rtrim(number_format($prod['total_medida'], 2, '.', ''), '0'), '.');
+                    if ($medida_val == '') $medida_val = '0';
+
                     $rowHTML .= "
                         <tr>
                             <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
                             <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
                             <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_multiplicado']}</td>
                             <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
+                            <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>$unidad</td>
+                            <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>$medida_val</td>
+                            <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['total_cantidad']}</td>
                         </tr>
                     ";
                 } else {
@@ -3108,7 +3105,7 @@ class CombinarReporteController extends Controller
             //$html .= "<p style=''>Mercado: {$query_productos}</p>";
 
             if ($tipo == 'porCamionConsolidado') {
-                // Consolidado Camión: 4 columnas
+                // Consolidado Camión: 7 columnas
                 $html .= "<div style='width: 100%; padding-top: 20px;page-break-inside=always;'>
                     <table style='width:567px; border-bottom: 1px solid #fff;border-collapse: collapse;page-break-inside=avoid;'>
                         <tr style='border-bottom: 1px solid #fff;'>
@@ -3116,13 +3113,19 @@ class CombinarReporteController extends Controller
                             <td style=' font-size: 12px; color: #000;border: 1px solid #fff;border-collapse: collapse; padding: 0;'><strong>Código</strong></td>
                             <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff; padding:0;'><strong>M</strong></td>
                             <td style=' font-size: 12px;text-align: left; color: #000;border: 1px solid #fff;'><strong>PRODUCTO</strong></td>
+                            <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;'><strong>UNIDAD</strong></td>
+                            <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;'><strong>MEDIDA</strong></td>
+                            <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;'><strong>CANTIDAD</strong></td>
                         </tr>
                         $rowHTML
                         <tr>
                             <td class='' style=' font-size: 11px; border-left: 1px solid #fff;border-bottom: 1px solid #fff;color: white; padding:2px;'>.</td>
                             <td class='' style=' font-size: 11px; border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
                             <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 1px solid #fff;  padding:2px;'> </td>
-                            <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;'> </td>
+                            <td class='' style=' font-size: 11px; text-align: left;border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
+                            <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
+                            <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
+                            <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
                         </tr>
                     </table>
                 </div>";
@@ -3639,7 +3642,7 @@ class CombinarReporteController extends Controller
 
                 $query_productos = "SELECT p.codigo,
             pc.id_producto, p.descripcion,
-            pc.presenta_cnt AS total_medida, pc.medida,
+            pc.presenta_cnt AS total_medida, pc.medida, pc.presenta,
             SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * pc.presenta_cnt) AS total_multiplicado
                 FROM productos_cotis pc
                 INNER JOIN productos p ON p.id_producto = pc.id_producto
@@ -3650,9 +3653,8 @@ class CombinarReporteController extends Controller
                     $query_productos .= " AND pc.medida = '$medida'";
                 }
 
-                $query_productos .= $tipo == "porCamionConsolidado" ? " GROUP BY p.codigo, pc.id_producto, p.descripcion ORDER BY
-                p.descripcion ASC" : " GROUP BY pc.id_producto, pc.presenta_cnt ORDER BY
-                p.descripcion ASC";
+                // AGRUPAR siempre por presenta_cnt y medida para separar las diferentes bolsas/kilos
+                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida, pc.presenta ORDER BY p.descripcion ASC";
                 // Ejecutar la consulta
 
                 // $html .= "<p style=''>query: {$query_productos}</p>";
@@ -3666,19 +3668,27 @@ class CombinarReporteController extends Controller
                 foreach ($listaProd1 as $prod) {
                     $total_consolidado += $prod['total_cantidad'];
                     $prod['codigo'] = trim($prod['codigo']);
-                    $prod['total_cantidad'] = number_format($prod['total_cantidad'], 0);
-                    $prod['total_multiplicado'] = number_format($prod['total_multiplicado'], 0);
-                    $multi = $prod['total_cantidad'] * $prod['total_medida'];
+                    
+                    $m_val = number_format($prod['total_multiplicado'], 0);
+                    $cantidad_val = number_format($prod['total_cantidad'], 0);
+                    
+                    $unidad = !empty($prod['medida']) ? $prod['medida'] : $this->getNomMedida($prod['presenta']);
+                    if (empty($unidad)) $unidad = "-";
+                    
+                    $medida_val = rtrim(rtrim(number_format($prod['total_medida'], 2, '.', ''), '0'), '.');
+                    if ($medida_val == '') $medida_val = '0';
 
-                    // $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
                     $rowHTML .= "
                     <tr>
                         <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
                         <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
-                        <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_cantidad']}</td>
+                        <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$m_val</td>
                         <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
+                        <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>$unidad</td>
+                        <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>$medida_val</td>
+                        <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>$cantidad_val</td>
                     </tr>
-                "; // CAMBIO: M y CANTIDAD muestran el mismo valor
+                "; 
                     $contador++;
                 }
                 //$html .= "<p style=''>Mercado: {$sql}</p>";
@@ -3692,13 +3702,19 @@ class CombinarReporteController extends Controller
                         <td style=' font-size: 12px; color: #000;border: 1px solid #fff;border-collapse: collapse; padding: 0;'><strong>Código</strong></td>
                         <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff; padding:0;'><strong>M</strong></td>
                         <td style=' font-size: 12px;text-align: left; color: #000;border: 1px solid #fff;'><strong>PRODUCTO</strong></td>
+                        <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;'><strong>UNIDAD</strong></td>
+                        <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;'><strong>MEDIDA</strong></td>
+                        <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;'><strong>CANTIDAD</strong></td>
                     </tr>
                     $rowHTML
                     <tr>
                         <td class='' style=' font-size: 11px; border-left: 1px solid #fff;border-bottom: 1px solid #fff;color: white; padding:2px;'>.</td>
                         <td class='' style=' font-size: 11px; border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
                         <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 1px solid #fff;  padding:2px;'> </td>
-                        <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;'> </td>
+                        <td class='' style=' font-size: 11px; text-align: left;border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
+                        <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
+                        <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
+                        <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
                     </tr>
                 </table>
             </div>
