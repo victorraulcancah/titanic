@@ -103,9 +103,20 @@ class ClientesController extends Controller
         }
 
         try {
-            $orderBy = "ORDER BY 
-                tb.fecha_emision DESC,
-                CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC";
+            // Detectar si están activos los 3 filtros: día de visita, ruta y fecha fin
+            $tieneLosTresFiltros = !empty($diasVisita) && !empty($ruta) && !empty($fecha_fin);
+            
+            if ($tieneLosTresFiltros) {
+                // Ordenamiento: primero mercado, luego fecha
+                $orderBy = "ORDER BY 
+                    CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC,
+                    tb.fecha_emision DESC";
+            } else {
+                // Ordenamiento por defecto: primero fecha, luego mercado
+                $orderBy = "ORDER BY 
+                    tb.fecha_emision DESC,
+                    CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC";
+            }
 
             // Variables condicionales para ventas
             $whereFechaVentas = '';
@@ -197,7 +208,7 @@ class ClientesController extends Controller
             $listaCompleta = array_merge($listaVentas, $listaCoti);
 
             // Reordenar el array combinado (ordenamiento multinivel descendente)
-            usort($listaCompleta, function ($a, $b) {
+            usort($listaCompleta, function ($a, $b) use ($tieneLosTresFiltros) {
                 // Mapeo de días a números (insensible a acentos)
                 $diasOrden = [
                     'lunes' => 1,
@@ -211,15 +222,28 @@ class ClientesController extends Controller
                     'domingo' => 7
                 ];
 
-                // Comparar fecha_emision (DESC)
-                $fechaComp = strcmp($b['fecha_emision'], $a['fecha_emision']);
-                if ($fechaComp !== 0)
-                    return $fechaComp;
+                if ($tieneLosTresFiltros) {
+                    // Ordenamiento: primero mercado (ASC), luego fecha (DESC)
+                    $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
+                    $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
+                    
+                    if ($mercadoA !== $mercadoB) {
+                        return $mercadoA - $mercadoB;
+                    }
+                    
+                    // Si mercados son iguales, comparar por fecha (DESC)
+                    return strcmp($b['fecha_emision'], $a['fecha_emision']);
+                } else {
+                    // Ordenamiento por defecto: primero fecha (DESC), luego mercado (ASC)
+                    $fechaComp = strcmp($b['fecha_emision'], $a['fecha_emision']);
+                    if ($fechaComp !== 0)
+                        return $fechaComp;
 
-                // Comparar mercado (ASC)
-                $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
-                $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
-                return $mercadoA - $mercadoB;
+                    // Comparar mercado (ASC)
+                    $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
+                    $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
+                    return $mercadoA - $mercadoB;
+                }
             });
 
             return $listaCompleta;
