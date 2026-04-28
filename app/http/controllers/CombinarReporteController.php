@@ -2414,8 +2414,8 @@ class CombinarReporteController extends Controller
                         <!-- Columna del Cuadro de Pedido -->
                           <td style='width: 25%; text-align: center; vertical-align: middle; border: 1px solid #1e1e1e;'>
                                 <span style='font-size: 9px;'>PEDIDO</span><br><br> <!-- Usamos dos <br> para separar -->
-                                <span style='font-size: 9px; font-weight: bold;'>{$datoVenta['numero']}</span>
-                        </td>
+                                <span style='font-size: 9px; font-weight: bold;'>{$datoVenta['numero']}</span><br><br>
+                                <span style='font-size: 11px; font-weight: bold;'>ITEM: " . ($key + 1) . "</span>
                         </td>
                       </tr>
                   </table>
