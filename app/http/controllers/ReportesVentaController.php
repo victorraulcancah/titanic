@@ -512,8 +512,83 @@ class ReportesVentaController extends Controller
   }
 
 
+  private function getNumeroItemRuta($coti) {
+    $sql = "SELECT DATE(co.fecha) as fecha, co.id_empresa, co.sucursal, c.dias_visitas, c.id_ruta 
+            FROM cotizaciones co 
+            INNER JOIN clientes c ON co.id_cliente = c.id_cliente 
+            WHERE co.cotizacion_id = '$coti'";
+    $res = $this->conexion->query($sql);
+    if (!$res || $res->num_rows == 0) return "-";
+    $row = $res->fetch_assoc();
+    
+    $fecha = $row['fecha'];
+    $id_empresa = $row['id_empresa'];
+    $sucursal = $row['sucursal'];
+    $dias_visitas = mb_strtolower($row['dias_visitas'], 'UTF-8');
+    $dias_visitas = str_replace(
+        ['á', 'é', 'í', 'ó', 'ú', 'ä', 'ë', 'ï', 'ö', 'ü'], 
+        ['a', 'e', 'i', 'o', 'u', 'a', 'e', 'i', 'o', 'u'], 
+        $dias_visitas
+    );
+    $id_ruta = $row['id_ruta'];
+
+    $filtros_camiones = [
+        '1' => [
+            'lunes' => ['1', '7'], 'martes' => ['5', '7'], 'miercoles' => ['5'],
+            'jueves' => ['1', '7'], 'viernes' => ['6', '7'], 'sabado' => ['7', '8'],
+        ],
+        '2' => [
+            'lunes' => ['3', '6'], 'martes' => ['1', '3'], 'miercoles' => ['1', '3'],
+            'jueves' => ['6', '3'], 'viernes' => ['3', '5'], 'sabado' => ['3', '6'],
+        ],
+        '3' => [
+            'miercoles' => ['6', '7'], 'viernes' => ['8', '2'], 'sabado' => ['1', '5'],
+        ]
+    ];
+
+    $camion_encontrado = null;
+    foreach ($filtros_camiones as $cam => $filtro) {
+        if (isset($filtro[$dias_visitas]) && in_array($id_ruta, $filtro[$dias_visitas])) {
+            $camion_encontrado = $cam;
+            break;
+        }
+    }
+
+    if (!$camion_encontrado) return "-";
+
+    $arrQueryClientes = array();
+    foreach ($filtros_camiones[$camion_encontrado] as $key => $filtro) {
+        $arrQueryClientes[] = "( c.dias_visitas = '{$key}' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
+    }
+    $queryCamion = " AND (" . implode(' OR ', $arrQueryClientes) . ")";
+
+    $sqlRank = "SELECT co.cotizacion_id 
+        FROM clientes c 
+        INNER JOIN cotizaciones co ON co.id_cliente = c.id_cliente   
+        WHERE co.id_empresa='{$id_empresa}'
+        AND co.sucursal='{$sucursal}'
+        AND co.estado!=2 
+        AND DATE(co.fecha) = '$fecha'
+        " . $queryCamion . " 
+        ORDER BY c.mercado ASC, co.cotizacion_id ASC";
+
+    $rankResult = $this->conexion->query($sqlRank);
+    if (!$rankResult) return "-";
+    
+    $item_num = 1;
+    foreach ($rankResult as $r) {
+        if ($r['cotizacion_id'] == $coti) {
+            return $item_num;
+        }
+        $item_num++;
+    }
+    return "-";
+  }
+
   public function comprobanteCotizacionA4($coti)
   {
+    $numero_item_ruta = $this->getNumeroItemRuta($coti);
+
     $this->mpdf = new \Mpdf\Mpdf([
       "format" => "A4",
       "mode" => "utf-8",
@@ -655,7 +730,7 @@ class ReportesVentaController extends Controller
       $rowHTML = $rowHTML . "
               <tr>
                 
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
+                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-left: 1px solid #363636;'>$contador</td>
                 <td class='' style='font-size: 10px; text-align: center; border-left: 1px solid #363636;'>$multi</td>
                 <td class='' style=' font-size: 11px; text-align: left;border-left: 1px solid #363636;'>{$prod['descripcion']}</td>
                 <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td> 
@@ -689,7 +764,7 @@ class ReportesVentaController extends Controller
             <div style='margin-top: 10px'></div>
             <span><strong>$tipo_documeto_venta {$datoVenta['numero']}</strong></span><br>
             <div style='margin-top: 10px'></div>
-            <span> </span>
+            <span style='font-size: 14px;'><strong>ITEM: $numero_item_ruta</strong></span>
             </div>
             </div>
             </div>";
@@ -835,7 +910,7 @@ class ReportesVentaController extends Controller
                               <div style='margin-top: 10px'></div>
                               <span><strong>$tipo_documeto_venta {$datoVenta['numero']}</strong></span><br>
                               <div style='margin-top: 10px'></div>
-                            <span> </span>
+                            <span style='font-size: 14px;'><strong>ITEM: $numero_item_ruta</strong></span>
                           </div>
                         </div>
                   </div>";
@@ -888,6 +963,7 @@ class ReportesVentaController extends Controller
 
   public function comprobanteCotizacion($coti)
   {
+    $numero_item_ruta = $this->getNumeroItemRuta($coti);
 
     $this->mpdf = new \Mpdf\Mpdf([
       "format" => "A4-L",         // Formato A4 en orientación landscape
@@ -1130,7 +1206,7 @@ class ReportesVentaController extends Controller
     $tableconson = "
     <table style='width: 100%;padding-bottom: 0px;font-size: 10px;border-right: 1px solid;border-bottom: 1px solid;border-left: 1px solid;'>
         <tr>
-            <td style=style='height: 10px;width: 100%; padding-bottom: 0px;'>
+            <td style='height: 10px;width: 100%; padding-bottom: 0px;'>
             <span style='font-size: 8px'>SON: | $totalLetras</span>
             </td>
         </tr>
