@@ -38,10 +38,14 @@ class CombinarReporteController extends Controller
 
     private function getNomMedida($nu)
     {
-        if ($nu == 1) return "Unidad";
-        if ($nu == 2) return "Caja";
-        if ($nu == 3) return "Bolsa";
-        if ($nu == 4) return "Saco";
+        if ($nu == 1)
+            return "Unidad";
+        if ($nu == 2)
+            return "Caja";
+        if ($nu == 3)
+            return "Bolsa";
+        if ($nu == 4)
+            return "Saco";
     }
 
 
@@ -170,7 +174,7 @@ class CombinarReporteController extends Controller
             if ($datoVenta['moneda'] == 2) {
                 $prod['precio'] = $prod['precio'] / $datoVenta['cm_tc'];
             }
-            $precio =  $prod['precio'];
+            $precio = $prod['precio'];
             $importe = $precio * $prod['cantidad'];
             $total += $importe;
             $tempDescuento = 0;
@@ -184,7 +188,7 @@ class CombinarReporteController extends Controller
             $prod['codigo'] = trim($prod['codigo']);
 
             $temMedida1 = $this->getNomMedida($prod['presenta']);
-            $prod['cantidad'] =  number_format($prod['cantidad'], 0);
+            $prod['cantidad'] = number_format($prod['cantidad'], 0);
             $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
 
             // Calcular total de paquetes (cantidad × presenta_cnt)
@@ -230,7 +234,7 @@ class CombinarReporteController extends Controller
       </tr>";
         }
 
-        $totalLetras =   $formatter->toInvoice(number_format($total, 2, '.', ''), 2, $datoVenta['moneda'] == 1 ? 'SOLES' : 'DOLARES');
+        $totalLetras = $formatter->toInvoice(number_format($total, 2, '.', ''), 2, $datoVenta['moneda'] == 1 ? 'SOLES' : 'DOLARES');
 
         $htmlCuadroHead = "<div style=' width: 34%;text-align: center; background-color: #ffffff ; float: right;'>
 
@@ -580,7 +584,7 @@ class CombinarReporteController extends Controller
             $prod['codigo'] = trim($prod['codigo']);
 
             $temMedida1 = $this->getNomMedida($prod['presenta']);
-            $prod['cantidad'] =  number_format($prod['cantidad'], 0);
+            $prod['cantidad'] = number_format($prod['cantidad'], 0);
             $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
 
             // Calcular total de paquetes (cantidad × presenta_cnt)
@@ -626,7 +630,7 @@ class CombinarReporteController extends Controller
         </tr>";
         }
 
-        $totalLetras =   $formatter->toInvoice(number_format($total, 2, '.', ''), 2, $datoVenta['moneda'] == 1 ? 'SOLES' : 'DOLARES');
+        $totalLetras = $formatter->toInvoice(number_format($total, 2, '.', ''), 2, $datoVenta['moneda'] == 1 ? 'SOLES' : 'DOLARES');
 
         $htmlCuadroHead = "<div style=' width: 34%;text-align: center; background-color: #fff ; float: right; margin: left 100px;px;'>
             <div style='padding: 5px;width: 100%; height: 100px; ' class=''>
@@ -922,7 +926,7 @@ class CombinarReporteController extends Controller
                 $prod['codigo'] = trim($prod['codigo']);
 
                 $temMedida1 = $this->getNomMedida($prod['presenta']);
-                $prod['cantidad'] =  number_format($prod['cantidad'], 0);
+                $prod['cantidad'] = number_format($prod['cantidad'], 0);
                 $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
 
                 $precioDisminu = $precio / $prod['presenta_cnt'];
@@ -958,7 +962,7 @@ class CombinarReporteController extends Controller
       </tr>";
             }
 
-            $totalLetras =   $formatter->toInvoice(number_format($total, 2, '.', ''), 2, $datoVenta['moneda'] == 1 ? 'SOLES' : 'DOLARES');
+            $totalLetras = $formatter->toInvoice(number_format($total, 2, '.', ''), 2, $datoVenta['moneda'] == 1 ? 'SOLES' : 'DOLARES');
 
             $htmlCuadroHead = "<div style=' width: 34%;text-align: center; background-color: #ffffff ; float: right;'>
 
@@ -2356,7 +2360,7 @@ class CombinarReporteController extends Controller
                 $prod['codigo'] = trim($prod['codigo']);
 
                 $temMedida1 = $this->getNomMedida($prod['presenta']);
-                $prod['cantidad'] =  number_format($prod['cantidad'], 0);
+                $prod['cantidad'] = number_format($prod['cantidad'], 0);
                 $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
 
                 $descuento = ($prod['presenta_cnt'] && $prod['presenta_cnt'] != 0) ? $prod['presenta_cnt'] : 1;
@@ -2392,7 +2396,7 @@ class CombinarReporteController extends Controller
             </tr>";
             }
 
-            $totalLetras =   $formatter->toInvoice(number_format($total, 2, '.', ''), 2, $datoVenta['moneda'] == 1 ? 'SOLES' : 'DOLARES');
+            $totalLetras = $formatter->toInvoice(number_format($total, 2, '.', ''), 2, $datoVenta['moneda'] == 1 ? 'SOLES' : 'DOLARES');
 
             $htmlEncabezado = "
       <table style='width: 100%; border-collapse: collapse; margin-top: 0px;'>
@@ -3022,7 +3026,7 @@ class CombinarReporteController extends Controller
             WHERE 1 
             AND co.id_empresa='{$_SESSION['id_empresa']}'
             AND co.sucursal='{$_SESSION['sucursal']}'
-            AND co.estado!=2 " . $queryClientes . $concatmerc  . " 
+            AND co.estado!=2 " . $queryClientes . $concatmerc . " 
             /* WHERE 1 and co.cotizacion_id in (1991,1992,1993,1994,1995) */
             ORDER BY c.mercado ASC
             ";
@@ -3067,8 +3071,8 @@ class CombinarReporteController extends Controller
                 $multi_formateado = number_format($multi, 0);
 
                 // AHORA sí formatear
-                $prod['total_cantidad'] =  number_format($prod['total_cantidad'], 0);
-                $prod['total_multiplicado'] =  number_format($prod['total_multiplicado'], 0);
+                $prod['total_cantidad'] = number_format($prod['total_cantidad'], 0);
+                $prod['total_multiplicado'] = number_format($prod['total_multiplicado'], 0);
 
                 // Generar filas según el tipo
                 if ($tipo == 'porCamionConsolidado') {
@@ -3326,7 +3330,7 @@ class CombinarReporteController extends Controller
             WHERE 1 
             AND co.id_empresa='{$_SESSION['id_empresa']}'
             AND co.sucursal='{$_SESSION['sucursal']}'
-            AND co.estado!=2 " . $queryClientes . $concatmerc  . " 
+            AND co.estado!=2 " . $queryClientes . $concatmerc . " 
             /* WHERE 1 and co.cotizacion_id in (1991,1992,1993,1994,1995) */
             ORDER BY c.mercado ASC
             ";
@@ -3377,7 +3381,7 @@ class CombinarReporteController extends Controller
                 $multi_formateado = number_format($multi, 0);
 
                 // Formatear para mostrar
-                $prod['total_cantidad'] =  number_format($prod['total_cantidad'], 0);
+                $prod['total_cantidad'] = number_format($prod['total_cantidad'], 0);
 
                 $rowHTML .= "
                 <tr>
@@ -3628,7 +3632,7 @@ class CombinarReporteController extends Controller
         WHERE 1 
         AND co.id_empresa='{$_SESSION['id_empresa']}'
         AND co.sucursal='{$_SESSION['sucursal']}'
-        AND co.estado!=2 " . $queryClientes . $concatmerc  . " 
+        AND co.estado!=2 " . $queryClientes . $concatmerc . " 
         /* WHERE 1 and co.cotizacion_id in (1991,1992,1993,1994,1995) */
         ORDER BY c.mercado ASC
         ";
@@ -3662,8 +3666,8 @@ class CombinarReporteController extends Controller
                 foreach ($listaProd1 as $prod) {
                     $total_consolidado += $prod['total_cantidad'];
                     $prod['codigo'] = trim($prod['codigo']);
-                    $prod['total_cantidad'] =  number_format($prod['total_cantidad'], 0);
-                    $prod['total_multiplicado'] =  number_format($prod['total_multiplicado'], 0);
+                    $prod['total_cantidad'] = number_format($prod['total_cantidad'], 0);
+                    $prod['total_multiplicado'] = number_format($prod['total_multiplicado'], 0);
                     $multi = $prod['total_cantidad'] * $prod['total_medida'];
 
                     // $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
