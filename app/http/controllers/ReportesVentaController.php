@@ -1141,7 +1141,8 @@ class ReportesVentaController extends Controller
                             <!-- Columna del Cuadro de Pedido -->
                               <td style='width: 25%; text-align: center; vertical-align: middle; border: 1px solid #1e1e1e;'>
                                     <span style='font-size: 9px;'>RUC: {$datoEmpresa['ruc']}</span><br><br> <!-- Usamos dos <br> para separar -->
-                                    <span style='font-size: 9px; font-weight: bold;'>$tipo_documeto_venta {$datoVenta['numero']}</span>
+                                    <span style='font-size: 9px; font-weight: bold;'>$tipo_documeto_venta {$datoVenta['numero']}</span><br><br>
+                                    <span style='font-size: 11px; font-weight: bold;'>ITEM: $numero_item_ruta</span>
                             </td>
                             </td>
                           </tr>

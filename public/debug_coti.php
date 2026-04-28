@@ -1,6 +1,6 @@
 <?php
 $conexion = new mysqli('localhost', 'root', '', 'magusqao_titanic');
-$coti = 46822;
+$coti = 50481;
 $sql = "SELECT DATE(co.fecha) as fecha, co.id_empresa, co.sucursal, c.dias_visitas, c.id_ruta, c.mercado 
         FROM cotizaciones co 
         INNER JOIN clientes c ON co.id_cliente = c.id_cliente 
