@@ -17,20 +17,18 @@ class ArqueoDiarioController extends Controller
         
         // Obtener todos los cobros del día de dias_ventas
         $sql_dv = "SELECT 
-            dv.id_usuario,
+            IFNULL(dv.id_usuario, v.id_vendedor) as id_usuario,
             u.usuario,
             dv.tipo_pago,
             SUM(dv.monto) as total
         FROM dias_ventas dv
         INNER JOIN ventas v ON v.id_venta = dv.id_venta
-        LEFT JOIN usuarios u ON u.usuario_id = dv.id_usuario
-        WHERE DATE(dv.fecha_pago_real) = '$fecha'
+        LEFT JOIN usuarios u ON u.usuario_id = IFNULL(dv.id_usuario, v.id_vendedor)
+        WHERE DATE(IFNULL(dv.fecha_pago_real, dv.fecha)) = '$fecha'
         AND dv.estado = '1'
-        AND dv.id_usuario IS NOT NULL
-        AND dv.id_usuario > 0
         AND v.id_empresa = '{$_SESSION['id_empresa']}'
         AND v.sucursal = '{$_SESSION['sucursal']}'
-        GROUP BY dv.id_usuario, dv.tipo_pago";
+        GROUP BY IFNULL(dv.id_usuario, v.id_vendedor), u.usuario, dv.tipo_pago";
         
         $result_dv = $this->conexion->query($sql_dv);
         
@@ -41,20 +39,18 @@ class ArqueoDiarioController extends Controller
         
         // Obtener cobros de cuotas_cotizacion
         $sql_cc = "SELECT 
-            cc.id_usuario,
+            IFNULL(cc.id_usuario, co.id_usuario) as id_usuario,
             u.usuario,
             cc.tipo_pago,
             SUM(cc.monto) as total
         FROM cuotas_cotizacion cc
         INNER JOIN cotizaciones co ON co.cotizacion_id = cc.id_coti
-        LEFT JOIN usuarios u ON u.usuario_id = cc.id_usuario
-        WHERE DATE(cc.fecha_pago_real) = '$fecha'
+        LEFT JOIN usuarios u ON u.usuario_id = IFNULL(cc.id_usuario, co.id_usuario)
+        WHERE DATE(IFNULL(cc.fecha_pago_real, cc.fecha)) = '$fecha'
         AND cc.estado = '1'
-        AND cc.id_usuario IS NOT NULL
-        AND cc.id_usuario > 0
         AND co.id_empresa = '{$_SESSION['id_empresa']}'
         AND co.sucursal = '{$_SESSION['sucursal']}'
-        GROUP BY cc.id_usuario, cc.tipo_pago";
+        GROUP BY IFNULL(cc.id_usuario, co.id_usuario), u.usuario, cc.tipo_pago";
         
         $result_cc = $this->conexion->query($sql_cc);
         
@@ -77,7 +73,8 @@ class ArqueoDiarioController extends Controller
                     'usuario' => $usuario, 
                     'efectivo' => 0, 
                     'bancos' => 0, 
-                    'total' => 0
+                    'total' => 0,
+                    'pagos_digitales_sistema' => []
                 ];
             }
             
@@ -99,7 +96,8 @@ class ArqueoDiarioController extends Controller
                     'usuario' => $usuario, 
                     'efectivo' => 0, 
                     'bancos' => 0, 
-                    'total' => 0
+                    'total' => 0,
+                    'pagos_digitales_sistema' => []
                 ];
             }
             
@@ -110,6 +108,72 @@ class ArqueoDiarioController extends Controller
             }
         }
         
+        // Obtener detalles de pagos digitales para pre-llenar el modal
+        $sql_detalles = "SELECT 
+            id_usuario_pago, id_vendedor, tipo_pago, monto, cliente_nombre
+        FROM (
+            SELECT 
+                dv.id_usuario as id_usuario_pago,
+                v.id_vendedor,
+                dv.tipo_pago,
+                dv.monto,
+                IFNULL(c.datos, 'SIN CLIENTE') as cliente_nombre
+            FROM dias_ventas dv
+            INNER JOIN ventas v ON v.id_venta = dv.id_venta
+            LEFT JOIN clientes c ON c.id_cliente = v.id_cliente
+            WHERE (DATE(dv.fecha_pago_real) = '$fecha' OR (dv.fecha_pago_real IS NULL AND dv.fecha = '$fecha'))
+            AND dv.estado = '1'
+            AND TRIM(LOWER(IFNULL(dv.tipo_pago, ''))) NOT IN ('efectivo', '')
+            AND v.id_empresa = '{$_SESSION['id_empresa']}'
+            AND v.sucursal = '{$_SESSION['sucursal']}'
+            
+            UNION ALL
+            
+            SELECT 
+                cc.id_usuario as id_usuario_pago,
+                co.id_usuario as id_vendedor,
+                cc.tipo_pago,
+                cc.monto,
+                IFNULL(c.datos, 'SIN CLIENTE') as cliente_nombre
+            FROM cuotas_cotizacion cc
+            INNER JOIN cotizaciones co ON co.cotizacion_id = cc.id_coti
+            LEFT JOIN clientes c ON c.id_cliente = co.id_cliente
+            WHERE (DATE(cc.fecha_pago_real) = '$fecha' OR (cc.fecha_pago_real IS NULL AND cc.fecha = '$fecha'))
+            AND cc.estado = '1'
+            AND TRIM(LOWER(IFNULL(cc.tipo_pago, ''))) NOT IN ('efectivo', '')
+            AND co.id_empresa = '{$_SESSION['id_empresa']}'
+            AND co.sucursal = '{$_SESSION['sucursal']}'
+        ) as t";
+        
+        $result_detalles = $this->conexion->query($sql_detalles);
+        if ($result_detalles) {
+            while ($row = $result_detalles->fetch_assoc()) {
+                $ids_a_agregar = array_unique([$row['id_usuario_pago'], $row['id_vendedor']]);
+                
+                foreach ($ids_a_agregar as $uid) {
+                    if (empty($uid)) continue;
+                    
+                    // Aseguramos que el usuario exista en el resumen
+                    if (!isset($vendedores[$uid])) {
+                        $vendedores[$uid] = [
+                            'usuario_id' => $uid,
+                            'usuario' => 'Usuario ' . $uid,
+                            'efectivo' => 0,
+                            'bancos' => 0,
+                            'total' => 0,
+                            'pagos_digitales_sistema' => []
+                        ];
+                    }
+                    
+                    $vendedores[$uid]['pagos_digitales_sistema'][] = [
+                        'cliente_nombre' => $row['cliente_nombre'],
+                        'tipo_pago' => $row['tipo_pago'],
+                        'monto' => floatval($row['monto'])
+                    ];
+                }
+            }
+        }
+
         // Calcular totales
         foreach ($vendedores as &$v) {
             $v['total'] = $v['efectivo'] + $v['bancos'];

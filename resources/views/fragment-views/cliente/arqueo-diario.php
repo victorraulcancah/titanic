@@ -269,8 +269,13 @@ $conexion = (new Conexion())->getConexion();
                                                 <tr v-for="(pago, index) in pagosDigitales" :key="index">
                                                     <td class="small">
                                                         <strong>{{ pago.cliente_nombre }}</strong><br>
-                                                        <span class="badge bg-secondary">{{ pago.tipo_pago }}</span> 
-                                                        Op: {{ pago.numero_operacion }}
+                                                        <span class="badge bg-light text-dark border">{{ pago.tipo_pago }}</span> 
+                                                        <input v-if="modoEdicion || !arqueoSeleccionado" type="text" 
+                                                               class="form-control form-control-sm d-inline-block" 
+                                                               style="width: 120px; height: 22px; font-size: 10px;"
+                                                               placeholder="N° Operación" 
+                                                               v-model="pago.numero_operacion">
+                                                        <span v-else>Op: {{ pago.numero_operacion }}</span>
                                                     </td>
                                                     <td class="text-end">{{ formatMoney(pago.monto) }}</td>
                                                     <td v-if="modoEdicion || !arqueoSeleccionado" class="text-center">
@@ -594,7 +599,14 @@ $(document).ready(function() {
                     otro: '',
                     otro_descripcion: ''
                 };
-                this.pagosDigitales = [];
+                // Pre-cargar pagos digitales del sistema
+                this.pagosDigitales = (vendedor.pagos_digitales_sistema || []).map(p => ({
+                    cliente_nombre: p.cliente_nombre,
+                    tipo_pago: p.tipo_pago,
+                    numero_operacion: '', // El usuario completará esto manualmente
+                    monto: p.monto
+                }));
+
                 this.nuevoPago = {
                     cliente_nombre: '',
                     tipo_pago: 'Yape',

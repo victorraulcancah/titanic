@@ -530,14 +530,13 @@ class VentasController extends Controller
 
             $resultado["res"] = true;
             $array_detalle = json_decode($_POST['listaPro'], true);
+            $id_usuario_pago = isset($_SESSION['usuario_fac']) ? $_SESSION['usuario_fac'] : (isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : null);
+            $fecha_actual_pago = date('Y-m-d H:i:s');
+            
             foreach ($listaPagos as $diaP) {
                 $sql = "insert into dias_ventas set id_venta='{$c_venta->getIdVenta()}',
-                    monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='0'";
+                    monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='0', id_usuario='$id_usuario_pago', fecha_pago_real='$fecha_actual_pago'";
                 $c_venta->exeSQL($sql);
-                /*  $dataSend['dias_pagos'][] = [
-                    "monto" => $diaP['monto'],
-                    "fecha" => $diaP['fecha']
-                ]; */
             }
             /*    $dataSend['dias_pagos'] = json_encode($dataSend['dias_pagos']); */
 
@@ -753,14 +752,14 @@ class VentasController extends Controller
 
             $resultado["res"] = true;
             $array_detalle = json_decode($_POST['listaPro'], true);
+            $id_usuario_pago = isset($_SESSION['usuario_fac']) ? $_SESSION['usuario_fac'] : (isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : null);
+            $fecha_actual_pago = date('Y-m-d H:i:s');
+
             foreach ($listaPagos as $diaP) {
+                $tipo_pago_p = isset($diaP['metodo_nombre']) ? $diaP['metodo_nombre'] : 'Efectivo';
                 $sql = "insert into dias_ventas set id_venta='{$_POST['idVenta']}',
-                    monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='0'";
+                    monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='0', id_usuario='$id_usuario_pago', fecha_pago_real='$fecha_actual_pago', tipo_pago='$tipo_pago_p'";
                 $c_venta->exeSQL($sql);
-                /*  $dataSend['dias_pagos'][] = [
-                    "monto" => $diaP['monto'],
-                    "fecha" => $diaP['fecha']
-                ]; */
             }
             /*  $dataSend['dias_pago'] = json_encode($dataSend['dias_pagos']); */
             #verificar los cambios de cantidades
@@ -1133,6 +1132,9 @@ class VentasController extends Controller
                 $c_venta->exeSQL($sqlCotiDel);
             }
 
+            $id_usuario_pago = isset($_SESSION['usuario_fac']) ? $_SESSION['usuario_fac'] : (isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : null);
+            $fecha_actual_pago = date('Y-m-d H:i:s');
+
             foreach ($listaPagos as $diaP) {
                 $montoVal = floatval($diaP['monto']);
                 if ($montoVal <= 0) {
@@ -1144,7 +1146,7 @@ class VentasController extends Controller
                 
                 // Insertar la cuota en la venta
                 $sql = "insert into dias_ventas set id_venta='{$c_venta->getIdVenta()}',
-                    monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='$estadoP', tipo_pago='{$diaP['metodo_nombre']}'";
+                    monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='$estadoP', tipo_pago='{$diaP['metodo_nombre']}', id_usuario='$id_usuario_pago', fecha_pago_real='$fecha_actual_pago'";
                 $c_venta->exeSQL($sql);
 
                 // Sincronizar con cuotas_cotizacion
@@ -1160,12 +1162,12 @@ class VentasController extends Controller
 
                     if ($existeCoti > 0) {
                         // Actualizar la cuota que se preservó (la que históricamente ya estaba pagada en la cotización)
-                        $sqlCotiInst = "UPDATE cuotas_cotizacion SET monto='{$diaP['monto']}', fecha='{$diaP['fecha']}', estado='1', tipo_pago='{$diaP['metodo_nombre']}' WHERE cuota_coti_id='{$cuotaId}'";
+                        $sqlCotiInst = "UPDATE cuotas_cotizacion SET monto='{$diaP['monto']}', fecha='{$diaP['fecha']}', estado='1', tipo_pago='{$diaP['metodo_nombre']}', id_usuario='$id_usuario_pago', fecha_pago_real='$fecha_actual_pago' WHERE cuota_coti_id='{$cuotaId}'";
                         $c_venta->exeSQL($sqlCotiInst);
                     } else {
                         // Insertar nueva cuota (las que se borraron por ser impagas, o las nuevas añadidas)
                         $sqlCotiInst = "insert into cuotas_cotizacion set id_coti='{$_POST['cotiId']}',
-                            monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='1', tipo_pago='{$diaP['metodo_nombre']}'";
+                            monto='{$diaP['monto']}',fecha='{$diaP['fecha']}',estado='1', tipo_pago='{$diaP['metodo_nombre']}', id_usuario='$id_usuario_pago', fecha_pago_real='$fecha_actual_pago'";
                         $c_venta->exeSQL($sqlCotiInst);
                     }
                 }
