@@ -349,17 +349,9 @@
                     let data = res;
 
                     if (Array.isArray(data)) {
-                        // Aplicar el filtro aquí también
-                        const datosFiltrados = data.filter(row => {
-                            const total = parseFloat(row.total);
-                            const pagado = parseFloat(row.pagado);
-                            const diferencia = Math.abs(total - pagado);
-                            return diferencia > 0.0000001;
-                        });
-
                         const datatable = $('#datatable').DataTable();
                         datatable.clear();
-                        datatable.rows.add(datosFiltrados).draw(); // Usar datosFiltrados
+                        datatable.rows.add(data).draw();
                         sumarTotales();
 
                     } else {

@@ -107,17 +107,15 @@ class ClientesController extends Controller
             $tieneLosTresFiltros = !empty($diasVisita) && !empty($ruta) && !empty($fecha_fin);
             
             if ($tieneLosTresFiltros) {
-                // Ordenamiento: primero mercado, luego cliente (solo nombre), luego fecha
+                // Ordenamiento: primero mercado, luego fecha
                 $orderBy = "ORDER BY 
                     CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC,
-                    SUBSTRING_INDEX(tb.cliente, '|', -1) ASC,
                     tb.fecha_emision DESC";
             } else {
-                // Ordenamiento por defecto: primero mercado, luego cliente (solo nombre), luego fecha
+                // Ordenamiento por defecto: primero fecha, luego mercado
                 $orderBy = "ORDER BY 
-                    CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC,
-                    SUBSTRING_INDEX(tb.cliente, '|', -1) ASC,
-                    tb.fecha_emision DESC";
+                    tb.fecha_emision DESC,
+                    CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC";
             }
 
             // Variables condicionales para ventas
@@ -163,7 +161,6 @@ class ClientesController extends Controller
                 $whereClientes
                 $whereDiasVisita
             GROUP BY v.id_venta
-            HAVING v.total > SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END)
             $orderBy";
 
             $filaVentas = mysqli_query($this->conectar, $sqlVentas);
@@ -197,7 +194,6 @@ class ClientesController extends Controller
                     $whereRuta
                     $whereDiasVisita
             ) tb 
-            WHERE tb.total > tb.pagado
             $orderBy";
 
             $fila = mysqli_query($this->conectar, $sql);
@@ -211,36 +207,43 @@ class ClientesController extends Controller
             // Unificar resultados y reordenar
             $listaCompleta = array_merge($listaVentas, $listaCoti);
 
-            // Reordenar el array combinado (ordenamiento multinivel)
-            usort($listaCompleta, function ($a, $b) {
-                // Ordenamiento: primero mercado (ASC), luego cliente (ASC alfabético), luego fecha (DESC)
-                $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
-                $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
-                
-                if ($mercadoA !== $mercadoB) {
+            // Reordenar el array combinado (ordenamiento multinivel descendente)
+            usort($listaCompleta, function ($a, $b) use ($tieneLosTresFiltros) {
+                // Mapeo de días a números (insensible a acentos)
+                $diasOrden = [
+                    'lunes' => 1,
+                    'martes' => 2,
+                    'miercoles' => 3,
+                    'miércoles' => 3,
+                    'jueves' => 4,
+                    'viernes' => 5,
+                    'sabado' => 6,
+                    'sábado' => 6,
+                    'domingo' => 7
+                ];
+
+                if ($tieneLosTresFiltros) {
+                    // Ordenamiento: primero mercado (ASC), luego fecha (DESC)
+                    $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
+                    $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
+                    
+                    if ($mercadoA !== $mercadoB) {
+                        return $mercadoA - $mercadoB;
+                    }
+                    
+                    // Si mercados son iguales, comparar por fecha (DESC)
+                    return strcmp($b['fecha_emision'], $a['fecha_emision']);
+                } else {
+                    // Ordenamiento por defecto: primero fecha (DESC), luego mercado (ASC)
+                    $fechaComp = strcmp($b['fecha_emision'], $a['fecha_emision']);
+                    if ($fechaComp !== 0)
+                        return $fechaComp;
+
+                    // Comparar mercado (ASC)
+                    $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
+                    $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
                     return $mercadoA - $mercadoB;
                 }
-                
-                // Si mercados son iguales, comparar por nombre de cliente (ASC alfabético)
-                $partsA = explode('|', $a['cliente']);
-                $partsB = explode('|', $b['cliente']);
-                
-                $clienteA = isset($partsA[1]) ? trim($partsA[1]) : trim($partsA[0]);
-                $clienteB = isset($partsB[1]) ? trim($partsB[1]) : trim($partsB[0]);
-                
-                // Remover información entre paréntesis para ordenar
-                $clienteA = preg_replace('/\s*\([^)]*\)/', '', $clienteA);
-                $clienteB = preg_replace('/\s*\([^)]*\)/', '', $clienteB);
-                
-                $clienteA_lower = strtolower($clienteA);
-                $clienteB_lower = strtolower($clienteB);
-                
-                if ($clienteA_lower !== $clienteB_lower) {
-                    return strcmp($clienteA_lower, $clienteB_lower);
-                }
-                
-                // Si clientes son iguales, comparar por fecha (DESC)
-                return strcmp($b['fecha_emision'], $a['fecha_emision']);
             });
 
             return $listaCompleta;
