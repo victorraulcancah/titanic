@@ -207,11 +207,11 @@ class CombinarReporteController extends Controller
             $rowHTML = $rowHTML . "
               <tr>
                 
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>{$prod['codigo']}</td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$cnt4 </td>
-                <td class='' style=' font-size: 11px; text-align: left;border-left: 1px solid #363636;'>{$prod['descripcion']}</td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$total_paquetes_fmt</td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$peso_total_fmt Kg</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 11px; text-align: center;border-left: 1px solid #363636;'>{$prod['codigo']}</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$cnt4 </td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 11px; text-align: left;border-left: 1px solid #363636;'>{$prod['descripcion']}</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 11px; text-align: center;border-left: 1px solid #363636;'>$total_paquetes_fmt</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 11px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$peso_total_fmt Kg</td>
               </tr>
             ";
             $contador++;
@@ -602,16 +602,16 @@ class CombinarReporteController extends Controller
 
             $rowHTML .= "
             <tr>
-                <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 0; width: 40px; white-space: nowrap;'>$contador</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 0; width: 40px; white-space: nowrap;'>$contador</td>
 
-                <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:0;  width: 60px; white-space: nowrap;'>{$prod['codigo']}</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:0;  width: 60px; white-space: nowrap;'>{$prod['codigo']}</td>
 
-                <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:0; '>{$prod['descripcion']}</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:0; '>{$prod['descripcion']}</td>
 
-                <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:0; width: 70px; white-space: nowrap;'>$total_paquetes_fmt</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:0; width: 70px; white-space: nowrap;'>$total_paquetes_fmt</td>
                 
-                <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff;  padding:2px; width: 70px; white-space: nowrap;'>$peso_total_fmt Kg</td> 
-                <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff;border-right: 1px solid #fff; padding:0; width: 70px; white-space: nowrap;'>$cnt4</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff;  padding:2px; width: 70px; white-space: nowrap;'>$peso_total_fmt Kg</td> 
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff;border-right: 1px solid #fff; padding:0; width: 70px; white-space: nowrap;'>$cnt4</td>
             </tr>
         ";
             $contador++;
@@ -934,12 +934,12 @@ class CombinarReporteController extends Controller
 
                 $rowHTML = $rowHTML . "
              <tr>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
-                <td class='' style=' font-size: 10px; text-align: left;border-left: 1px solid #363636;'><strong>{$prod['descripcion']}</strong></td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['cantidad']} </td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['presenta_cnt']}  </td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td> 
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: left;border-left: 1px solid #363636;'><strong>{$prod['descripcion']}</strong></td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['cantidad']} </td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['presenta_cnt']}  </td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td> 
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
               </tr>
               
             ";
@@ -2370,13 +2370,13 @@ class CombinarReporteController extends Controller
                 $multi = $prod['cantidad'] * $prod['presenta_cnt'];
                 $rowHTML = $rowHTML . "
               <tr>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
-                <td class='' style='font-size: 10px; text-align: center; border-left: 1px solid #363636;'>$multi</td>
-                <td class='' style=' font-size: 10px; text-align: left;border-left: 1px solid #363636;'><strong>{$prod['descripcion']}</strong></td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['cantidad']} </td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['presenta_cnt']}  </td>
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td> 
-                <td class='' style=' font-size: 10px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center; border-left: 1px solid #363636;'>$multi</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: left;border-left: 1px solid #363636;'><strong>{$prod['descripcion']}</strong></td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['cantidad']} </td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['presenta_cnt']}  </td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td> 
+                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
               </tr>
               
             ";
@@ -3079,22 +3079,22 @@ class CombinarReporteController extends Controller
                     // Consolidado Camión: solo 4 columnas (item, Código, M, PRODUCTO)
                     $rowHTML .= "
                         <tr>
-                            <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
-                            <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
-                            <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_multiplicado']}</td>
-                            <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
+                            <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
+                            <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
+                            <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_multiplicado']}</td>
+                            <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
                         </tr>
                     ";
                 } else {
                     // Consolidado por Mercados: 6 columnas (item, Código, M, PRODUCTO, MEDIDA, CANTIDAD)
                     $rowHTML .= "
                         <tr>
-                            <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
-                            <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
-                            <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$multi_formateado</td>
-                            <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
-                            <td class='' style='text-align:center;font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:2px;  width:auto; white-space: nowrap;'>{$prod['total_medida']}</td>
-                            <td class='' style='text-align: center; font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_cantidad']}</td>
+                            <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
+                            <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
+                            <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$multi_formateado</td>
+                            <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
+                            <td class='' style='text-align:center; color: #000; font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:2px;  width:auto; white-space: nowrap;'>{$prod['total_medida']}</td>
+                            <td class='' style='text-align: center; color: #000; font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_cantidad']}</td>
                         </tr>
                     ";
                 }
@@ -3385,13 +3385,13 @@ class CombinarReporteController extends Controller
 
                 $rowHTML .= "
                 <tr>
-                    <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
-                    <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
-                    <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$multi_formateado</td>
-                    <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
-                    <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: 70px; white-space: nowrap;'>{$prod['medida']}</td>
-                    <td class='' style='text-align:center;font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:2px;  width:auto; white-space: nowrap;'>{$prod['total_medida']}</td>
-                    <td class='' style='text-align: center; font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_cantidad']}</td>
+                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
+                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
+                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$multi_formateado</td>
+                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
+                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: 70px; white-space: nowrap;'>{$prod['medida']}</td>
+                    <td class='' style='text-align:center; color: #000; font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:2px;  width:auto; white-space: nowrap;'>{$prod['total_medida']}</td>
+                    <td class='' style='text-align: center; color: #000; font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_cantidad']}</td>
                 </tr>
             ";
                 $contador++;
@@ -3673,10 +3673,10 @@ class CombinarReporteController extends Controller
                     // $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
                     $rowHTML .= "
                     <tr>
-                        <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
-                        <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
-                        <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_cantidad']}</td>
-                        <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
+                        <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
+                        <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
+                        <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_cantidad']}</td>
+                        <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
                     </tr>
                 "; // CAMBIO: M y CANTIDAD muestran el mismo valor
                     $contador++;
@@ -3874,14 +3874,14 @@ class CombinarReporteController extends Controller
 
             $rowHTML .= "
             <tr>
-                <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 0; white-space: nowrap;width: 5%;'>{$contador}</td>
-                <td class='' style='font-weight: bold;font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 0; white-space: nowrap;width: 15%;'>{$cotizacion['documento']}</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 0; white-space: nowrap;width: 5%;'>{$contador}</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 0; white-space: nowrap;width: 15%;'>{$cotizacion['documento']}</td>
 
-                <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:0;width: 45%;'>{$cotizacion['datos']}</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:0;width: 45%;'>{$cotizacion['datos']}</td>
                 
-                <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:0;width: 10%; '>{$cotizacion['mercado']}</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:0;width: 10%; '>{$cotizacion['mercado']}</td>
                 
-                <td class='' style='font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:0; white-space: nowrap;width: 15%;'>{$cotizacion['numero']}</td>
+                <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:0; white-space: nowrap;width: 15%;'>{$cotizacion['numero']}</td>
                 
                 <td class='' style='text-align:right;font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:0; white-space: nowrap;width: 10%;'>{$cotizacion['total']}</td>
             </tr>
