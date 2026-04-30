@@ -816,19 +816,23 @@
                             data: "fecha",
                             class: "text-center",
                             render: function (data, type, row) {
-                                // Usar fecha actual de JavaScript si no hay fecha o es inválida
                                 let fecha;
-                                if (row.fecha && row.fecha != '0000-00-00') {
-                                    fecha = row.fecha;
-                                } else {
-                                    // Obtener fecha actual en formato YYYY-MM-DD
+                                if (row.estado == '0') {
+                                    // Si no está pagado, mostrar la fecha de hoy por defecto
                                     const hoy = new Date();
                                     const year = hoy.getFullYear();
                                     const month = String(hoy.getMonth() + 1).padStart(2, '0');
                                     const day = String(hoy.getDate()).padStart(2, '0');
                                     fecha = `${year}-${month}-${day}`;
+                                } else {
+                                    // Si está pagado, mostrar la fecha en la que se pagó
+                                    fecha = (row.fecha && row.fecha != '0000-00-00') ? row.fecha : '';
                                 }
-                                return `<input  data-tipo="${row.tipo_doc}" data-cod="${row.dias_venta_id}"  class="lisopcpafecha" type="date" value="${fecha}">`;
+                                
+                                // Permitir editar la fecha si es admin (rol 1) o si no está pagado
+                                let IsDisabled = (row.estado == 1 && id_rol != 1) ? 'disabled' : '';
+                                
+                                return `<input  data-tipo="${row.tipo_doc}" data-cod="${row.dias_venta_id}"  class="lisopcpafecha" type="date" value="${fecha}" ${IsDisabled}>`;
                             }
                         },
                         {

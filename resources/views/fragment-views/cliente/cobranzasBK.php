@@ -26,7 +26,8 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="card" style="border-radius:20px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06)">
+        <div class="card"
+            style="border-radius:20px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06)">
             <div class="card-header">
                 <!-- agregando 10/04/2025 -->
                 <div class="row align-items-end g-3">
@@ -41,7 +42,8 @@
                             </div>
                             <div class="col-md-3">
                                 <label for="fecha_inicio" class="form-label form-label-sm fs-7">Fecha inicio</label>
-                                <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control form-control-sm">
+                                <input type="date" id="fecha_inicio" name="fecha_inicio"
+                                    class="form-control form-control-sm">
                             </div>
                             <div class="col-md-3">
                                 <label for="fecha_fin" class="form-label form-label-sm fs-7">Fecha fin</label>
@@ -116,7 +118,8 @@
 
                 </div>
                 <div class="table-responsive">
-                    <table id="datatable" class="table table-bordered text-center table-sm" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                    <table id="datatable" class="table table-bordered text-center table-sm"
+                        style="border-collapse: collapse; border-spacing: 0; width: 100%;">
 
                         <thead>
                             <tr>
@@ -134,23 +137,28 @@
                                 <th>Dias V.</th>
                                 <th>Cuotas</th>
                                 <th>Productos</th>
+                                <!-- <th>Editar</th> -->
                             </tr>
                         </thead>
 
                     </table>
                 </div>
-                <div class="modal fade" id="modalProductos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" id="modalProductos" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div id="" class="col-xs-12 col-sm-12 col-md-12 no-padding table-responsive">
 
 
-                                    <table id="datatableProductos" class="table table-bordered dt-responsive nowrap text-center table-sm" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                    <table id="datatableProductos"
+                                        class="table table-bordered dt-responsive nowrap text-center table-sm"
+                                        style="border-collapse: collapse; border-spacing: 0; width: 100%;">
 
                                         <thead>
                                             <tr>
@@ -168,18 +176,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div id="" class="col-xs-12 col-sm-12 col-md-12 no-padding table-responsive">
                                     <h4 id="title-ciente-cuotas"></h4>
 
-                                    <table id="datatableDiasCompras" class="table table-bordered dt-responsive nowrap text-center table-sm" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                    <table id="datatableDiasCompras"
+                                        class="table table-bordered dt-responsive nowrap text-center table-sm"
+                                        style="border-collapse: collapse; border-spacing: 0; width: 100%;">
 
                                         <thead>
                                             <tr>
@@ -203,7 +215,8 @@
                                 <p>Total Pagado: <input type="text" id="total_pagado" class="border px-2 py-1"></p>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" id="btnAgregarPago"><i class="fas fa-plus"></i> Agregar Pago</button>
+                                <button type="button" class="btn btn-primary" id="btnAgregarPago"><i
+                                        class="fas fa-plus"></i> Agregar Pago</button>
                                 <button type="button" class="btn btn-danger cerrarpagos">Cerrar</button>
                             </div>
                         </div>
@@ -231,19 +244,19 @@
         };
 
         fetch(_URL + "/ajs/cobranzas/pdf", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id_usuario: $('#vendedor').val(),
-                    fecha_inicio: $('#fecha_inicio').val(),
-                    fecha_fin: $('#fecha_fin').val(),
-                    camion: $('#camion').val(),
-                    diasVisita: $('#diasVisita').val(),
-                    ruta: $('#ruta').val()
-                })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id_usuario: $('#vendedor').val(),
+                fecha_inicio: $('#fecha_inicio').val(),
+                fecha_fin: $('#fecha_fin').val(),
+                camion: $('#camion').val(),
+                diasVisita: $('#diasVisita').val(),
+                ruta: $('#ruta').val()
             })
+        })
             .then(response => response.blob()) // PDF será un blob
             .then(blob => {
                 const url = window.URL.createObjectURL(blob);
@@ -258,7 +271,7 @@
         let total_pagado = 0;
         // agregando 10/04/2025
         let datatable = $('#datatable').DataTable();
-        $('#datatableDiasCompras').DataTable().rows().every(function() {
+        $('#datatableDiasCompras').DataTable().rows().every(function () {
             let row = this.data();
             let estado = row.estado;
 
@@ -277,7 +290,7 @@
         let restante = 0;
         let total_pagado = 0;
 
-        $('#datatableDiasCompras').DataTable().rows().every(function() {
+        $('#datatableDiasCompras').DataTable().rows().every(function () {
             let row = this.data();
             let estado = row.estado;
 
@@ -301,7 +314,7 @@
                 id_venta: id,
                 tipo
             },
-            success: function(res) {
+            success: function (res) {
                 let total = JSON.parse(res).total;
                 $('#total_cuotas').val(total);
                 totalPagado = parseFloat($('#total_pagado').val());
@@ -331,22 +344,14 @@
                 diasVisita: diasVisita,
                 ruta: ruta
             },
-            success: function(res) {
+            success: function (res) {
                 try {
                     let data = res;
 
                     if (Array.isArray(data)) {
-                        // Aplicar el filtro aquí también
-                        const datosFiltrados = data.filter(row => {
-                            const total = parseFloat(row.total);
-                            const pagado = parseFloat(row.pagado);
-                            const diferencia = Math.abs(total - pagado);
-                            return diferencia > 0.0000001;
-                        });
-
                         const datatable = $('#datatable').DataTable();
                         datatable.clear();
-                        datatable.rows.add(datosFiltrados).draw(); // Usar datosFiltrados
+                        datatable.rows.add(data).draw();
                         sumarTotales();
 
                     } else {
@@ -357,7 +362,7 @@
                     console.log("Respuesta recibida:", res);
                 }
             },
-            error: function(err) {
+            error: function (err) {
                 console.error("Error en la petición AJAX:", err);
             }
         });
@@ -383,7 +388,7 @@
         $("#pagado").text(`S/ ${pagado.toFixed(2)}`);
         $("#saldo").text(`S/ ${saldo.toFixed(2)}`);
     }
-    $(document).ready(function() {
+    $(document).ready(function () {
         listarMercados();
         listarRutas();
 
@@ -391,11 +396,11 @@
             $.ajax({
                 url: '/ajs/admin/cliente/mercados',
                 method: 'GET',
-                success: function(response) {
+                success: function (response) {
                     response = JSON.parse(response);
                     console.log(response);
                     let options = `<option value="">Selecciona</option>`;
-                    $.each(response, function(idx, res) {
+                    $.each(response, function (idx, res) {
                         options += `<option value="${res.mercado}">${res.mercado}</option>`;
                     });
                     $("#mercado").html(options);
@@ -407,11 +412,11 @@
             $.ajax({
                 url: 'ajs/admin/cliente/rutas',
                 method: 'GET',
-                success: function(response) {
+                success: function (response) {
                     response = JSON.parse(response);
                     console.log(response);
                     let options = `<option value="">Seleccione</option>`;
-                    $.each(response, function(idx, res) {
+                    $.each(response, function (idx, res) {
                         options += `<option value="${res.id_ruta}">${res.id_ruta}</option>`;
                     });
                     $("#ruta").html(options);
@@ -432,7 +437,7 @@
         $.ajax({
             type: 'GET',
             url: _URL + '/ajs/cuentas/usuarios',
-            success: function(resp) {
+            success: function (resp) {
                 $selectVendedores = $('#vendedor');
                 $selectVendedores.empty();
                 $selectVendedores.append('<option value="">Todos</option>');
@@ -449,7 +454,7 @@
             url: _URL + "/ajs/cuentas/cobrar/render",
             method: "POST",
             dataType: "json", // Asegúrate de que la respuesta sea JSON
-            success: function(data) {
+            success: function (data) {
                 // Filtrar los datos para incluir solo los que no están totalmente pagados
                 const datosFiltrados = data.filter(row => {
                     const total = parseFloat(row.total);
@@ -461,12 +466,10 @@
                 // Inicializar DataTables con los datos filtrados
                 datatable = $("#datatable").DataTable({
                     order: [], // Sin ordenamiento inicial, usar el del backend
-                    columnDefs: [
-                        {
-                            targets: 2, // Columna fecha
-                            type: "date"
-                        }
-                    ],
+                    columnDefs: [{
+                        targets: 2, // Columna fecha
+                        type: "date"
+                    }],
                     paging: true,
                     bFilter: true,
                     ordering: true,
@@ -477,143 +480,161 @@
                         url: "ServerSide/Spanish.json",
                     },
                     columns: [{
-                            data: "id_venta",
-                            class: "text-center",
+                        data: "id_venta",
+                        class: "text-center",
+                    },
+                    {
+                        data: "factura",
+                        class: "text-center",
+                    },
+                    {
+                        data: "fecha_emision",
+                        class: "text-center",
+                    },
+                    {
+                        data: "fecha_emision",
+                        class: "text-center",
+                    },
+                    {
+                        data: "vendedor",
+                        class: "text-center",
+                    },
+                    {
+                        data: "cliente",
+                        class: "text-center",
+                    },
+                    {
+                        data: "mercado",
+                        class: "text-center",
+                        // visible: false
+                    },
+                    {
+                        data: "total",
+                        class: "text-center",
+                        render: function (data) {
+                            return `<div class="text-center"><div class="btn-group">S/ ${data ?? 0}</div></div>`;
                         },
-                        {
-                            data: "factura",
-                            class: "text-center",
+                    },
+                    {
+                        data: "pagado",
+                        class: "text-center",
+                        render: function (data) {
+                            return `<div class="text-center"><div class="btn-group">S/ ${parseFloat(data ?? 0).toFixed(2)}</div></div>`;
                         },
-                        {
-                            data: "fecha_emision",
-                            class: "text-center",
+                    },
+                    {
+                        data: "saldo",
+                        class: "text-center",
+                        render: function (data) {
+                            return `<div class="text-center"><div class="btn-group">S/ ${parseFloat(data ?? 0).toFixed(2)}</div></div>`;
                         },
-                        {
-                            data: "fecha_emision",
-                            class: "text-center",
-                        },
-                        {
-                            data: "vendedor",
-                            class: "text-center",
-                        },
-                        {
-                            data: "cliente",
-                            class: "text-center",
-                        },
-                        {
-                            data: "mercado",
-                            class: "text-center",
-                            // visible: false
-                        },
-                        {
-                            data: "total",
-                            class: "text-center",
-                            render: function(data) {
-                                return `<div class="text-center"><div class="btn-group">S/ ${data ?? 0}</div></div>`;
-                            },
-                        },
-                        {
-                            data: "pagado",
-                            class: "text-center",
-                            render: function(data) {
-                                return `<div class="text-center"><div class="btn-group">S/ ${parseFloat(data ?? 0).toFixed(2)}</div></div>`;
-                            },
-                        },
-                        {
-                            data: "saldo",
-                            class: "text-center",
-                            render: function(data) {
-                                return `<div class="text-center"><div class="btn-group">S/ ${parseFloat(data ?? 0).toFixed(2)}</div></div>`;
-                            },
-                        },
-                        {
-                            data: null,
-                            class: "text-center",
-                            render: function(data, type, row) {
-                                let vencimiento = row.fecha_vencimiento ?? row.fecha_emision
-                                if (vencimiento) {
-                                    const [year, month, day] = vencimiento.split('-');
-                                    const vencimientoFecha = [month, day, year].join('/');
-                                    var today = new Date();
-                                    var dd = String(today.getDate()).padStart(2, '0');
-                                    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-                                    var yyyy = today.getFullYear();
-                                    today = mm + '/' + dd + '/' + yyyy;
+                    },
+                    {
+                        data: null,
+                        class: "text-center",
+                        render: function (data, type, row) {
+                            let vencimiento = row.fecha_vencimiento ?? row.fecha_emision
+                            if (vencimiento) {
+                                const [year, month, day] = vencimiento.split('-');
+                                const vencimientoFecha = [month, day, year].join('/');
+                                var today = new Date();
+                                var dd = String(today.getDate()).padStart(2, '0');
+                                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                                var yyyy = today.getFullYear();
+                                today = mm + '/' + dd + '/' + yyyy;
 
-                                    if ((parseFloat(row.total).toFixed(3) == parseFloat(row.pagado).toFixed(3))) {
-                                        return `<div class="text-center">
+                                if ((parseFloat(row.total).toFixed(3) == parseFloat(row.pagado).toFixed(3))) {
+                                    return `<div class="text-center">
                                     <div class="btn-group"><span class="badge bg-success">Pagado</span></div></div>`;
-                                    } else if ((parseFloat(row.total).toFixed(3) > parseFloat(row.pagado).toFixed(3)) && today > vencimientoFecha) {
-                                        return `<div class="text-center">
+                                } else if ((parseFloat(row.total).toFixed(3) > parseFloat(row.pagado).toFixed(3)) && today > vencimientoFecha) {
+                                    return `<div class="text-center">
                                     <div class="btn-group"><span class="badge bg-danger">Vencido</span></div></div>`;
-                                    } else if ((parseFloat(row.total).toFixed(3) > parseFloat(row.pagado).toFixed(3)) && today < vencimientoFecha) {
-                                        return `<div class="text-center">
+                                } else if ((parseFloat(row.total).toFixed(3) > parseFloat(row.pagado).toFixed(3)) && today < vencimientoFecha) {
+                                    return `<div class="text-center">
                                     <div class="btn-group"><span class="badge bg-warning">Pendiente</span></div></div>`;
-                                    } else {
-                                        return `<div class="text-center">
+                                } else {
+                                    return `<div class="text-center">
                                     <div class="btn-group"><span class="badge bg-warning">Pendiente</span></div></div>`;
-                                    }
                                 }
-                            },
+                            }
                         },
-                        {
-                            data: null,
-                            class: "text-center",
-                            render: function(data, type, row) {
-                                let vencimiento = row.fecha_vencimiento ?? row.fecha_emision
-                                if (vencimiento) {
-                                    const [year, month, day] = vencimiento.split('-');
-                                    const vencimientoFecha = [month, day, year].join('/');
-                                    var today = new Date();
-                                    var dd = String(today.getDate()).padStart(2, '0');
-                                    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-                                    var yyyy = today.getFullYear();
-                                    today = mm + '/' + dd + '/' + yyyy;
-                                    const dateToday = new Date(today);
-                                    const dateVencimiento = new Date(vencimientoFecha);
-                                    const diffTime = Math.abs(dateToday - dateVencimiento);
-                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                    /* console.log(diffDays); */
-                                    if (today > vencimientoFecha) {
-                                        return `<div class="text-center">
+                    },
+                    {
+                        data: null,
+                        class: "text-center",
+                        render: function (data, type, row) {
+                            let vencimiento = row.fecha_vencimiento ?? row.fecha_emision
+                            if (vencimiento) {
+                                const [year, month, day] = vencimiento.split('-');
+                                const vencimientoFecha = [month, day, year].join('/');
+                                var today = new Date();
+                                var dd = String(today.getDate()).padStart(2, '0');
+                                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                                var yyyy = today.getFullYear();
+                                today = mm + '/' + dd + '/' + yyyy;
+                                const dateToday = new Date(today);
+                                const dateVencimiento = new Date(vencimientoFecha);
+                                const diffTime = Math.abs(dateToday - dateVencimiento);
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                /* console.log(diffDays); */
+                                if (today > vencimientoFecha) {
+                                    return `<div class="text-center">
                                     <div class="btn-group"><span class="badge bg-danger">${diffDays}</span></div></div>`;
-                                    } else {
-                                        return `<div class="text-center">
+                                } else {
+                                    return `<div class="text-center">
                                     <div class="btn-group"><span class="badge bg-success">0</span></div></div>`;
-                                    }
+                                }
+                            }
+                        },
+                    },
+                    {
+                        data: null,
+                        class: "text-center",
+                        render: function (data, type, row) {
+                            return `<div class="text-center">
+                                        <div class="btn-group"><button data-tipo="${row.tipo_co}"  data-id="${Number(
+                                row.id_venta
+                            )}" class="btn btn-success btnDetalles btn-sm"><i class="fa fa-eye"></i> </button></div></div>`;
+                        },
+                    },
+                    // agregando 10/04/2025
+                    {
+                        data: null,
+                        class: "text-center",
+                        render: function (data, type, row) {
+                            return `<div class="text-center">
+                                        <div class="btn-group"><button data-id="${Number(
+                                row.id_venta
+                            )}" class="btn btn-success btnDetallesProductos btn-sm"><i class="fa fa-eye"></i> </button></div></div>`;
+                        },
+                    },
+                        /* {
+                            data: null,
+                            class: "text-center",
+                            render: function(data, type, row) {
+                                // Solo mostrar botón de editar para cotizaciones (tipo_co = 'c')
+                                if (row.tipo_co === 'c') {
+                                    return `<div class="text-center">
+                                            <div class="btn-group">
+                                                <a href="/cotizaciones/edt/${row.id_venta}" class="btn btn-primary btn-sm button-link">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                            </div>
+                                        </div>`;
+                                } else {
+                                    return '<div class="text-center">-</div>';
                                 }
                             },
-                        },
-                        {
-                            data: null,
-                            class: "text-center",
-                            render: function(data, type, row) {
-                                return `<div class="text-center">
-                                        <div class="btn-group"><button data-tipo="${row.tipo_co}"  data-id="${Number(
-                                            row.id_venta
-                                        )}" class="btn btn-success btnDetalles btn-sm"><i class="fa fa-eye"></i> </button></div></div>`;
-                            },
-                        },
-                        // agregando 10/04/2025
-                        {
-                            data: null,
-                            class: "text-center",
-                            render: function(data, type, row) {
-                                return `<div class="text-center">
-                                        <div class="btn-group"><button data-id="${Number(
-                                            row.id_venta
-                                        )}" class="btn btn-success btnDetallesProductos btn-sm"><i class="fa fa-eye"></i> </button></div></div>`;
-                            },
-                        },
+                        }, */
                     ],
                 });
             },
-            error: function(error) {
+            error: function (error) {
                 console.error("Error al cargar los datos:", error);
             }
         });
         // agregando 10/04/2025
-        $("#datatable").on("click", ".btnDetallesProductos", function(event) {
+        $("#datatable").on("click", ".btnDetallesProductos", function (event) {
             var botonDetalle = $(event.currentTarget);
             $("#loader-menor").show();
             var table = $("#tablaMaquina").DataTable();
@@ -636,7 +657,7 @@
                 data: {
                     id: id
                 },
-                success: function(resp) {
+                success: function (resp) {
                     $("#loader-menor").hide();
 
                     let data = JSON.parse(resp);
@@ -649,43 +670,43 @@
                     $("#datatableProductos").DataTable({
                         data: data,
                         columns: [{
-                                data: "id_producto",
-                                className: "text-center"
-                            },
-                            {
-                                data: "descripcion",
-                                className: "text-center"
-                            },
-                            {
-                                data: "cantidad",
-                                className: "text-center",
-                                render: function(data, type, row) {
-                                    return `
+                            data: "id_producto",
+                            className: "text-center"
+                        },
+                        {
+                            data: "descripcion",
+                            className: "text-center"
+                        },
+                        {
+                            data: "cantidad",
+                            className: "text-center",
+                            render: function (data, type, row) {
+                                return `
                                 <div class="text-center">
-                                    ${(row.cantidad*row.presenta_cnt).toFixed(2)}
+                                    ${(row.cantidad * row.presenta_cnt).toFixed(2)}
                                 </div>`;
-                                }
-                            },
-                            {
-                                data: "precio",
-                                className: "text-center"
-                            },
-                            {
-                                data: "total",
-                                className: "text-center",
-                                render: function(data, type, row) {
-                                    return `
+                            }
+                        },
+                        {
+                            data: "precio",
+                            className: "text-center"
+                        },
+                        {
+                            data: "total",
+                            className: "text-center",
+                            render: function (data, type, row) {
+                                return `
                                 <div class="text-center">
                                     <div class="btn-group">
                                         <span class="badge bg-success">${data}</span>
                                     </div>
                                 </div>`;
-                                }
                             }
+                        }
                         ]
                     });
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error("Error en AJAX:", error);
                     $("#loader-menor").hide();
                 }
@@ -693,7 +714,7 @@
         });
 
 
-        $("#datatable").on("click", ".btnDetalles ", function(event) {
+        $("#datatable").on("click", ".btnDetalles ", function (event) {
             botonDetalle = $(event.currentTarget)
             $("#loader-menor").show()
             var table = $("#tablaMaquina").DataTable();
@@ -719,7 +740,7 @@
                     tipo: tipo
                 },
                 type: "post",
-                success: function(resp) {
+                success: function (resp) {
                     $("#loader-menor").hide()
                     resp = JSON.parse(resp)
                     console.log(resp);
@@ -750,108 +771,124 @@
                         language: {
                             url: "ServerSide/Spanish.json",
                         },
-                        initComplete: function(settings, json) {
+                        initComplete: function (settings, json) {
                             sumarTotal();
                             totalApagar(id, tipo);
                         },
                         columns: [{
-                                data: "dias_venta_id",
-                                class: "text-center",
-                                render: function(data, type, row) {
-                                    // Si es un ID temporal (nuevo_X), mostrar solo el número
-                                    if (String(data).startsWith('nuevo_')) {
-                                        let numero = String(data).replace('nuevo_', '');
-                                        return `<span class="badge bg-info">${numero}</span>`;
-                                    }
-                                    return data;
+                            data: "dias_venta_id",
+                            class: "text-center",
+                            render: function (data, type, row) {
+                                // Si es un ID temporal (nuevo_X), mostrar solo el número
+                                if (String(data).startsWith('nuevo_')) {
+                                    let numero = String(data).replace('nuevo_', '');
+                                    return `<span class="badge bg-info">${numero}</span>`;
                                 }
-                            },
-                            {
-                                data: "monto",
-                                class: "text-center",
-                                render: function(data, type, row) {
-                                    // Permitir editar si no está pagado, o si está pagado pero es admin (rol 1)
-                                    let IsDisabled = (row.estado == 1 && id_rol != 1) ? 'disabled' : '';
-                                    return `<input  data-tipo="${row.tipo_doc}" data-cod="${row.dias_venta_id}" class="lisopcpavalor" type="number" step="0.01" min="0" value="${data}" ${IsDisabled}>`
+                                return data;
+                            }
+                        },
+                        {
+                            data: "monto",
+                            class: "text-center",
+                            render: function (data, type, row) {
+                                // Permitir editar si no está pagado, o si está pagado pero es admin (rol 1)
+                                let IsDisabled = (row.estado == 1 && id_rol != 1) ? 'disabled' : '';
+                                return `<input  data-tipo="${row.tipo_doc}" data-cod="${row.dias_venta_id}" class="lisopcpavalor" type="number" step="0.01" min="0" value="${data}" ${IsDisabled}>`
+                            }
+                        },
+                        {
+                            data: "fecha",
+                            class: "text-center",
+                            render: function (data, type, row) {
+                                // Usar fecha actual de JavaScript si no hay fecha o es inválida
+                                let fecha;
+                                if (row.fecha && row.fecha != '0000-00-00') {
+                                    fecha = row.fecha;
+                                } else {
+                                    // Obtener fecha actual en formato YYYY-MM-DD
+                                    const hoy = new Date();
+                                    const year = hoy.getFullYear();
+                                    const month = String(hoy.getMonth() + 1).padStart(2, '0');
+                                    const day = String(hoy.getDate()).padStart(2, '0');
+                                    fecha = `${year}-${month}-${day}`;
                                 }
-                            },
-                            {
-                                data: "fecha",
-                                class: "text-center",
-                                render: function(data, type, row) {
-                                    const fecha = (row.fecha && row.fecha != '0000-00-00') ? row.fecha : '<?php echo date('Y-m-d') ?>';
-                                    return `<input  data-tipo="${row.tipo_doc}" data-cod="${row.dias_venta_id}"  class="lisopcpafecha" type="date" value="${fecha}">`
-                                }
-                            },
-                            {
-                                data: null,
-                                class: "text-center",
-                                render: function(data, type, row) {
+                                return `<input  data-tipo="${row.tipo_doc}" data-cod="${row.dias_venta_id}"  class="lisopcpafecha" type="date" value="${fecha}">`;
+                            }
+                        },
+                        {
+                            data: null,
+                            class: "text-center",
+                            render: function (data, type, row) {
 
-                                    let vencimiento = row.fecha
-                                    const [year, month, day] = vencimiento.split('-');
-                                    const vencimientoFecha = [month, day, year].join('/');
-                                    var today = new Date();
-                                    var dd = String(today.getDate()).padStart(2, '0');
-                                    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-                                    var yyyy = today.getFullYear();
-                                    today = mm + '/' + dd + '/' + yyyy;
-                                    if ((today > vencimientoFecha) && row.estado == '0') {
-                                        return `<div class="text-center">
+                                let vencimiento = row.fecha
+                                const [year, month, day] = vencimiento.split('-');
+                                const vencimientoFecha = [month, day, year].join('/');
+                                var today = new Date();
+                                var dd = String(today.getDate()).padStart(2, '0');
+                                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                                var yyyy = today.getFullYear();
+                                today = mm + '/' + dd + '/' + yyyy;
+                                if ((today > vencimientoFecha) && row.estado == '0') {
+                                    return `<div class="text-center">
               <div class="btn-group"><span class="badge bg-danger">Vencido</span></div></div>`;
-                                    } else if ((today < vencimientoFecha || vencimientoFecha == today) && row.estado == '0') {
-                                        return `<div class="text-center">
+                                } else if ((today < vencimientoFecha || vencimientoFecha == today) && row.estado == '0') {
+                                    return `<div class="text-center">
               <div class="btn-group"><span class="badge bg-danger">Vigente</span></div></div>`;
-                                    } else if (row.estado == '1') {
-                                        return `<div class="text-center">
+                                } else if (row.estado == '1') {
+                                    return `<div class="text-center">
               <div class="btn-group"><span class="badge bg-success">Pagado</span></div></div>`;
-                                    }
+                                }
 
 
 
-                                },
                             },
-                            {
-                                data: null,
-                                class: "text-center",
-                                render: function(data, type, row) {
+                        },
+                        {
+                            data: null,
+                            class: "text-center",
+                            render: function (data, type, row) {
 
-                                    let listaOpc = ["Efectivo", "Plin", "Yape", "BCP", "BBVA"]
-                                        .map(item => {
-                                            if (item == row.tipo_pago) return `<option selected>${item}</option>`
-                                            else return `<option>${item}</option>`
+                                let dbPago = (row.tipo_pago || '').toUpperCase();
+                                let listaOpc = ["Efectivo", "Plin", "Yape", "BCP", "BBVA"]
+                                    .map(item => {
+                                        let uiItem = item.toUpperCase();
+                                        // Match exact uppercase, or if the DB string includes the option (e.g. "TRANSFERENCIA BANCO BCP" includes "BCP")
+                                        if (uiItem === dbPago || dbPago.includes(uiItem)) {
+                                            return `<option selected value="${item}">${item}</option>`;
+                                        } else {
+                                            return `<option value="${item}">${item}</option>`;
+                                        }
+                                    })
 
-                                        })
+                                // Permitir editar si no está pagado, o si está pagado pero es admin (rol 1)
+                                let isDisabled = (row.estado == 1 && id_rol != 1) ? 'disabled' : '';
 
-                                    // Permitir editar si no está pagado, o si está pagado pero es admin (rol 1)
-                                    let isDisabled = (row.estado == 1 && id_rol != 1) ? 'disabled' : '';
-
-                                    return `
+                                return `
                                     <select data-tipo="${row.tipo_doc}" data-cod="${row.dias_venta_id}" class="lisopcpa" ${isDisabled}>
                                     <option disabled selected value="">Elija Uno</option>
 ${listaOpc.join("")}
 </select>
                                     `
-                                }
-                            },
-                            {
-                                data: null,
-                                class: "text-center",
-                                render: function(data, type, row) {
-                                    let content = '<div class="text-center">';
-                                    if (row.estado == '0') {
-                                        content += `
+                            }
+                        },
+                        {
+                            data: null,
+                            class: "text-center",
+                            render: function (data, type, row) {
+                                let content = '<div class="text-center">';
+                                if (row.estado == '0') {
+                                    content += `
                                             <div class="btn-group"><button  data-tipo="${row.tipo_doc}" data-id="${row.dias_venta_id}" class="btn btn-success btnPagar btn-sm"><i class="fas fa-money-bill"></i> </button></div>`;
-                                    }
-                                    if (row.estado == '1' && id_rol == 1) {
-                                        content += `
+                                }
+                                if (row.estado == '1' && id_rol == 1) {
+                                    content += `
                                                 <div class="btn-group"><button  data-tipo="${row.tipo_doc}" data-id="${row.dias_venta_id}" class="btn btn-warning btnEditarPago btn-sm" title="Guardar cambios"><i class="fas fa-save"></i> </button></div>
                                                 <div class="btn-group"><button  data-tipo="${row.tipo_doc}" data-id="${row.dias_venta_id}" class="btn btn-danger btnEliminarPago btn-sm"><i class="fas fa-trash"></i> </button></div>`;
-                                    }
-                                    content += `</div>`;
-                                    return content;
-                                },
+                                }
+                                content += `</div>`;
+                                return content;
                             },
+                        },
 
                         ],
                     });
@@ -860,7 +897,7 @@ ${listaOpc.join("")}
                 },
             })
         });
-        $("#datatableDiasCompras").on("change", ".lisopcpavalor", function(event) {
+        $("#datatableDiasCompras").on("change", ".lisopcpavalor", function (event) {
             console.log($(event.currentTarget))
             const codPag = $(event.currentTarget).data("cod");
             const tipoPag = $(event.currentTarget).data("tipo");
@@ -920,7 +957,7 @@ ${listaOpc.join("")}
             })
 
         }) */
-        $("#datatableDiasCompras").on("change", ".lisopcpa", function(event) {
+        $("#datatableDiasCompras").on("change", ".lisopcpa", function (event) {
             const codPag = $(event.currentTarget).data("cod");
             const tipoPag = $(event.currentTarget).data("tipo");
             const valor = $(event.currentTarget).val();
@@ -933,8 +970,12 @@ ${listaOpc.join("")}
 
             const fechaFormateada = `${year}-${month}-${day}`;
             if (valor == 'Efectivo') {
-                fila.find('.lisopcpafecha').val(fechaFormateada);
-                fila.find('.lisopcpafecha').attr('disabled', 'disabled');
+                // Solo cambiar a fecha de hoy si el campo está vacío o tiene fecha inválida
+                if (!fecha || fecha === '' || fecha === '0000-00-00' || fecha === fechaFormateada) {
+                    fila.find('.lisopcpafecha').val(fechaFormateada);
+                }
+                // No deshabilitar el campo para permitir edición manual
+                // fila.find('.lisopcpafecha').attr('disabled', 'disabled');
             } else {
                 fila.find('.lisopcpafecha').removeAttr('disabled');
             }
@@ -945,7 +986,7 @@ ${listaOpc.join("")}
             }) */
 
         })
-        $("#datatableDiasCompras").on("click", ".btnPagar ", function(event) {
+        $("#datatableDiasCompras").on("click", ".btnPagar ", function (event) {
 
             var table = $("#datatableDiasCompras").DataTable();
             var trid = $(this).closest("tr").attr("id");
@@ -1007,7 +1048,7 @@ ${listaOpc.join("")}
                                 tipo_pago,
                                 es_nuevo: esNuevo ? 1 : 0
                             },
-                            success: function(resp) {
+                            success: function (resp) {
                                 $("#loader-menor").hide();
                                 console.log("Respuesta cruda:", resp);
 
@@ -1054,7 +1095,7 @@ ${listaOpc.join("")}
                                     });
                                 }
                             },
-                            error: function(xhr, status, error) {
+                            error: function (xhr, status, error) {
                                 $("#loader-menor").hide();
                                 Swal.fire({
                                     title: 'Error',
@@ -1070,7 +1111,7 @@ ${listaOpc.join("")}
         })
 
         // Botón para editar/guardar cambios en pagos ya realizados (solo admin)
-        $("#datatableDiasCompras").on("click", ".btnEditarPago", function(event) {
+        $("#datatableDiasCompras").on("click", ".btnEditarPago", function (event) {
             var id = $(this).data("id");
             var tipo = $(this).data("tipo");
             var fila = $(this).closest("tr");
@@ -1135,7 +1176,7 @@ ${listaOpc.join("")}
                             fecha: fecha,
                             tipo_pago: tipo_pago
                         },
-                        success: function(resp) {
+                        success: function (resp) {
                             $("#loader-menor").hide();
                             try {
                                 let data = JSON.parse(resp);
@@ -1165,7 +1206,7 @@ ${listaOpc.join("")}
                                 });
                             }
                         },
-                        error: function(xhr, status, error) {
+                        error: function (xhr, status, error) {
                             $("#loader-menor").hide();
                             Swal.fire({
                                 title: 'Error',
@@ -1178,7 +1219,7 @@ ${listaOpc.join("")}
             });
         });
 
-        $("#datatableDiasCompras").on("click", ".btnEliminarPago ", function(event) {
+        $("#datatableDiasCompras").on("click", ".btnEliminarPago ", function (event) {
             var table = $("#tablaMaquina").DataTable();
             var trid = $(this).closest("tr").attr("id");
             var id = $(this).data("id");
@@ -1206,7 +1247,7 @@ ${listaOpc.join("")}
                             tipo,
                             monto
                         },
-                        success: function(resp) {
+                        success: function (resp) {
                             $("#loader-menor").hide();
                             let data = JSON.parse(resp)
                             console.log(data);
@@ -1217,13 +1258,13 @@ ${listaOpc.join("")}
             })
         })
 
-        $('.cerrarpagos').click(function() {
+        $('.cerrarpagos').click(function () {
             $('#exampleModal').modal('hide');
             //datatable.ajax.reload();
         })
 
         // Agregar nueva fila de pago
-        $('#btnAgregarPago').click(function() {
+        $('#btnAgregarPago').click(function () {
             let restante = parseFloat($('#restante_total').val());
 
             if (isNaN(restante) || restante <= 0) {
@@ -1239,7 +1280,7 @@ ${listaOpc.join("")}
             let datatable = $('#datatableDiasCompras').DataTable();
             let maxId = 0;
 
-            datatable.rows().every(function() {
+            datatable.rows().every(function () {
                 let row = this.data();
                 let currentId = parseInt(row.dias_venta_id);
                 if (!isNaN(currentId) && currentId > maxId) {
