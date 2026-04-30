@@ -27,6 +27,7 @@ Route::get("/r/pedido/reporte/camion","CombinarReporteController@comprobantePedi
 Route::get("/r/pedido/reporte/clientes","CombinarReporteController@comprobantePedidoPorClientes");
 Route::get("/r/pedido/reporte/camion/consolidado","CombinarReporteController@consolidadoPedidosCamion");
 Route::get("/r/pedido/reporte/camion/consolidado-total","CombinarReporteController@consolidadoTotalPedidosCamion");
+Route::get("/r/pedido/reporte/logistico","ReporteLogisticoController@reporteLogistico");
 Route::get("/r/pedido/reporte/:numero","CombinarReporteController@comprobantePedido");
 // Route::get("/r/pedido/reporte/fecha/:fecha","CombinarReporteController@comprobantePedidoFecha");
 Route::get("/r/pedido/reporte/fecha/:fecha_inicio/:fecha_fin", "CombinarReporteController@comprobantePedidoFecha");

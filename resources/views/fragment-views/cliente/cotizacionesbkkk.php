@@ -18,7 +18,8 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="card" style="border-radius:20px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06)">
+        <div class="card"
+            style="border-radius:20px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06)">
             <div class="card-body">
                 <h4 class="card-title"></h4>
                 <div class="card-title-desc text-end">
@@ -26,7 +27,8 @@
                         <i class="fa fa-plus "></i> Nuevo Pedido
                     </a>
                     <?php if ($_SESSION["rol"] == 1): ?>
-                        <button id="ventas-reporte" class="btn btn-info"><i class="fa fa-file-pdf-o"></i> Exportar Reporte de Vendedores</button>
+                        <button id="ventas-reporte" class="btn btn-info"><i class="fa fa-file-pdf-o"></i> Exportar Reporte
+                            de Vendedores</button>
                         <button id="imprimir" class="btn btn-success"><i class="fa fa-print"></i> Imprimir PDFs</button>
                     <?php endif; ?>
                 </div>
@@ -60,7 +62,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Imprimir Reportes</h5>
-                <button type="button" style="color: red; border-radius: 5px; border: solid 1px red ;" class="close" id="btnCerrarModalX" aria-label="Close">
+                <button type="button" style="color: red; border-radius: 5px; border: solid 1px red ;" class="close"
+                    id="btnCerrarModalX" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -100,7 +103,7 @@
                         <option value="domingo">Domingo</option>
                     </select>
                 </div>
-                
+
                 <div id="imprimirPorCamion" class="mt-3" style="display:none;">
                     <label for="camion">Camión:</label>
                     <input type="hidden" id="camionconsolodidado" class="form-control">
@@ -111,7 +114,7 @@
                         <option value="2">Camión 2</option>
                         <option value="3">Camión 3</option>
                     </select>
-                     <label for="filtro-horario">Filtrar por horario:</label>
+                    <label for="filtro-horario">Filtrar por horario:</label>
                     <select id="filtro-horario" class="form-control">
                         <option value="todos">Todos</option>
                         <option value="diurno">De 8:00 a.m. a 3:00 p.m.</option>
@@ -133,11 +136,12 @@
                     <select class="form-control" id="medida">
                     </select>
                 </div>
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="btnPorCliente" style="display:none;">Cliente</button>
-                <button type="button" class="btn btn-primary" id="btnConsolidado" style="display:none;">Consolidado</button>
+                <button type="button" class="btn btn-primary" id="btnConsolidado"
+                    style="display:none;">Consolidado</button>
                 <button type="button" class="btn btn-primary" id="btnImprimir">Imprimir</button>
                 <button type="button" class="btn btn-secondary" id="btnCerrarModal">Cerrar</button>
             </div>
@@ -161,10 +165,12 @@
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
     }
+
     .close {
         color: white;
         font-size: 1.5rem;
     }
+
     .btn-custom {
         border-radius: 5px;
         border: 2px solid transparent;
@@ -178,6 +184,7 @@
     .btn-custom:hover {
         background-color: #d4d4d4;
     }
+
     .btn-custom.active {
         border-color: #007bff;
         background-color: #007bff;
@@ -191,142 +198,145 @@
     .form-control {
         margin-top: 10px;
     }
-    
+
     /* Ancho de la barra de desplazamiento */
     .scroll-horizontal::-webkit-scrollbar {
         width: 5px;
-        height: 8px; /* para scroll horizontal */
+        height: 8px;
+        /* para scroll horizontal */
     }
 
     /* Color de la pista (fondo de la barra de desplazamiento) */
     .scroll-horizontal::-webkit-scrollbar-track {
-      background: #f1f1f1;
+        background: #f1f1f1;
     }
 
     /* Color del "thumb" (barra de desplazamiento) */
     .scroll-horizontal::-webkit-scrollbar-thumb {
-      background-color: #888;
-      border-radius: 6px;
-      border: 2px solid #f1f1f1; /* Espacio alrededor del thumb */
+        background-color: #888;
+        border-radius: 6px;
+        border: 2px solid #f1f1f1;
+        /* Espacio alrededor del thumb */
     }
 
     /* Color del "thumb" al pasar el ratón (hover) */
     .scroll-horizontal::-webkit-scrollbar-thumb:hover {
-      background-color: #555;
+        background-color: #555;
     }
 
     .scroll-horizontal {
-      white-space: nowrap;
-      overflow-x: auto;
+        white-space: nowrap;
+        overflow-x: auto;
     }
+
     .scroll-horizontal div {
-      display: inline-block;
-      background-color: #f8f9fa;
-      border: 1px solid #dee2e6;
-      margin-right: 10px;
-      text-align: center;
-      line-height: 100px;
+        display: inline-block;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        margin-right: 10px;
+        text-align: center;
+        line-height: 100px;
     }
 </style>
 
 <!-- Script JavaScript para cambiar el estilo de los botones al hacer clic -->
 <script>
-    const botones = document.querySelectorAll('.btn-custom');
-    botones.forEach(boton => {
-        boton.addEventListener('click', () => {
-            botones.forEach(b => b.classList.remove('active'));
-            boton.classList.add('active');
+    // Evitar conflictos de variables en navegación AJAX
+    if (typeof window.botones_cotizaciones === 'undefined') {
+        window.botones_cotizaciones = document.querySelectorAll('.btn-custom');
+        window.botones_cotizaciones.forEach(boton => {
+            boton.addEventListener('click', () => {
+                window.botones_cotizaciones.forEach(b => b.classList.remove('active'));
+                boton.classList.add('active');
+            });
         });
-    });
+    }
 </script>
 
 <iframe id="printFrame" style="display:none;"></iframe>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
 <script>
-let rol_usuario = <?php echo $_SESSION["rol"]; ?>;
-$(document).ready(function() {
-    var tabla = $("#datatable-c").DataTable({
-        "processing": true,
-        "serverSide": true,
-        "sAjaxSource": _URL + "/data/cotizaciones/lista/ss",
-        order: [
-            [0, "desc"]
-        ],
-        columnDefs: [
+    // Evitar conflictos de variables en navegación AJAX
+    if (typeof window.rol_usuario_cotizaciones === 'undefined') {
+        window.rol_usuario_cotizaciones = <?php echo $_SESSION["rol"]; ?>;
+    }
+    let rol_usuario = window.rol_usuario_cotizaciones;
+    $(document).ready(function () {
+        var tabla = $("#datatable-c").DataTable({
+            "processing": true,
+            "serverSide": true,
+            "sAjaxSource": _URL + "/data/cotizaciones/lista/ss",
+            order: [
+                [0, "desc"]
+            ],
+            columnDefs: [
             <?php if ($_SESSION["rol"] != 3): ?>
-                {
-                    targets: 8,
-                    render(data) {
-                        return `<a href="/ventas/productos?coti=${data}" class="btn btn-success btn-sm button-link"><i class="fa fa-align-justify"></i></a>`;
-                    }
-                },
-            <?php else: ?>
-                {
-                    targets: 8,
-                    render(data) {
-                        return ``;
-                    }
-                },
-            <?php endif; ?>
             {
-                targets: 7,
-                render: function(data) {
-                    return data == '1' 
-                        ? '<span class="badge rounded-pill bg-success">Vendido</span>'
-                        : '<span class="badge rounded-pill bg-danger">No Vendido</span>';
+                targets: 8,
+                render(data, type, row) {
+                    // Usar row[10] que es cotizacion_id
+                    var cotizacionId = row[10];
+                    return `<a href="/ventas/productos?coti=${cotizacionId}" class="btn btn-success btn-sm button-link"><i class="fa fa-align-justify"></i></a>`;
                 }
             },
+            <?php else: ?>
             {
-                targets: 10,
-                render: function(data, type, row) {
-                    // Calcular si han pasado 34 horas
-                    let fecha_registro = new Date(row[11]); // row[11] es fecha_registro
-                    let fecha_actual = new Date();
-                    let horas_transcurridas = Math.floor((fecha_actual - fecha_registro) / (1000 * 60 * 60));
-                    let id_usuario_pedido = row[12]; // row[12] es usuario (id_usuario del pedido)
-                    
-                    // Verificar si es vendedor y si pasaron 34 horas
-                    let puede_modificar = true;
-                    let puede_eliminar = true;
-                    
-                    if (rol_usuario == 3) { // Si es vendedor
-                        // Verificar que sea su propio pedido
-                        if (id_usuario_pedido != <?php echo $_SESSION['usuario_fac']; ?>) {
-                            puede_modificar = false;
-                            puede_eliminar = false;
-                        }
-                        // Verificar las 34 horas
-                        if (horas_transcurridas >= 34) {
-                            puede_modificar = false;
-                            puede_eliminar = false;
-                        }
-                    }
-                    
-                    let btnEditar = puede_modificar 
-                        ? `<a href="${'/cotizaciones/edt/' + data}" class="button-link btn btn-sm btn-primary"><i class="fa fa-edit"></i></a>`
-                        : `<button class="btn btn-sm btn-secondary" disabled title="No puedes modificar este pedido después de 34 horas (${horas_transcurridas}h transcurridas)"><i class="fa fa-edit"></i></button>`;
-                    
-                    let btnEliminar = (rol_usuario == 1 || puede_eliminar)
-                        ? `<button onclick="eliminarCotizacion(${data})" type="button" class="btn-del btn btn-danger btn-sm"><i class="fa fa-times"></i></button>`
-                        : `<button type="button" class="btn btn-secondary btn-sm" disabled title="No puedes eliminar este pedido después de 34 horas (${horas_transcurridas}h transcurridas)"><i class="fa fa-times"></i></button>`;
-                    
-                    return `
-                        <a target="_blank" href="${'./cotizaciones/reporteCuotas/' + data}" class="btn btn-sm btn-light"><i class="bi bi-filetype-pdf"></i></a>
-                        ${btnEditar}
-                        <a href="${_URL + '/r/cotizaciones/reporte/' + data}" target="_blank" class="btn btn-sm btn-info"><i class="fa fa-file"></i></a>
-                        <a href="${_URL + '/r/cotizaciones/reporteA4/' + data}" target="_blank" class="btn btn-sm btn-warning"><i class="fa fa-file"></i></a>
-                        ${btnEliminar}
+                targets: 8,
+                render(data) {
+                    return ``;
+                }
+            },
+            <?php endif; ?>
+        {
+            targets: 7,
+            render: function (data) {
+                return data == '1'
+                    ? '<span class="badge rounded-pill bg-success">Vendido</span>'
+                    : '<span class="badge rounded-pill bg-danger">No Vendido</span>';
+            }
+        },
+        {
+            targets: 10,
+            render: function (data, type, row) {
+                // Usar row[10] que es cotizacion_id
+                var cotizacionId = row[10];
+                // row[11] es fecha_registro
+                var fechaRegistro = row[11];
+
+                // Calcular si han pasado 24 horas (solo para vendedores - rol 3)
+                var disabled = false;
+                if (rol_usuario == 3) {
+                    var fechaCreacion = new Date(fechaRegistro);
+                    var fechaActual = new Date();
+                    var diferenciaMs = fechaActual - fechaCreacion;
+                    var horasTranscurridas = diferenciaMs / (1000 * 60 * 60);
+
+                    // Deshabilitar botones si pasaron 24 horas o más
+                    disabled = horasTranscurridas >= 31;
+                }
+
+                var disabledAttr = disabled ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : '';
+                var disabledClass = disabled ? 'disabled' : '';
+
+                return `
+                        <a target="_blank" href="${'./cotizaciones/reporteCuotas/' + cotizacionId}" class="btn btn-sm btn-light"><i class="bi bi-filetype-pdf"></i></a>
+                        <a href="${disabled ? 'javascript:void(0)' : '/cotizaciones/edt/' + cotizacionId}" class="button-link btn btn-sm btn-primary ${disabledClass}" ${disabledAttr}><i class="fa fa-edit"></i></a>
+                        <a href="${_URL + '/r/cotizaciones/reporte/' + cotizacionId}" target="_blank" class="btn btn-sm btn-info"><i class="fa fa-file"></i></a>
+                        <a href="${_URL + '/r/cotizaciones/reporteA4/' + cotizacionId}" target="_blank" class="btn btn-sm btn-warning"><i class="fa fa-file"></i></a>
+                        <button onclick="${disabled ? 'return false' : 'eliminarCotizacion(' + cotizacionId + ')'}" type="button" class="btn-del btn btn-danger btn-sm" ${disabledAttr}><i class="fa fa-times"></i></button>
                     `;
-                }
-            },
+            }
+        },
             <?php if ($_SESSION["rol"] != 3): ?>
-                {
-                    targets: 9,
-                    render(data) {
-                        return `<a href="/guia/remision/registrar?coti=${data}" class="btn btn-success btn-sm button-link"><i class="fa fa-clipboard"></i></a>`;
-                    }
+            {
+                targets: 9,
+                render(data, type, row) {
+                    // Usar row[10] que es cotizacion_id
+                    var cotizacionId = row[10];
+                    return `<a href="/guia/remision/registrar?coti=${cotizacionId}" class="btn btn-success btn-sm button-link"><i class="fa fa-clipboard"></i></a>`;
                 }
+            }
             <?php else: ?>
                 {
                     targets: 9,
@@ -334,22 +344,22 @@ $(document).ready(function() {
                         return ``;
                     }
                 }
-            <?php endif; ?>
+                <?php endif; ?>
         ]
     });
 
     // Mostrar el modal para imprimir
-    $("#imprimir").on('click', function() {
+    $("#imprimir").on('click', function () {
         $('#imprimir-pdfs-bs').modal('show');
     });
 
     // Cerrar el modal
-    $("#btnCerrarModal, #btnCerrarModalX").on('click', function() {
+    $("#btnCerrarModal, #btnCerrarModalX").on('click', function () {
         $('#imprimir-pdfs-bs').modal('hide');
     });
 
     // Manejo de selección de impresión
-    $("#btnImprimirPorNumeros").on('click', function() {
+    $("#btnImprimirPorNumeros").on('click', function () {
         $("#imprimirPorNumeros").show();
         $("#imprimirPorFechas").hide();
         $("#imprimirPorVisitas").hide();
@@ -372,7 +382,7 @@ $(document).ready(function() {
 
 
     });
-    $("#btnImprimirPorFechas").on('click', function() {
+    $("#btnImprimirPorFechas").on('click', function () {
         $("#imprimirPorFechas").show();
         $("#imprimirPorNumeros").hide();
         $("#imprimirPorVisitas").hide();
@@ -389,7 +399,7 @@ $(document).ready(function() {
 
 
     });
-    $("#btnImprimirVisitas").on('click', function() {
+    $("#btnImprimirVisitas").on('click', function () {
         $("#imprimirPorVisitas").show();
         $("#imprimirPorFechas").hide();
         $("#imprimirPorNumeros").hide();
@@ -405,8 +415,8 @@ $(document).ready(function() {
 
 
     });
-    
-    $("#btnImprimirPorCamion").on('click', function() {
+
+    $("#btnImprimirPorCamion").on('click', function () {
         $("#imprimirPorCamion").show();
         $("#imprimirPorFechas").hide();
         $("#imprimirPorNumeros").hide();
@@ -420,7 +430,7 @@ $(document).ready(function() {
         $('#camionconsolodidado').val('porCamionConsolidado');
 
     });
-    $("#btnImprimirPorRuta").on('click', function() {
+    $("#btnImprimirPorRuta").on('click', function () {
         $("#imprimirPorRuta").show();
         $("#imprimirPorFechas").hide();
         $("#imprimirPorNumeros").hide();
@@ -435,7 +445,7 @@ $(document).ready(function() {
         // $('#filtro-horario').val('');
 
     });
-    $("#btnImprimirPorMercado").on('click', function() {
+    $("#btnImprimirPorMercado").on('click', function () {
         $("#imprimirPorMercado").show();
         $("#imprimirPorFechas").hide();
         $("#imprimirPorNumeros").hide();
@@ -450,22 +460,22 @@ $(document).ready(function() {
         // $('#filtro-horario').val('');
 
     });
-     $("#btnImprimirPorMedida").on('click', function() {
-            $("#imprimirPorMercado").hide();
-            //AGREGANDO
-            $("#imprimirPorMedida").show();
-            $("#imprimirPorFechas").hide();
-            $("#imprimirPorNumeros").hide();
-            $("#imprimirPorVisitas").hide();
-            $("#imprimirPorCamion").hide();
-            $("#imprimirPorRuta").hide();
-            // Limpiar campos de número
-            $("#numeroInicio").val('');
-            $("#numeroFin").val('');
-            $('#camionconsolodidado').val('');
-        });
+    $("#btnImprimirPorMedida").on('click', function () {
+        $("#imprimirPorMercado").hide();
+        //AGREGANDO
+        $("#imprimirPorMedida").show();
+        $("#imprimirPorFechas").hide();
+        $("#imprimirPorNumeros").hide();
+        $("#imprimirPorVisitas").hide();
+        $("#imprimirPorCamion").hide();
+        $("#imprimirPorRuta").hide();
+        // Limpiar campos de número
+        $("#numeroInicio").val('');
+        $("#numeroFin").val('');
+        $('#camionconsolodidado').val('');
+    });
 
-    $("#btnImprimir").on('click', async function() {
+    $("#btnImprimir").on('click', async function () {
         var numeroInicio = parseInt($("#numeroInicio").val());
         var numeroFin = parseInt($("#numeroFin").val());
         var fechaSeleccionada = $("#fechaSeleccionada").val(); // Cambiado para obtener solo una fecha
@@ -479,12 +489,12 @@ $(document).ready(function() {
         // Validaciones
         if (!isNaN(numeroInicio) && !isNaN(numeroFin)) {
             await imprimirPorNumeros(numeroInicio, numeroFin, batchSize);
-        } else if(camion && fechaSeleccionada && fechaFinSeleccionada) {
-            await imprimirPorCamion(camion,fechaSeleccionada,fechaFinSeleccionada,diasVisita,ruta,mercado);
+        } else if (camion && fechaSeleccionada && fechaFinSeleccionada) {
+            await imprimirPorCamion(camion, fechaSeleccionada, fechaFinSeleccionada, diasVisita, ruta, mercado);
         } else if (fechaSeleccionada) { // Verifica si se ha seleccionado una fecha
             await imprimirPorFecha(fechaSeleccionada, fechaFinSeleccionada); //
-              document.getElementById("fechaFinSeleccionada").value = "";
-                document.getElementById("fechaSeleccionada").value = "";
+            document.getElementById("fechaFinSeleccionada").value = "";
+            document.getElementById("fechaSeleccionada").value = "";
         } else if (diasVisita) { // Verifica que se haya seleccionado un día
             const diasMap = {
                 "lunes": "lunes",
@@ -514,7 +524,7 @@ $(document).ready(function() {
             // Lógica para obtener todos los registros del día de visita
             const response = await fetch(`/r/pedido/reporte/dias/${diasVisitaNum}`);
             const contentType = response.headers.get("content-type");
-            
+
             // Verifica si la respuesta es válida
             if (!response.ok) {
                 throw new Error(`Error al obtener registros: ${response.status} ${response.statusText}`);
@@ -530,7 +540,7 @@ $(document).ready(function() {
             const pdfBuffer = await response.arrayBuffer();
             const pdf = await PDFDocument.load(pdfBuffer);
             const copiedPages = await combinedPdf.copyPages(pdf, pdf.getPageIndices());
-            
+
             copiedPages.forEach(page => combinedPdf.addPage(page));
 
             const combinedPdfBytes = await combinedPdf.save();
@@ -539,7 +549,7 @@ $(document).ready(function() {
 
             var iframe = document.getElementById('printFrame');
             iframe.src = url;
-            iframe.onload = function() {
+            iframe.onload = function () {
                 iframe.contentWindow.focus();
                 iframe.contentWindow.print();
             };
@@ -584,7 +594,7 @@ $(document).ready(function() {
 
             var iframe = document.getElementById('printFrame');
             iframe.src = url;
-            iframe.onload = function() {
+            iframe.onload = function () {
                 iframe.contentWindow.focus();
                 iframe.contentWindow.print();
             };
@@ -606,7 +616,7 @@ $(document).ready(function() {
         try {
             const response = await fetch(`/r/pedido/reporte/fecha/${fechaSeleccionada}/${fechaFinSeleccionada}`);
             const contentType = response.headers.get("content-type");
-            
+
             // Verifica si la respuesta es válida
             if (!response.ok) {
                 throw new Error(`Error al obtener registros: ${response.status} ${response.statusText}`);
@@ -621,7 +631,7 @@ $(document).ready(function() {
             const pdfBuffer = await response.arrayBuffer();
             const pdf = await PDFDocument.load(pdfBuffer);
             const copiedPages = await combinedPdf.copyPages(pdf, pdf.getPageIndices());
-            
+
             copiedPages.forEach(page => combinedPdf.addPage(page));
 
             const combinedPdfBytes = await combinedPdf.save();
@@ -630,7 +640,7 @@ $(document).ready(function() {
 
             var iframe = document.getElementById('printFrame');
             iframe.src = url;
-            iframe.onload = function() {
+            iframe.onload = function () {
                 iframe.contentWindow.focus();
                 iframe.contentWindow.print();
             };
@@ -642,8 +652,8 @@ $(document).ready(function() {
         }
     }
 
-    
-    async function imprimirPorCamion(camion,fechaSeleccionada,fechaFinSeleccionada,diasVisita,ruta,mercado) {
+
+    async function imprimirPorCamion(camion, fechaSeleccionada, fechaFinSeleccionada, diasVisita, ruta, mercado) {
         const { PDFDocument } = PDFLib;
         const combinedPdf = await PDFDocument.create();
 
@@ -653,17 +663,17 @@ $(document).ready(function() {
         try {
             // Lógica para obtener todos los registros del día de visita
             let data = new FormData();
-            data.append('camion',camion);
-            data.append('fechaSeleccionada',fechaSeleccionada);
-            data.append('fechaFinSeleccionada',fechaFinSeleccionada);
-            data.append('diasVisita',diasVisita);
-            data.append('ruta',ruta);
-            data.append('mercado',mercado);
+            data.append('camion', camion);
+            data.append('fechaSeleccionada', fechaSeleccionada);
+            data.append('fechaFinSeleccionada', fechaFinSeleccionada);
+            data.append('diasVisita', diasVisita);
+            data.append('ruta', ruta);
+            data.append('mercado', mercado);
             let params = new URLSearchParams(data);
             params = params.toString();
             const response = await fetch(`/r/pedido/reporte/camion?${params}`);
             const contentType = response.headers.get("content-type");
-            
+
             // Verifica si la respuesta es válida
             if (!response.ok) {
                 throw new Error(`Error al obtener registros: ${response.status} ${response.statusText}`);
@@ -679,7 +689,7 @@ $(document).ready(function() {
             const pdfBuffer = await response.arrayBuffer();
             const pdf = await PDFDocument.load(pdfBuffer);
             const copiedPages = await combinedPdf.copyPages(pdf, pdf.getPageIndices());
-            
+
             copiedPages.forEach(page => combinedPdf.addPage(page));
 
             const combinedPdfBytes = await combinedPdf.save();
@@ -688,7 +698,7 @@ $(document).ready(function() {
 
             var iframe = document.getElementById('printFrame');
             iframe.src = url;
-            iframe.onload = function() {
+            iframe.onload = function () {
                 iframe.contentWindow.focus();
                 iframe.contentWindow.print();
             };
@@ -702,15 +712,15 @@ $(document).ready(function() {
     listarMedidas();
     listarRutas();
     listarMercados();
-    function listarRutas(){
+    function listarRutas() {
         $.ajax({
-            url:'/ajs/admin/cliente/rutas',
-            method:'GET',
-            success: function(response){
+            url: '/ajs/admin/cliente/rutas',
+            method: 'GET',
+            success: function (response) {
                 response = JSON.parse(response);
                 console.log(response);
                 let options = `<option value=""></option>`;
-                $.each(response,function(idx,res){
+                $.each(response, function (idx, res) {
                     options += `<option value="${res.id_ruta}">${res.id_ruta}</option>`;
                 });
                 $("#ruta").html(options);
@@ -718,47 +728,47 @@ $(document).ready(function() {
         });
     }
     function listarMedidas() {
-            $.ajax({
-                url: '/ajs/admin/cliente/medidas',
-                method: 'GET',
-                success: function(response) {
-                    response = JSON.parse(response);
-                    console.log(response);
-                    let options = `<option value=""></option>`;
-                    $.each(response, function(idx, res) {
-                        options += `<option value="${res.medida}">${res.medida}</option>`;
-                    });
-                    $("#medida").html(options);
-                }
-            });
-        }
-    function listarMercados(){
         $.ajax({
-            url:'/ajs/admin/cliente/mercados',
-            method:'GET',
-            success: function(response){
+            url: '/ajs/admin/cliente/medidas',
+            method: 'GET',
+            success: function (response) {
                 response = JSON.parse(response);
                 console.log(response);
                 let options = `<option value=""></option>`;
-                $.each(response,function(idx,res){
+                $.each(response, function (idx, res) {
+                    options += `<option value="${res.medida}">${res.medida}</option>`;
+                });
+                $("#medida").html(options);
+            }
+        });
+    }
+    function listarMercados() {
+        $.ajax({
+            url: '/ajs/admin/cliente/mercados',
+            method: 'GET',
+            success: function (response) {
+                response = JSON.parse(response);
+                console.log(response);
+                let options = `<option value=""></option>`;
+                $.each(response, function (idx, res) {
                     options += `<option value="${res.mercado}">${res.mercado}</option>`;
                 });
                 $("#mercado").html(options);
             }
         });
     }
-    
-    $(document).on('change','#camion',function(e){
-        if(e.target.value!=""){
+
+    $(document).on('change', '#camion', function (e) {
+        if (e.target.value != "") {
             $("#btnConsolidado").show();
             $("#btnPorCliente").show();
-        }else{
+        } else {
             $("#btnConsolidado").hide();
             $("#btnPorCliente").hide();
         }
     });
 
-    $(document).on('click','#btnConsolidado',async function(){
+    $(document).on('click', '#btnConsolidado', async function () {
         let fechaSeleccionada = $("#fechaSeleccionada").val();
         let fechaFinSeleccionada = $("#fechaFinSeleccionada").val();
         let diasVisita = $("#diasVisita").val();
@@ -777,21 +787,21 @@ $(document).ready(function() {
         try {
             // Lógica para obtener todos los registros del día de visita
             let data = new FormData();
-            data.append('camion',camion);
-            data.append('fechaSeleccionada',fechaSeleccionada);
-            data.append('fechaFinSeleccionada',fechaFinSeleccionada);
-            data.append('diasVisita',diasVisita);
-            data.append('ruta',ruta);
-            data.append('mercado',mercado);
+            data.append('camion', camion);
+            data.append('fechaSeleccionada', fechaSeleccionada);
+            data.append('fechaFinSeleccionada', fechaFinSeleccionada);
+            data.append('diasVisita', diasVisita);
+            data.append('ruta', ruta);
+            data.append('mercado', mercado);
             data.append('medida', medida);
             data.append('tipo', tipo);
             data.append('horario', horario);
             let params = new URLSearchParams(data);
             params = params.toString();
-            let url_r = (camion==0) ? `r/pedido/reporte/camion/consolidado-total?${params}` : `r/pedido/reporte/camion/consolidado?${params}`;
+            let url_r = (camion == 0) ? `r/pedido/reporte/camion/consolidado-total?${params}` : `r/pedido/reporte/camion/consolidado?${params}`;
             const response = await fetch(url_r);
             const contentType = response.headers.get("content-type");
-            
+
             // Verifica si la respuesta es válida
             if (!response.ok) {
                 throw new Error(`Error al obtener registros: ${response.status} ${response.statusText}`);
@@ -807,7 +817,7 @@ $(document).ready(function() {
             const pdfBuffer = await response.arrayBuffer();
             const pdf = await PDFDocument.load(pdfBuffer);
             const copiedPages = await combinedPdf.copyPages(pdf, pdf.getPageIndices());
-            
+
             copiedPages.forEach(page => combinedPdf.addPage(page));
 
             const combinedPdfBytes = await combinedPdf.save();
@@ -816,7 +826,7 @@ $(document).ready(function() {
 
             var iframe = document.getElementById('printFrame');
             iframe.src = url;
-            iframe.onload = function() {
+            iframe.onload = function () {
                 iframe.contentWindow.focus();
                 iframe.contentWindow.print();
             };
@@ -828,8 +838,8 @@ $(document).ready(function() {
         }
     });
 
-    
-    $(document).on('click','#btnPorCliente',async function(){
+
+    $(document).on('click', '#btnPorCliente', async function () {
         let fechaSeleccionada = $("#fechaSeleccionada").val();
         let fechaFinSeleccionada = $("#fechaFinSeleccionada").val();
         let diasVisita = $("#diasVisita").val();
@@ -846,18 +856,18 @@ $(document).ready(function() {
         try {
             // Lógica para obtener todos los registros del día de visita
             let data = new FormData();
-            data.append('camion',camion);
-            data.append('fechaSeleccionada',fechaSeleccionada);
-            data.append('fechaFinSeleccionada',fechaFinSeleccionada);
-            data.append('diasVisita',diasVisita);
-            data.append('ruta',ruta);
-            data.append('mercado',mercado);
+            data.append('camion', camion);
+            data.append('fechaSeleccionada', fechaSeleccionada);
+            data.append('fechaFinSeleccionada', fechaFinSeleccionada);
+            data.append('diasVisita', diasVisita);
+            data.append('ruta', ruta);
+            data.append('mercado', mercado);
             data.append('medida', medida);
             let params = new URLSearchParams(data);
             params = params.toString();
             const response = await fetch(`/r/pedido/reporte/clientes?${params}`);
             const contentType = response.headers.get("content-type");
-            
+
             // Verifica si la respuesta es válida
             if (!response.ok) {
                 throw new Error(`Error al obtener registros: ${response.status} ${response.statusText}`);
@@ -873,7 +883,7 @@ $(document).ready(function() {
             const pdfBuffer = await response.arrayBuffer();
             const pdf = await PDFDocument.load(pdfBuffer);
             const copiedPages = await combinedPdf.copyPages(pdf, pdf.getPageIndices());
-            
+
             copiedPages.forEach(page => combinedPdf.addPage(page));
 
             const combinedPdfBytes = await combinedPdf.save();
@@ -882,7 +892,7 @@ $(document).ready(function() {
 
             var iframe = document.getElementById('printFrame');
             iframe.src = url;
-            iframe.onload = function() {
+            iframe.onload = function () {
                 iframe.contentWindow.focus();
                 iframe.contentWindow.print();
             };
@@ -893,7 +903,7 @@ $(document).ready(function() {
             spinner.remove();
         }
     });
-    
+
     eliminarCotizacion = function (cod) {
         console.log(cod);
         Swal.fire({
@@ -905,7 +915,7 @@ $(document).ready(function() {
             confirmButtonText: 'Si'
         }).then((result) => {
             if (result.isConfirmed) {
-                _ajax("/ajs/cotizaciones/del", "POST", {cod}, function(resp) {
+                _ajax("/ajs/cotizaciones/del", "POST", { cod }, function (resp) {
                     tabla.ajax.reload();
                 });
             }
@@ -955,20 +965,24 @@ $(document).ready(function() {
                 },
                 {
                     targets: 10,
-                    render: function(data) {
+                    render: function(data, type, row) {
+                        // Usar row[10] que es cotizacion_id
+                        var cotizacionId = row[10];
                         return `
-                            <a href="${'/cotizaciones/edt/' + data}" class="button-link btn btn-sm btn-primary"><i class="fa fa-edit"></i></a>
-                            <a href="${_URL + '/r/cotizaciones/reporte/' + data}" target="_blank" class="btn btn-sm btn-info"><i class="fa fa-file"></i></a>
-                            <a href="${_URL + '/r/pedidos/reporte/' + data}" target="_blank" class="btn btn-sm btn-warning"><i class="fa fa-file"></i></a>
-                            <button onclick="eliminarCotizacion(${data})" type="button" class="btn-del btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
+                            <a href="${'/cotizaciones/edt/' + cotizacionId}" class="button-link btn btn-sm btn-primary"><i class="fa fa-edit"></i></a>
+                            <a href="${_URL + '/r/cotizaciones/reporte/' + cotizacionId}" target="_blank" class="btn btn-sm btn-info"><i class="fa fa-file"></i></a>
+                            <a href="${_URL + '/r/pedidos/reporte/' + cotizacionId}" target="_blank" class="btn btn-sm btn-warning"><i class="fa fa-file"></i></a>
+                            <button onclick="eliminarCotizacion(${cotizacionId})" type="button" class="btn-del btn btn-danger btn-sm"><i class="fa fa-times"></i></button>
                         `;
                     }
                 },
                 <?php if ($_SESSION["rol"] != 3): ?>
                     {
                         targets: 9,
-                        render(data) {
-                            return `<a href="/guia/remision/registrar?coti=${data}" class="btn btn-success btn-sm button-link"><i class="fa fa-clipboard"></i></a>`;
+                        render(data, type, row) {
+                            // Usar row[10] que es cotizacion_id
+                            var cotizacionId = row[10];
+                            return `<a href="/guia/remision/registrar?coti=${cotizacionId}" class="btn btn-success btn-sm button-link"><i class="fa fa-clipboard"></i></a>`;
                         }
                     }
                 <?php else: ?>
