@@ -1280,11 +1280,12 @@ class CombinarReporteController extends Controller
         $sql = "SELECT c.id_cliente, co.cotizacion_id 
             FROM clientes c 
             JOIN cotizaciones co ON co.id_cliente = c.id_cliente   
-            WHERE 1 AND co.estado!=2 " . $queryClientes . " 
-            /* WHERE 1 and co.cotizacion_id in (1991,1992,1993,1994,1995) */
-            ORDER BY c.mercado asc
+            WHERE 1 
+            AND co.id_empresa='{$_SESSION['id_empresa']}'
+            AND co.sucursal='{$_SESSION['sucursal']}'
+            AND co.estado!=2 " . $queryClientes . " 
+            ORDER BY c.mercado ASC, c.datos ASC, co.numero ASC
             ";
-        /* WHERE co.cotizacion_id=1849"; */
 
 
         $resultado = $this->conexion->query($sql);
@@ -1304,6 +1305,7 @@ class CombinarReporteController extends Controller
             die("No se encontraron cotizaciones para camion: " . $camion);
         }
 
+        $item_contador = 1;
         foreach ($cotizaciones as $key => $cotizacion) {
             $coti = $cotizacion['cotizacion_id'];
             $diaSemana = date('N');
@@ -1501,7 +1503,7 @@ class CombinarReporteController extends Controller
                           <td style='width: 25%; text-align: center; vertical-align: middle; border: 1px solid #1e1e1e;'>
                                 <span style='font-size: 9px;'>PEDIDO</span><br><br> <!-- Usamos dos <br> para separar -->
                                 <span style='font-size: 9px; font-weight: bold;'>{$datoVenta['numero']}</span><br><br>
-                                <span style='font-size: 11px; font-weight: bold;'>ITEM: " . ($key + 1) . "</span>
+                                <span style='font-size: 11px; font-weight: bold;'>ITEM: " . ($item_contador) . "</span>
                         </td>
                       </tr>
                   </table>
@@ -1653,6 +1655,7 @@ class CombinarReporteController extends Controller
             {$datoVenta['observacion']} -->
             ";
             $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
+            $item_contador++;
         }
         $html = $html;
 
@@ -1771,7 +1774,7 @@ class CombinarReporteController extends Controller
             AND co.sucursal='{$_SESSION['sucursal']}'
             AND co.estado!=2 " . $queryClientes . " 
             /* WHERE 1 and co.cotizacion_id in (1991,1992,1993,1994,1995) */
-            ORDER BY c.mercado ASC
+            ORDER BY c.mercado ASC, c.datos ASC, co.numero ASC
             ";
 
         // Obtener el tipo ANTES de generar el título
@@ -1851,7 +1854,7 @@ class CombinarReporteController extends Controller
             AND co.sucursal='{$_SESSION['sucursal']}'
             AND co.estado!=2 " . $queryClientes . $concatmerc . " 
             /* WHERE 1 and co.cotizacion_id in (1991,1992,1993,1994,1995) */
-            ORDER BY c.mercado ASC
+            ORDER BY c.mercado ASC, c.datos ASC, co.numero ASC
             ";
 
             $query_productos = "SELECT p.codigo,
@@ -2155,7 +2158,7 @@ class CombinarReporteController extends Controller
             AND co.sucursal='{$_SESSION['sucursal']}'
             AND co.estado!=2 " . $queryClientes . $concatmerc . " 
             /* WHERE 1 and co.cotizacion_id in (1991,1992,1993,1994,1995) */
-            ORDER BY c.mercado ASC
+            ORDER BY c.mercado ASC, c.datos ASC, co.numero ASC
             ";
 
             // Obtener los IDs de cotizaciones
@@ -2634,7 +2637,7 @@ class CombinarReporteController extends Controller
             AND co.sucursal='{$_SESSION['sucursal']}'
             AND co.estado!=2 " . $queryClientes . " 
             /* WHERE 1 and co.cotizacion_id in (1991,1992,1993,1994,1995) */
-            ORDER BY c.mercado ASC
+            ORDER BY c.mercado ASC, c.datos ASC, co.numero ASC
             ";
         /* WHERE co.cotizacion_id=1849"; */
 
