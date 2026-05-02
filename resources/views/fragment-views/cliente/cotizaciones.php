@@ -176,6 +176,27 @@
                     </select>
                 </div>
                 <div class="mt-3">
+                    <label for="diasVisitaLog">Día de visita (Opcional):</label>
+                    <select class="form-control" id="diasVisitaLog">
+                        <option value=""></option>
+                        <option value="lunes">Lunes</option>
+                        <option value="martes">Martes</option>
+                        <option value="miercoles">Miércoles</option>
+                        <option value="jueves">Jueves</option>
+                        <option value="viernes">Viernes</option>
+                        <option value="sabado">Sábado</option>
+                        <option value="domingo">Domingo</option>
+                    </select>
+                </div>
+                <div class="mt-3">
+                    <label for="horarioLog">Corte de horario (Opcional):</label>
+                    <select id="horarioLog" class="form-control">
+                        <option value="todos">Todos</option>
+                        <option value="diurno">De 8:00 a.m. a 3:00 p.m.</option>
+                        <option value="nocturno">De 3:00 p.m. a 7:59 a.m.</option>
+                    </select>
+                </div>
+                <div class="mt-3">
                     <label for="medidaLog">Filtrar por Medida (Opcional):</label>
                     <select class="form-control" id="medidaLog">
                     </select>
@@ -569,9 +590,11 @@
             let fechaFin = $("#fechaFinSeleccionadaLog").val();
             let camion = $("#camionLog").val();
             let medida = $("#medidaLog").val();
+            let diasVisita = $("#diasVisitaLog").val();
+            let horario = $("#horarioLog").val();
 
-            if (!fechaInicio || !fechaFin || camion === "") {
-                alert("Por favor complete los campos obligatorios.");
+            if (!fechaInicio || !fechaFin || (camion === "" && diasVisita === "")) {
+                alert("Por favor complete los campos obligatorios (Fecha Inicio, Fecha Fin y Camión o Día de Visita).");
                 return;
             }
 
@@ -581,7 +604,7 @@
             $("body").append(spinner);
 
             try {
-                let params = new URLSearchParams({ fechaInicio, fechaFin, camion, medida }).toString();
+                let params = new URLSearchParams({ fechaInicio, fechaFin, camion, medida, diasVisita, horario }).toString();
                 const response = await fetch(`/r/pedido/reporte/logistico?${params}`);
                 if (!response.ok) throw new Error("Error al generar reporte.");
                 

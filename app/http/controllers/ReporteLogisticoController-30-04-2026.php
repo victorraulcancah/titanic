@@ -24,25 +24,8 @@ class ReporteLogisticoController extends Controller
         $fechaFin = $_GET['fechaFin'] ?? '';
         $camion = $_GET['camion'] ?? '';
         $medida = $_GET['medida'] ?? '';
-        $diasVisita = $_GET['diasVisita'] ?? '';
-        $horario = $_GET['horario'] ?? '';
 
         $queryClientes = " AND DATE(co.fecha) BETWEEN '$fechaInicio' AND '$fechaFin' ";
-
-        if ($horario != "") {
-            if ($horario == 'diurno') {
-                // Turno diurno: 08:00 AM - 03:00 PM
-                $queryClientes .= " AND TIME(co.fecha_registro) >= '08:00:00' AND TIME(co.fecha_registro) < '15:00:00' ";
-            }
-            if ($horario == 'nocturno') {
-                // Turno nocturno: 03:00 PM - 07:59 AM
-                $queryClientes .= " AND (TIME(co.fecha_registro) >= '15:00:00' OR TIME(co.fecha_registro) < '08:00:00') ";
-            }
-            if ($horario == 'todos') {
-                // Incluye todo el día
-                $queryClientes .= " AND TIME(co.fecha_registro) >= '00:00:00' AND TIME(co.fecha_registro) <= '23:59:59' ";
-            }
-        }
 
         if ($camion !== '0' && $camion !== '') {
             $filtros = array();
@@ -75,13 +58,6 @@ class ReporteLogisticoController extends Controller
                     ];
                     break;
             }
-
-            if ($diasVisita != "" && isset($filtros[$diasVisita])) {
-                $filtros = [
-                    $diasVisita => $filtros[$diasVisita]
-                ];
-            }
-
             $arrQueryClientes = array();
             foreach ($filtros as $key => $filtro) {
                 $arrQueryClientes[] = "( c.dias_visitas = '{$key}' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
@@ -89,8 +65,6 @@ class ReporteLogisticoController extends Controller
             if (sizeof($arrQueryClientes) > 0) {
                 $queryClientes .= " AND (" . implode(' OR ', $arrQueryClientes) . ")";
             }
-        } elseif ($diasVisita != "") {
-            $queryClientes .= " AND c.dias_visitas = '{$diasVisita}' ";
         }
 
         $sql = "SELECT co.cotizacion_id 
@@ -130,16 +104,10 @@ class ReporteLogisticoController extends Controller
         ";
 
         $camionTexto = ($camion === '0' || $camion === '') ? 'Todos' : $camion;
-        
+
         $html .= "<h1>Consolidado Logístico</h1>";
         $html .= "<p><strong>Camión:</strong> $camionTexto</p>";
         $html .= "<p><strong>Periodo:</strong> $fechaInicio al $fechaFin</p>";
-        if (!empty($diasVisita)) {
-            $html .= "<p><strong>Día de visita:</strong> " . ucfirst($diasVisita) . "</p>";
-        }
-        if (!empty($horario)) {
-            $html .= "<p><strong>Horario:</strong> " . ucfirst($horario) . "</p>";
-        }
         if (!empty($medida)) {
             $html .= "<p><strong>Medida:</strong> $medida</p>";
         }
@@ -194,7 +162,7 @@ class ReporteLogisticoController extends Controller
             "format" => "A4",
             "mode" => "utf-8"
         ]);
-        
+
         // Agregar CSS para color negro y negrita
         // Pasando el HTML completo sin forzar HTMLParserMode para que evalúe correctamente las etiquetas <style>
         $mpdf->WriteHTML($html);
