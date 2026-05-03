@@ -31,16 +31,21 @@ class ReporteLogisticoController extends Controller
 
         if ($horario != "") {
             if ($horario == 'diurno') {
-                // Turno diurno: 08:00 AM - 03:00 PM
                 $queryClientes .= " AND TIME(co.fecha_registro) >= '08:00:00' AND TIME(co.fecha_registro) < '15:00:00' ";
             }
             if ($horario == 'nocturno') {
-                // Turno nocturno: 03:00 PM - 07:59 AM
                 $queryClientes .= " AND (TIME(co.fecha_registro) >= '15:00:00' OR TIME(co.fecha_registro) < '08:00:00') ";
             }
             if ($horario == 'todos') {
-                // Incluye todo el día
                 $queryClientes .= " AND TIME(co.fecha_registro) >= '00:00:00' AND TIME(co.fecha_registro) <= '23:59:59' ";
+            }
+            if ($horario == 'primer_corte') {
+                // Hora 0 a 37: desde fechaInicio 00:00 hasta 13:00 del día siguiente
+                $queryClientes .= " AND co.fecha_registro >= '{$fechaInicio} 00:00:00' AND co.fecha_registro < DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 37 HOUR) ";
+            }
+            if ($horario == 'segundo_corte') {
+                // Hora 37 a 48: desde las 13:00 del día siguiente hasta las 23:59 del segundo día
+                $queryClientes .= " AND co.fecha_registro >= DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 37 HOUR) AND co.fecha_registro <= DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 48 HOUR) ";
             }
         }
 
@@ -138,7 +143,14 @@ class ReporteLogisticoController extends Controller
             $html .= "<p><strong>Día de visita:</strong> " . ucfirst($diasVisita) . "</p>";
         }
         if (!empty($horario)) {
-            $html .= "<p><strong>Horario:</strong> " . ucfirst($horario) . "</p>";
+            $horarioTexto = [
+                'todos'         => 'Todos',
+                'diurno'        => 'Diurno (08:00 - 15:00)',
+                'nocturno'      => 'Nocturno (15:00 - 07:59)',
+                'primer_corte'  => 'Primer Corte (Hora 0 a 37 — Día 1 00:00 a Día 2 13:00)',
+                'segundo_corte' => 'Segundo Corte (Hora 37 a 48 — Día 2 13:00 a 23:59)',
+            ];
+            $html .= "<p><strong>Horario:</strong> " . ($horarioTexto[$horario] ?? ucfirst($horario)) . "</p>";
         }
         if (!empty($medida)) {
             $html .= "<p><strong>Medida:</strong> $medida</p>";

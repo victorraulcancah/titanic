@@ -194,6 +194,8 @@
                         <option value="todos">Todos</option>
                         <option value="diurno">De 8:00 a.m. a 3:00 p.m.</option>
                         <option value="nocturno">De 3:00 p.m. a 7:59 a.m.</option>
+                        <option value="primer_corte">PRIMER CORTE (Hora 0 a 37)</option>
+                        <option value="segundo_corte">SEGUNDO CORTE (Hora 37 a 48)</option>
                     </select>
                 </div>
                 <div class="mt-3">
