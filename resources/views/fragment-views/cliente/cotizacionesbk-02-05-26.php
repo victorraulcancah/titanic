@@ -114,6 +114,12 @@
                         <option value="2">Camión 2</option>
                         <option value="3">Camión 3</option>
                     </select>
+                    <label for="filtro-horario">Filtrar por horario:</label>
+                    <select id="filtro-horario" class="form-control">
+                        <option value="todos">Todos</option>
+                        <option value="diurno">De 8:00 a.m. a 3:00 p.m.</option>
+                        <option value="nocturno">De 3:00 p.m. a 7:59 a.m.</option>
+                    </select>
                 </div>
                 <div id="imprimirPorRuta" class="mt-3" style="display:none;">
                     <label for="ruta">Rutas:</label>
@@ -123,12 +129,6 @@
                 <div id="imprimirPorMercado" class="mt-3" style="display:none;">
                     <label for="mercado">Mercado:</label>
                     <select class="form-control" id="mercado">
-                    </select>
-                    <label for="filtro-horario-mercado" class="mt-2">Filtrar por horario:</label>
-                    <select id="filtro-horario-mercado" class="form-control">
-                        <option value="todos">Todos</option>
-                        <option value="diurno">De 8:00 a.m. a 3:00 p.m.</option>
-                        <option value="nocturno">De 3:00 p.m. a 7:59 a.m.</option>
                     </select>
                 </div>
                 <div id="imprimirPorMedida" class="mt-3" style="display:none;">
@@ -520,7 +520,7 @@
         });
         $("#btnImprimirPorMercado").on('click', function () {
             $("#imprimirPorMercado").show();
-            $("#imprimirPorFechas").show();
+            $("#imprimirPorFechas").hide();
             $("#imprimirPorNumeros").hide();
             $("#imprimirPorVisitas").hide();
             $("#imprimirPorCamion").hide();
@@ -530,9 +530,8 @@
             $("#numeroInicio").val('');
             $("#numeroFin").val('');
             $('#camionconsolodidado').val('');
-            $('#camion').val('');
-            $("#btnConsolidado").show();
-            $("#btnPorCliente").hide();
+            // $('#filtro-horario').val('');
+
         });
         $("#btnImprimirPorMedida").on('click', function () {
             $("#imprimirPorMercado").hide();
@@ -897,7 +896,7 @@
             let mercado = $("#mercado").val();
             let medida = $("#medida").val();
             let tipo = $('#camionconsolodidado').val();
-            let horario = $("#filtro-horario-mercado").val();
+            let horario = $("#filtro-horario").val();
             const { PDFDocument } = PDFLib;
             const combinedPdf = await PDFDocument.create();
 

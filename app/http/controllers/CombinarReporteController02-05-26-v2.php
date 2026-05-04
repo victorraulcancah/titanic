@@ -1803,9 +1803,7 @@ class CombinarReporteController extends Controller
             $html .= "<p style=''>Periodo: {$fechaSeleccionada}  al  {$fechaFinSeleccionada}</p>";
         }
         if (!empty($horario)) {
-            $horarioLabels = ['todos' => 'Todos', 'diurno' => 'De 8:00 a.m. a 3:00 p.m.', 'nocturno' => 'De 3:00 p.m. a 7:59 a.m.'];
-            $horarioTexto = $horarioLabels[$horario] ?? $horario;
-            $html .= "<p style=''>Horario: {$horarioTexto}</p>";
+            $html .= "<p style=''>Horario: {$horario}</p>";
         }
 
         if (!empty($diasVisita)) {
@@ -2036,9 +2034,7 @@ class CombinarReporteController extends Controller
             $html .= "<p style=''>Periodo: {$fechaSeleccionada}  al  {$fechaFinSeleccionada}</p>";
         }
         if (!empty($horario)) {
-            $horarioLabels = ['todos' => 'Todos', 'diurno' => 'De 8:00 a.m. a 3:00 p.m.', 'nocturno' => 'De 3:00 p.m. a 7:59 a.m.'];
-            $horarioTexto = $horarioLabels[$horario] ?? $horario;
-            $html .= "<p style=''>Horario: {$horarioTexto}</p>";
+            $html .= "<p style=''>Horario: {$horario}</p>";
         }
 
         if (!empty($diasVisita)) {
@@ -2104,7 +2100,7 @@ class CombinarReporteController extends Controller
         }
 
         if ($mercado != "") {
-            $queryClientes .= " AND c.mercado= '$mercado'";
+            //$queryClientes .= " AND c.mercado= '$mercado'";
         }
         $arrQueryClientes = array();
 
@@ -2299,9 +2295,7 @@ class CombinarReporteController extends Controller
             $html .= "<p style=''>Periodo: {$fechaSeleccionada}  al  {$fechaFinSeleccionada}</p>";
         }
         if (!empty($horario)) {
-            $horarioLabels = ['todos' => 'Todos', 'diurno' => 'De 8:00 a.m. a 3:00 p.m.', 'nocturno' => 'De 3:00 p.m. a 7:59 a.m.'];
-            $horarioTexto = $horarioLabels[$horario] ?? $horario;
-            $html .= "<p style=''>Horario: {$horarioTexto}</p>";
+            $html .= "<p style=''>Horario: {$horario}</p>";
         }
 
         if (!empty($diasVisita)) {
