@@ -285,24 +285,6 @@
 
     }
 
-    function sumarTotal() {
-        let total = 0;
-        let restante = 0;
-        let total_pagado = 0;
-
-        $('#datatableDiasCompras').DataTable().rows().every(function () {
-            let row = this.data();
-            let estado = row.estado;
-
-            if (estado == '1') {
-                const valor = parseFloat($(this.node()).find('.lisopcpavalor').val()) || 0;
-                total_pagado += valor;
-            }
-        });
-        $('#total_pagado').val(total_pagado);
-
-
-    }
 
     function totalApagar(id, tipo) {
         console.log("id_venta:", id); // Verifica si el ID se pasa correctamente
@@ -1317,7 +1299,7 @@ ${listaOpc.join("")}
             // Crear nueva fila con datos temporales
             let nuevaFila = {
                 dias_venta_id: 'nuevo_' + nuevoId, // ID temporal con el siguiente número
-                monto: restante.toFixed(2),
+                monto: '0.00',
                 fecha: '<?php echo date('Y-m-d') ?>',
                 estado: '0',
                 tipo_pago: '',
