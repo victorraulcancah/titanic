@@ -746,11 +746,10 @@ class ReportesDeudaController extends Controller
     foreach ($listaVentas as $key => $venta) {
       // CORREGIDO: Quitar IGV del precio antes de calcular
       // Los precios en la BD incluyen IGV (18%), debemos quitarlo
-      $precio_con_igv = $venta['precio']/$venta['productos'];
-      $precio_sin_igv = $precio_con_igv / 1.18; // Quitar el 18% de IGV
+      $precio_sin_igv = ($venta['precio']/$venta['productos']) / 1.18;
       $precio_unitario = number_format($precio_sin_igv, 2);
-      
-      $costo_unitario = number_format($venta['costo']/$venta['productos'],2);
+      $costo_sin_igv = ($venta['costo']/$venta['productos']) / 1.18;
+      $costo_unitario = number_format($costo_sin_igv, 2);
       $utilidad_unitario = $precio_unitario-$costo_unitario;
       $subtotal_utilidad = $utilidad_unitario * $venta['cantidad'];
       $subtotal = $precio_unitario*$venta['cantidad'];
@@ -892,11 +891,10 @@ class ReportesDeudaController extends Controller
     foreach ($listaVentas as $key => $venta) {
       // CORREGIDO: Quitar IGV del precio antes de calcular
       // Los precios en la BD incluyen IGV (18%), debemos quitarlo
-      $precio_con_igv = $venta['precio']/$venta['productos'];
-      $precio_sin_igv = $precio_con_igv / 1.18; // Quitar el 18% de IGV
+      $precio_sin_igv = ($venta['precio']/$venta['productos']) / 1.18;
       $precio_unitario = number_format($precio_sin_igv, 2);
-      
-      $costo_unitario = number_format($venta['costo']/$venta['productos'],2);
+      $costo_sin_igv = ($venta['costo']/$venta['productos']) / 1.18;
+      $costo_unitario = number_format($costo_sin_igv, 2);
       $utilidad_unitario = $precio_unitario-$costo_unitario;
       $subtotal_utilidad = $utilidad_unitario * $venta['cantidad'];
       $subtotal = $precio_unitario*$venta['cantidad'];

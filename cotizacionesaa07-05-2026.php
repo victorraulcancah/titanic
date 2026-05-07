@@ -1,3 +1,15 @@
+<?php
+require 'utils/config.php';
+require 'config/Conexion.php';
+
+$con = new Conexion();
+$db = $con->getConexion();
+
+if ($db->connect_error) {
+    echo "Connection failed: " . $db->connect_error;
+} else {
+    echo "Connected successfully";
+}
 <div class="page-title-box">
     <div class="row align-items-center">
         <div class="clearfix">
@@ -129,9 +141,9 @@
                         <option value="todos">Todos</option>
                         <option value="diurno">De 8:00 a.m. a 3:00 p.m.</option>
                         <option value="nocturno">De 3:00 p.m. a 7:59 a.m.</option>
-                        <option value="primer_corte">PRIMER CORTE — Pedidos base (antes 08:00 día carga)</option>
-                        <option value="segundo_corte">SEGUNDO CORTE — Aumentos mañana (08:00 - 13:00 día carga)</option>
-                        <option value="tercer_corte">TERCER CORTE — Aumentos tarde/noche (13:00 - 23:59 día carga)</option>
+                        <option value="primer_corte">PRIMER CORTE (0 a 32 horas)</option>
+                        <option value="segundo_corte">SEGUNDO CORTE (32 a 37 horas)</option>
+                        <option value="tercer_corte">TERCER CORTE (37 a 48 horas)</option>
                     </select>
                 </div>
                 <div id="imprimirPorMedida" class="mt-3" style="display:none;">
@@ -197,9 +209,9 @@
                         <option value="todos">Todos</option>
                         <option value="diurno">De 8:00 a.m. a 3:00 p.m.</option>
                         <option value="nocturno">De 3:00 p.m. a 7:59 a.m.</option>
-                        <option value="primer_corte">PRIMER CORTE — Pedidos base (antes 08:00 día carga)</option>
-                        <option value="segundo_corte">SEGUNDO CORTE — Aumentos mañana (08:00 - 13:00 día carga)</option>
-                        <option value="tercer_corte">TERCER CORTE — Aumentos tarde/noche (13:00 - 23:59 día carga)</option>
+                        <option value="primer_corte">PRIMER CORTE (0 a 32 horas)</option>
+                        <option value="segundo_corte">SEGUNDO CORTE (32 a 37 horas)</option>
+                        <option value="tercer_corte">TERCER CORTE (37 a 48 horas)</option>
                     </select>
                 </div>
                 <div class="mt-3">

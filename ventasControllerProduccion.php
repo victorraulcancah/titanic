@@ -1,520 +1,218 @@
 <?php
 
-class ArqueoDiarioController extends Controller
+require_once 'utils/lib/mpdf/vendor/autoload.php';
+require_once 'utils/lib/vendor/autoload.php';
+require_once "app/models/Venta.php";
+require_once "app/models/Cliente.php";
+require_once "app/models/DocumentoEmpresa.php";
+require_once "app/models/ProductoVenta.php";
+
+class ReporteLogisticoController extends Controller
 {
     private $conexion;
+    private $mpdf;
 
     public function __construct()
     {
+        $this->mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4', 0]);
         $this->conexion = (new Conexion())->getConexion();
     }
 
-    // Obtener cobros del día agrupados por vendedor
-    public function obtenerCobrosDia()
+    public function reporteLogistico()
     {
-        $fecha = $_POST['fecha'];
-        $resumen = [];
-        
-        // Obtener todos los cobros del día de dias_ventas
-        $sql_dv = "SELECT 
-            IFNULL(dv.id_usuario, v.id_vendedor) as id_usuario,
-            u.usuario,
-            dv.tipo_pago,
-            SUM(dv.monto) as total
-        FROM dias_ventas dv
-        INNER JOIN ventas v ON v.id_venta = dv.id_venta
-        LEFT JOIN usuarios u ON u.usuario_id = IFNULL(dv.id_usuario, v.id_vendedor)
-        WHERE DATE(IFNULL(dv.fecha_pago_real, dv.fecha)) = '$fecha'
-        AND dv.estado = '1'
-        AND v.id_empresa = '{$_SESSION['id_empresa']}'
-        AND v.sucursal = '{$_SESSION['sucursal']}'
-        GROUP BY IFNULL(dv.id_usuario, v.id_vendedor), u.usuario, dv.tipo_pago";
-        
-        $result_dv = $this->conexion->query($sql_dv);
-        
-        if (!$result_dv) {
-            echo json_encode(['error' => 'Error en consulta dias_ventas: ' . $this->conexion->error]);
-            return;
-        }
-        
-        // Obtener cobros de cuotas_cotizacion
-        $sql_cc = "SELECT 
-            IFNULL(cc.id_usuario, co.id_usuario) as id_usuario,
-            u.usuario,
-            cc.tipo_pago,
-            SUM(cc.monto) as total
-        FROM cuotas_cotizacion cc
-        INNER JOIN cotizaciones co ON co.cotizacion_id = cc.id_coti
-        LEFT JOIN usuarios u ON u.usuario_id = IFNULL(cc.id_usuario, co.id_usuario)
-        WHERE DATE(IFNULL(cc.fecha_pago_real, cc.fecha)) = '$fecha'
-        AND cc.estado = '1'
-        AND co.id_empresa = '{$_SESSION['id_empresa']}'
-        AND co.sucursal = '{$_SESSION['sucursal']}'
-        GROUP BY IFNULL(cc.id_usuario, co.id_usuario), u.usuario, cc.tipo_pago";
-        
-        $result_cc = $this->conexion->query($sql_cc);
-        
-        if (!$result_cc) {
-            echo json_encode(['error' => 'Error en consulta cuotas_cotizacion: ' . $this->conexion->error]);
-            return;
-        }
-        
-        // Procesar resultados
-        $vendedores = [];
-        
-        while ($row = $result_dv->fetch_assoc()) {
-            $usuario_id = $row['id_usuario'];
-            $usuario = $row['usuario'] ?? 'Sin nombre';
-            $tipo_pago = $row['tipo_pago'] ?? 'Efectivo';
-            
-            if (!isset($vendedores[$usuario_id])) {
-                $vendedores[$usuario_id] = [
-                    'usuario_id' => $usuario_id,
-                    'usuario' => $usuario, 
-                    'efectivo' => 0, 
-                    'bancos' => 0, 
-                    'total' => 0,
-                    'pagos_digitales_sistema' => []
-                ];
+        $fechaInicio = $_GET['fechaInicio'] ?? '';
+        $fechaFin = $_GET['fechaFin'] ?? '';
+        $camion = $_GET['camion'] ?? '';
+        $medida = $_GET['medida'] ?? '';
+        $diasVisita = $_GET['diasVisita'] ?? '';
+        $horario = $_GET['horario'] ?? '';
+
+        $queryClientes = " AND DATE(co.fecha) BETWEEN '$fechaInicio' AND '$fechaFin' ";
+
+        if ($horario != "") {
+            if ($horario == 'diurno') {
+                $queryClientes .= " AND TIME(co.fecha_registro) >= '08:00:00' AND TIME(co.fecha_registro) < '15:00:00' ";
             }
-            
-            if ($tipo_pago == 'Efectivo' || $tipo_pago == NULL) {
-                $vendedores[$usuario_id]['efectivo'] += floatval($row['total']);
-            } else {
-                $vendedores[$usuario_id]['bancos'] += floatval($row['total']);
+            if ($horario == 'nocturno') {
+                $queryClientes .= " AND (TIME(co.fecha_registro) >= '15:00:00' OR TIME(co.fecha_registro) < '08:00:00') ";
             }
-        }
-        
-        while ($row = $result_cc->fetch_assoc()) {
-            $usuario_id = $row['id_usuario'];
-            $usuario = $row['usuario'] ?? 'Sin nombre';
-            $tipo_pago = $row['tipo_pago'] ?? 'Efectivo';
-            
-            if (!isset($vendedores[$usuario_id])) {
-                $vendedores[$usuario_id] = [
-                    'usuario_id' => $usuario_id,
-                    'usuario' => $usuario, 
-                    'efectivo' => 0, 
-                    'bancos' => 0, 
-                    'total' => 0,
-                    'pagos_digitales_sistema' => []
-                ];
+            if ($horario == 'todos') {
+                $queryClientes .= " AND TIME(co.fecha_registro) >= '00:00:00' AND TIME(co.fecha_registro) <= '23:59:59' ";
             }
-            
-            if ($tipo_pago == 'Efectivo' || $tipo_pago == NULL) {
-                $vendedores[$usuario_id]['efectivo'] += floatval($row['total']);
-            } else {
-                $vendedores[$usuario_id]['bancos'] += floatval($row['total']);
+            if ($horario == 'primer_corte') {
+                $queryClientes .= " AND co.fecha_registro >= '{$fechaInicio} 00:00:00' AND co.fecha_registro < DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 32 HOUR) ";
             }
-        }
-        
-        // Obtener detalles de pagos digitales para pre-llenar el modal
-        $sql_detalles = "SELECT 
-            id_usuario_pago, id_vendedor, tipo_pago, monto, cliente_nombre
-        FROM (
-            SELECT 
-                dv.id_usuario as id_usuario_pago,
-                v.id_vendedor,
-                dv.tipo_pago,
-                dv.monto,
-                IFNULL(c.datos, 'SIN CLIENTE') as cliente_nombre
-            FROM dias_ventas dv
-            INNER JOIN ventas v ON v.id_venta = dv.id_venta
-            LEFT JOIN clientes c ON c.id_cliente = v.id_cliente
-            WHERE (DATE(dv.fecha_pago_real) = '$fecha' OR (dv.fecha_pago_real IS NULL AND dv.fecha = '$fecha'))
-            AND dv.estado = '1'
-            AND TRIM(LOWER(IFNULL(dv.tipo_pago, ''))) NOT IN ('efectivo', '')
-            AND v.id_empresa = '{$_SESSION['id_empresa']}'
-            AND v.sucursal = '{$_SESSION['sucursal']}'
-            
-            UNION ALL
-            
-            SELECT 
-                cc.id_usuario as id_usuario_pago,
-                co.id_usuario as id_vendedor,
-                cc.tipo_pago,
-                cc.monto,
-                IFNULL(c.datos, 'SIN CLIENTE') as cliente_nombre
-            FROM cuotas_cotizacion cc
-            INNER JOIN cotizaciones co ON co.cotizacion_id = cc.id_coti
-            LEFT JOIN clientes c ON c.id_cliente = co.id_cliente
-            WHERE (DATE(cc.fecha_pago_real) = '$fecha' OR (cc.fecha_pago_real IS NULL AND cc.fecha = '$fecha'))
-            AND cc.estado = '1'
-            AND TRIM(LOWER(IFNULL(cc.tipo_pago, ''))) NOT IN ('efectivo', '')
-            AND co.id_empresa = '{$_SESSION['id_empresa']}'
-            AND co.sucursal = '{$_SESSION['sucursal']}'
-        ) as t";
-        
-        $result_detalles = $this->conexion->query($sql_detalles);
-        if ($result_detalles) {
-            while ($row = $result_detalles->fetch_assoc()) {
-                $ids_a_agregar = array_unique([$row['id_usuario_pago'], $row['id_vendedor']]);
-                
-                foreach ($ids_a_agregar as $uid) {
-                    if (empty($uid)) continue;
-                    
-                    // Aseguramos que el usuario exista en el resumen
-                    if (!isset($vendedores[$uid])) {
-                        $vendedores[$uid] = [
-                            'usuario_id' => $uid,
-                            'usuario' => 'Usuario ' . $uid,
-                            'efectivo' => 0,
-                            'bancos' => 0,
-                            'total' => 0,
-                            'pagos_digitales_sistema' => []
-                        ];
-                    }
-                    
-                    $vendedores[$uid]['pagos_digitales_sistema'][] = [
-                        'cliente_nombre' => $row['cliente_nombre'],
-                        'tipo_pago' => $row['tipo_pago'],
-                        'monto' => floatval($row['monto'])
-                    ];
-                }
+            if ($horario == 'segundo_corte') {
+                $queryClientes .= " AND co.fecha_registro >= DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 32 HOUR) AND co.fecha_registro < DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 37 HOUR) ";
+            }
+            if ($horario == 'tercer_corte') {
+                $queryClientes .= " AND co.fecha_registro >= DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 37 HOUR) AND co.fecha_registro <= DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 48 HOUR) ";
             }
         }
 
-        // Calcular totales
-        foreach ($vendedores as &$v) {
-            $v['total'] = $v['efectivo'] + $v['bancos'];
+        if ($camion !== '0' && $camion !== '') {
+            $filtros = array();
+            switch ($camion) {
+                case '1':
+                    $filtros = [
+                        'lunes' => ['1', '7'],
+                        'martes' => ['5', '7'],
+                        'miercoles' => ['5'],
+                        'jueves' => ['1', '7'],
+                        'viernes' => ['6', '7'],
+                        'sabado' => ['7', '8'],
+                    ];
+                    break;
+                case '2':
+                    $filtros = [
+                        'lunes' => ['3', '6'],
+                        'martes' => ['1', '3'],
+                        'miercoles' => ['1', '3'],
+                        'jueves' => ['6', '3'],
+                        'viernes' => ['3', '5'],
+                        'sabado' => ['3', '6'],
+                    ];
+                    break;
+                case '3':
+                    $filtros = [
+                        'miercoles' => ['6', '7'],
+                        'viernes' => ['8', '2'],
+                        'sabado' => ['1', '5'],
+                    ];
+                    break;
+            }
+
+            if ($diasVisita != "" && isset($filtros[$diasVisita])) {
+                $filtros = [
+                    $diasVisita => $filtros[$diasVisita]
+                ];
+            }
+
+            $arrQueryClientes = array();
+            foreach ($filtros as $key => $filtro) {
+                $arrQueryClientes[] = "( c.dias_visitas = '{$key}' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
+            }
+            if (sizeof($arrQueryClientes) > 0) {
+                $queryClientes .= " AND (" . implode(' OR ', $arrQueryClientes) . ")";
+            }
+        } elseif ($diasVisita != "") {
+            $queryClientes .= " AND c.dias_visitas = '{$diasVisita}' ";
         }
-        
-        return json_encode(array_values($vendedores));
-    }
-    
-    // Guardar arqueo diario
-    public function guardarArqueo()
-    {
-        $respuesta = ["res" => false];
-        
-        $fecha = $_POST['fecha'];
-        $vendedor = $_POST['vendedor'] ?? '';
-        $vendedor_id = $_POST['vendedor_id'] ?? 0;
-        $cobros_efectivo = $_POST['cobros_efectivo'] ?? 0;
-        $cobros_bancos = $_POST['cobros_bancos'] ?? 0;
-        $ingresos_efectivo = $_POST['ingresos_efectivo'] ?? 0;
-        $ingresos_bancos = $_POST['ingresos_bancos'] ?? 0;
-        $egresos_efectivo = $_POST['egresos_efectivo'] ?? 0;
-        $egresos_bancos = $_POST['egresos_bancos'] ?? 0;
-        $diferencia_efectivo = $_POST['diferencia_efectivo'] ?? 0;
-        $diferencia_bancos = $_POST['diferencia_bancos'] ?? 0;
-        $cuadra_efectivo = isset($_POST['cuadra_efectivo']) && $_POST['cuadra_efectivo'] ? 1 : 0;
-        $cuadra_bancos = isset($_POST['cuadra_bancos']) && $_POST['cuadra_bancos'] ? 1 : 0;
-        
-        // Nuevos datos de detalle de efectivo
-        $detalle_efectivo = isset($_POST['detalle_efectivo']) ? json_decode($_POST['detalle_efectivo'], true) : null;
-        
-        // Nuevos datos de pagos digitales
-        $pagos_digitales = isset($_POST['pagos_digitales']) ? json_decode($_POST['pagos_digitales'], true) : [];
-        
-        $usuario_actual = isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : $_SESSION['usuario_fac'];
-        
-        // Iniciar transacción
-        $this->conexion->begin_transaction();
-        
-        try {
-            // Insertar arqueo principal
-            $sql = "INSERT INTO arqueos_diarios SET
-                    id_empresa = '{$_SESSION['id_empresa']}',
-                    sucursal = '{$_SESSION['sucursal']}',
-                    fecha_arqueo = '$fecha',
-                    vendedor = '$vendedor',
-                    vendedor_id = '$vendedor_id',
-                    cobros_efectivo = '$cobros_efectivo',
-                    cobros_bancos = '$cobros_bancos',
-                    ingresos_efectivo = '$ingresos_efectivo',
-                    ingresos_bancos = '$ingresos_bancos',
-                    egresos_efectivo = '$egresos_efectivo',
-                    egresos_bancos = '$egresos_bancos',
-                    diferencia_efectivo = '$diferencia_efectivo',
-                    diferencia_bancos = '$diferencia_bancos',
-                    cuadra_efectivo = '$cuadra_efectivo',
-                    cuadra_bancos = '$cuadra_bancos',
-                    usuario_registro = '$usuario_actual'";
-            
-            if (!$this->conexion->query($sql)) {
-                throw new Exception("Error al guardar arqueo: " . $this->conexion->error);
-            }
-            
-            $arqueo_id = $this->conexion->insert_id;
-            
-            // Guardar detalle de efectivo si existe
-            if ($detalle_efectivo) {
-                $billetes = floatval($detalle_efectivo['billetes'] ?? 0);
-                $monedas = floatval($detalle_efectivo['monedas'] ?? 0);
-                $pasaje = floatval($detalle_efectivo['pasaje'] ?? 0);
-                $combustible = floatval($detalle_efectivo['combustible'] ?? 0);
-                $gastos = floatval($detalle_efectivo['gastos'] ?? 0);
-                $menu = floatval($detalle_efectivo['menu'] ?? 0);
-                $otro = floatval($detalle_efectivo['otro'] ?? 0);
-                $otro_desc = $this->conexion->real_escape_string($detalle_efectivo['otro_descripcion'] ?? '');
-                
-                $total_ingresos = $billetes + $monedas;
-                $total_gastos = $pasaje + $combustible + $gastos + $menu + $otro;
-                $total_efectivo_real = $total_ingresos + $total_gastos;
-                
-                $sql_detalle = "INSERT INTO arqueo_efectivo_detalle SET
-                                arqueo_id = '$arqueo_id',
-                                billetes = '$billetes',
-                                monedas = '$monedas',
-                                pasaje = '$pasaje',
-                                combustible = '$combustible',
-                                gastos = '$gastos',
-                                menu = '$menu',
-                                otro = '$otro',
-                                otro_descripcion = '$otro_desc',
-                                total_ingresos = '$total_ingresos',
-                                total_gastos = '$total_gastos',
-                                total_efectivo_real = '$total_efectivo_real'";
-                
-                if (!$this->conexion->query($sql_detalle)) {
-                    throw new Exception("Error al guardar detalle de efectivo: " . $this->conexion->error);
-                }
-            }
-            
-            // Guardar pagos digitales
-            if (!empty($pagos_digitales)) {
-                foreach ($pagos_digitales as $pago) {
-                    $cliente = $this->conexion->real_escape_string($pago['cliente_nombre']);
-                    $tipo = $this->conexion->real_escape_string($pago['tipo_pago']);
-                    $operacion = $this->conexion->real_escape_string($pago['numero_operacion']);
-                    $monto = floatval($pago['monto']);
-                    
-                    $sql_pago = "INSERT INTO arqueo_pagos_digitales SET
-                                arqueo_id = '$arqueo_id',
-                                cliente_nombre = '$cliente',
-                                tipo_pago = '$tipo',
-                                numero_operacion = '$operacion',
-                                monto = '$monto'";
-                    
-                    if (!$this->conexion->query($sql_pago)) {
-                        throw new Exception("Error al guardar pago digital: " . $this->conexion->error);
-                    }
-                }
-            }
-            
-            // Confirmar transacción
-            $this->conexion->commit();
-            
-            $respuesta["res"] = true;
-            $respuesta["arqueo_id"] = $arqueo_id;
-            $respuesta["mensaje"] = "Arqueo de $vendedor del día $fecha guardado correctamente";
-            
-        } catch (Exception $e) {
-            // Revertir transacción en caso de error
-            $this->conexion->rollback();
-            $respuesta["mensaje"] = $e->getMessage();
+
+        $sql = "SELECT co.cotizacion_id 
+                FROM clientes c 
+                INNER JOIN cotizaciones co ON co.id_cliente = c.id_cliente   
+                WHERE co.id_empresa='{$_SESSION['id_empresa']}'
+                AND co.sucursal='{$_SESSION['sucursal']}'
+                AND co.estado!=2 " . $queryClientes;
+
+        // Para consolidado logístico, agrupamos considerando el código de producto y la presentación
+        $query_productos = "SELECT p.codigo,
+                pc.id_producto, p.descripcion, p.peso_bruto,
+                pc.presenta_cnt AS total_medida, pc.medida,
+                SUM(pc.cantidad) AS total_cantidad, 
+                SUM(pc.cantidad * pc.presenta_cnt) AS total_multiplicado
+                FROM productos_cotis pc
+                INNER JOIN productos p ON p.id_producto = pc.id_producto
+                WHERE pc.id_coti IN ($sql)";
+
+        if (!empty($medida)) {
+            $query_productos .= " AND pc.medida = '$medida'";
         }
+
+        $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY p.descripcion ASC";
+
+        $listaProd = $this->conexion->query($query_productos);
+
+        $html = "
+        <style>
+            body { font-family: Arial, sans-serif; color: #000000; font-weight: bold; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { border: 1px solid #000; padding: 4px; font-size: 11px; text-align: center; }
+            .left { text-align: left; }
+            h1 { text-align: center; font-size: 18px; margin-bottom: 5px; }
+            p { margin: 2px 0; font-size: 12px; }
+        </style>
+        ";
+
+        $camionTexto = ($camion === '0' || $camion === '') ? 'Todos' : $camion;
         
-        return json_encode($respuesta);
-    }
-    
-    // Obtener arqueos guardados
-    public function obtenerArqueosGuardados()
-    {
-        $sql = "SELECT * FROM arqueos_diarios 
-                WHERE id_empresa = '{$_SESSION['id_empresa']}' 
-                AND sucursal = '{$_SESSION['sucursal']}'
-                ORDER BY fecha_arqueo DESC, arqueo_id DESC";
-        
-        $result = $this->conexion->query($sql);
-        $arqueos = [];
-        
-        while ($row = $result->fetch_assoc()) {
-            $arqueos[] = $row;
+        $html .= "<h1>Consolidado Logístico</h1>";
+        $html .= "<p><strong>Camión:</strong> $camionTexto</p>";
+        $html .= "<p><strong>Periodo:</strong> $fechaInicio al $fechaFin</p>";
+        if (!empty($diasVisita)) {
+            $html .= "<p><strong>Día de visita:</strong> " . ucfirst($diasVisita) . "</p>";
         }
-        
-        return json_encode($arqueos);
-    }
-    
-    // Obtener un arqueo específico por ID
-    public function obtenerArqueoPorId()
-    {
-        $arqueo_id = $_POST['arqueo_id'];
-        
-        $sql = "SELECT * FROM arqueos_diarios WHERE arqueo_id = '$arqueo_id'";
-        $result = $this->conexion->query($sql);
-        
-        if ($row = $result->fetch_assoc()) {
-            // Obtener detalle de efectivo
-            $sql_detalle = "SELECT * FROM arqueo_efectivo_detalle WHERE arqueo_id = '$arqueo_id'";
-            $result_detalle = $this->conexion->query($sql_detalle);
-            $row['detalle_efectivo'] = $result_detalle->fetch_assoc();
-            
-            // Obtener pagos digitales
-            $sql_pagos = "SELECT * FROM arqueo_pagos_digitales WHERE arqueo_id = '$arqueo_id' ORDER BY pago_digital_id";
-            $result_pagos = $this->conexion->query($sql_pagos);
-            $pagos = [];
-            while ($pago = $result_pagos->fetch_assoc()) {
-                $pagos[] = $pago;
-            }
-            $row['pagos_digitales'] = $pagos;
-            
-            return json_encode($row);
-        }
-        
-        return json_encode(["error" => "Arqueo no encontrado"]);
-    }
-    
-    // Actualizar arqueo existente
-    public function actualizarArqueo()
-    {
-        $respuesta = ["res" => false];
-        
-        $arqueo_id = $_POST['arqueo_id'];
-        $ingresos_efectivo = $_POST['ingresos_efectivo'] ?? 0;
-        $ingresos_bancos = $_POST['ingresos_bancos'] ?? 0;
-        $egresos_efectivo = $_POST['egresos_efectivo'] ?? 0;
-        $egresos_bancos = $_POST['egresos_bancos'] ?? 0;
-        $diferencia_efectivo = $_POST['diferencia_efectivo'] ?? 0;
-        $diferencia_bancos = $_POST['diferencia_bancos'] ?? 0;
-        $cuadra_efectivo = isset($_POST['cuadra_efectivo']) && $_POST['cuadra_efectivo'] ? 1 : 0;
-        $cuadra_bancos = isset($_POST['cuadra_bancos']) && $_POST['cuadra_bancos'] ? 1 : 0;
-        
-        // Nuevos datos de detalle de efectivo
-        $detalle_efectivo = isset($_POST['detalle_efectivo']) ? json_decode($_POST['detalle_efectivo'], true) : null;
-        
-        // Nuevos datos de pagos digitales
-        $pagos_digitales = isset($_POST['pagos_digitales']) ? json_decode($_POST['pagos_digitales'], true) : [];
-        
-        // Iniciar transacción
-        $this->conexion->begin_transaction();
-        
-        try {
-            // Actualizar arqueo principal
-            $sql = "UPDATE arqueos_diarios SET
-                    ingresos_efectivo = '$ingresos_efectivo',
-                    ingresos_bancos = '$ingresos_bancos',
-                    egresos_efectivo = '$egresos_efectivo',
-                    egresos_bancos = '$egresos_bancos',
-                    diferencia_efectivo = '$diferencia_efectivo',
-                    diferencia_bancos = '$diferencia_bancos',
-                    cuadra_efectivo = '$cuadra_efectivo',
-                    cuadra_bancos = '$cuadra_bancos'
-                    WHERE arqueo_id = '$arqueo_id'";
-            
-            if (!$this->conexion->query($sql)) {
-                throw new Exception("Error al actualizar arqueo: " . $this->conexion->error);
-            }
-            
-            // Actualizar o insertar detalle de efectivo
-            if ($detalle_efectivo) {
-                $billetes = floatval($detalle_efectivo['billetes'] ?? 0);
-                $monedas = floatval($detalle_efectivo['monedas'] ?? 0);
-                $pasaje = floatval($detalle_efectivo['pasaje'] ?? 0);
-                $combustible = floatval($detalle_efectivo['combustible'] ?? 0);
-                $gastos = floatval($detalle_efectivo['gastos'] ?? 0);
-                $menu = floatval($detalle_efectivo['menu'] ?? 0);
-                $otro = floatval($detalle_efectivo['otro'] ?? 0);
-                $otro_desc = $this->conexion->real_escape_string($detalle_efectivo['otro_descripcion'] ?? '');
-                
-                $total_ingresos = $billetes + $monedas;
-                $total_gastos = $pasaje + $combustible + $gastos + $menu + $otro;
-                $total_efectivo_real = $total_ingresos + $total_gastos;
-                
-                // Verificar si ya existe detalle
-                $check = $this->conexion->query("SELECT detalle_id FROM arqueo_efectivo_detalle WHERE arqueo_id = '$arqueo_id'");
-                
-                if ($check->num_rows > 0) {
-                    // Actualizar
-                    $sql_detalle = "UPDATE arqueo_efectivo_detalle SET
-                                    billetes = '$billetes',
-                                    monedas = '$monedas',
-                                    pasaje = '$pasaje',
-                                    combustible = '$combustible',
-                                    gastos = '$gastos',
-                                    menu = '$menu',
-                                    otro = '$otro',
-                                    otro_descripcion = '$otro_desc',
-                                    total_ingresos = '$total_ingresos',
-                                    total_gastos = '$total_gastos',
-                                    total_efectivo_real = '$total_efectivo_real'
-                                    WHERE arqueo_id = '$arqueo_id'";
-                } else {
-                    // Insertar
-                    $sql_detalle = "INSERT INTO arqueo_efectivo_detalle SET
-                                    arqueo_id = '$arqueo_id',
-                                    billetes = '$billetes',
-                                    monedas = '$monedas',
-                                    pasaje = '$pasaje',
-                                    combustible = '$combustible',
-                                    gastos = '$gastos',
-                                    menu = '$menu',
-                                    otro = '$otro',
-                                    otro_descripcion = '$otro_desc',
-                                    total_ingresos = '$total_ingresos',
-                                    total_gastos = '$total_gastos',
-                                    total_efectivo_real = '$total_efectivo_real'";
-                }
-                
-                if (!$this->conexion->query($sql_detalle)) {
-                    throw new Exception("Error al actualizar detalle de efectivo: " . $this->conexion->error);
-                }
-            }
-            
-            // Eliminar pagos digitales anteriores y agregar los nuevos
-            $this->conexion->query("DELETE FROM arqueo_pagos_digitales WHERE arqueo_id = '$arqueo_id'");
-            
-            if (!empty($pagos_digitales)) {
-                foreach ($pagos_digitales as $pago) {
-                    $cliente = $this->conexion->real_escape_string($pago['cliente_nombre']);
-                    $tipo = $this->conexion->real_escape_string($pago['tipo_pago']);
-                    $operacion = $this->conexion->real_escape_string($pago['numero_operacion']);
-                    $monto = floatval($pago['monto']);
-                    
-                    $sql_pago = "INSERT INTO arqueo_pagos_digitales SET
-                                arqueo_id = '$arqueo_id',
-                                cliente_nombre = '$cliente',
-                                tipo_pago = '$tipo',
-                                numero_operacion = '$operacion',
-                                monto = '$monto'";
-                    
-                    if (!$this->conexion->query($sql_pago)) {
-                        throw new Exception("Error al guardar pago digital: " . $this->conexion->error);
-                    }
-                }
-            }
-            
-            // Confirmar transacción
-            $this->conexion->commit();
-            
-            $respuesta["res"] = true;
-            $respuesta["mensaje"] = "Arqueo actualizado correctamente";
-            
-        } catch (Exception $e) {
-            // Revertir transacción en caso de error
-            $this->conexion->rollback();
-            $respuesta["mensaje"] = $e->getMessage();
-        }
-        
-        return json_encode($respuesta);
-    }
-    
-    // Buscar clientes para autocomplete
-    public function buscarClientes()
-    {
-        $termino = $_POST['termino'] ?? '';
-        $termino = $this->conexion->real_escape_string($termino);
-        
-        $sql = "SELECT id_cliente, datos, documento 
-                FROM clientes 
-                WHERE id_empresa = '{$_SESSION['id_empresa']}'
-                AND (datos LIKE '%$termino%' OR documento LIKE '%$termino%')
-                ORDER BY datos
-                LIMIT 20";
-        
-        $result = $this->conexion->query($sql);
-        $clientes = [];
-        
-        while ($row = $result->fetch_assoc()) {
-            $clientes[] = [
-                'id' => $row['id_cliente'],
-                'nombre' => $row['datos'],
-                'documento' => $row['documento']
+        if (!empty($horario)) {
+            $horarioTexto = [
+                'todos'         => 'Todos',
+                'diurno'        => 'Diurno (08:00 - 15:00)',
+                'nocturno'      => 'Nocturno (15:00 - 07:59)',
+                'primer_corte'  => 'Primer Corte (Hora 0 a 32)',
+                'segundo_corte' => 'Segundo Corte (Hora 32 a 37)',
+                'tercer_corte'  => 'Tercer Corte (Hora 37 a 48)',
             ];
+            $html .= "<p><strong>Horario:</strong> " . ($horarioTexto[$horario] ?? ucfirst($horario)) . "</p>";
         }
+        if (!empty($medida)) {
+            $html .= "<p><strong>Medida:</strong> $medida</p>";
+        }
+
+        $html .= "
+        <table>
+            <thead>
+                <tr>
+                    <th>item</th>
+                    <th>Código</th>
+                    <th>M</th>
+                    <th>PRODUCTO</th>
+                    <th>UNIDAD</th>
+                    <th>MEDIDA</th>
+                    <th>CANTIDAD</th>
+                </tr>
+            </thead>
+            <tbody>
+        ";
+
+        $contador = 1;
+
+        if ($listaProd && $listaProd->num_rows > 0) {
+            foreach ($listaProd as $prod) {
+                // Formateo de cantidades para evitar decimales innecesarios si son enteros
+                $m_multiplicado = number_format($prod['total_multiplicado'], 0);
+                $cantidad_real = number_format($prod['total_cantidad'], 0);
+                $medida_cnt = floatval($prod['total_medida']); // o number_format si lo prefiere
+
+                $html .= "<tr>
+                    <td>{$contador}</td>
+                    <td>" . trim($prod['codigo']) . "</td>
+                    <td>{$m_multiplicado}</td>
+                    <td class='left'>{$prod['descripcion']}</td>
+                    <td>{$prod['medida']}</td>
+                    <td>{$medida_cnt}</td>
+                    <td>{$cantidad_real}</td>
+                </tr>";
+                $contador++;
+            }
+        } else {
+            $html .= "<tr><td colspan='7'>No hay datos para mostrar</td></tr>";
+        }
+
+        $html .= "
+            </tbody>
+        </table>
+        ";
+
+        // Mpdf settings para que reconozca los estilos
+        $mpdf = new \Mpdf\Mpdf([
+            "format" => "A4",
+            "mode" => "utf-8"
+        ]);
         
-        return json_encode($clientes);
+        // Agregar CSS para color negro y negrita
+        // Pasando el HTML completo sin forzar HTMLParserMode para que evalúe correctamente las etiquetas <style>
+        $mpdf->WriteHTML($html);
+
+        $mpdf->Output("Consolidado_Logistico.pdf", 'I');
     }
 }
-

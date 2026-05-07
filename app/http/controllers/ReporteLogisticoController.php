@@ -29,6 +29,9 @@ class ReporteLogisticoController extends Controller
 
         $queryClientes = " AND DATE(co.fecha) BETWEEN '$fechaInicio' AND '$fechaFin' ";
 
+        // Día de despacho/carga = fechaFin - 1 día
+        $diaDespacho = date('Y-m-d', strtotime($fechaFin . ' -1 day'));
+
         if ($horario != "") {
             if ($horario == 'diurno') {
                 $queryClientes .= " AND TIME(co.fecha_registro) >= '08:00:00' AND TIME(co.fecha_registro) < '15:00:00' ";
@@ -40,13 +43,16 @@ class ReporteLogisticoController extends Controller
                 $queryClientes .= " AND TIME(co.fecha_registro) >= '00:00:00' AND TIME(co.fecha_registro) <= '23:59:59' ";
             }
             if ($horario == 'primer_corte') {
-                $queryClientes .= " AND co.fecha_registro >= '{$fechaInicio} 00:00:00' AND co.fecha_registro < DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 32 HOUR) ";
+                // Pedidos base: todo lo registrado antes de las 08:00 del día de carga
+                $queryClientes .= " AND co.fecha_registro < '{$diaDespacho} 08:00:00' ";
             }
             if ($horario == 'segundo_corte') {
-                $queryClientes .= " AND co.fecha_registro >= DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 32 HOUR) AND co.fecha_registro < DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 37 HOUR) ";
+                // Aumentos mañana del día de carga: 08:00 a 13:00
+                $queryClientes .= " AND co.fecha_registro >= '{$diaDespacho} 08:00:00' AND co.fecha_registro < '{$diaDespacho} 13:00:00' ";
             }
             if ($horario == 'tercer_corte') {
-                $queryClientes .= " AND co.fecha_registro >= DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 37 HOUR) AND co.fecha_registro <= DATE_ADD('{$fechaInicio} 00:00:00', INTERVAL 48 HOUR) ";
+                // Aumentos tarde/noche del día de carga: 13:00 a 23:59
+                $queryClientes .= " AND co.fecha_registro >= '{$diaDespacho} 13:00:00' AND co.fecha_registro <= '{$diaDespacho} 23:59:59' ";
             }
         }
 
@@ -148,9 +154,9 @@ class ReporteLogisticoController extends Controller
                 'todos'         => 'Todos',
                 'diurno'        => 'Diurno (08:00 - 15:00)',
                 'nocturno'      => 'Nocturno (15:00 - 07:59)',
-                'primer_corte'  => 'Primer Corte (Hora 0 a 32)',
-                'segundo_corte' => 'Segundo Corte (Hora 32 a 37)',
-                'tercer_corte'  => 'Tercer Corte (Hora 37 a 48)',
+                'primer_corte'  => "Primer Corte — Pedidos base (antes del {$diaDespacho} 08:00)",
+                'segundo_corte' => "Segundo Corte — Aumentos mañana ({$diaDespacho} 08:00 - 13:00)",
+                'tercer_corte'  => "Tercer Corte — Aumentos tarde/noche ({$diaDespacho} 13:00 - 23:59)",
             ];
             $html .= "<p><strong>Horario:</strong> " . ($horarioTexto[$horario] ?? ucfirst($horario)) . "</p>";
         }
