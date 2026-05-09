@@ -8,6 +8,125 @@ class CotizacionesController extends Controller
     public function __construct()
     {
         $this->conexion = (new Conexion())->getConexion();
+        $this->ensureProductosCotisFechaRegistro();
+    }
+
+    private function ensureProductosCotisFechaRegistro()
+    {
+        $columna = $this->conexion->query("SHOW COLUMNS FROM productos_cotis LIKE 'fecha_registro'");
+        if ($columna && $columna->num_rows == 0) {
+            $this->conexion->query("ALTER TABLE productos_cotis ADD COLUMN fecha_registro DATETIME NULL AFTER costo");
+            $this->conexion->query("UPDATE productos_cotis pc
+                INNER JOIN cotizaciones co ON co.cotizacion_id = pc.id_coti
+                SET pc.fecha_registro = co.fecha_registro
+                WHERE pc.fecha_registro IS NULL");
+        }
+    }
+
+    private function productoCotizacionKey($idProducto, $medida, $presentaCnt)
+    {
+        return $idProducto . '|' . trim($medida) . '|' . number_format((float)$presentaCnt, 2, '.', '');
+    }
+
+    private function getProductosCotizacionActuales($cotiId)
+    {
+        $productos = [];
+        $sql = "SELECT id_producto, medida, presenta_cnt, SUM(cantidad) AS cantidad
+            FROM productos_cotis
+            WHERE id_coti = '$cotiId'
+            GROUP BY id_producto, medida, presenta_cnt";
+        $result = $this->conexion->query($sql);
+
+        if ($result) {
+            foreach ($result as $prod) {
+                $key = $this->productoCotizacionKey($prod['id_producto'], $prod['medida'], $prod['presenta_cnt']);
+                $productos[$key] = [
+                    'cantidad' => (float)$prod['cantidad'],
+                ];
+            }
+        }
+
+        return $productos;
+    }
+
+    private function actualizarPrecioProductoCotizacion($cotiId, $prod)
+    {
+        $presentaCntInt = (int)round((float)$prod['presentacionCnt']);
+        $medidaEsc = $this->conexion->real_escape_string(trim($prod['medida']));
+        $this->conexion->query("UPDATE productos_cotis SET
+            precio='{$prod['precioVenta']}',
+            presenta='{$prod['presentacion']}',
+            costo='{$prod['costo']}'
+            WHERE id_coti='$cotiId'
+            AND id_producto='{$prod['productoid']}'
+            AND medida='$medidaEsc'
+            AND presenta_cnt='$presentaCntInt'");
+    }
+
+    private function reducirProductoCotizacion($cotiId, $prod, $cantidadReducir)
+    {
+        $presentaCntInt = (int)round((float)$prod['presentacionCnt']);
+        $medidaEsc = $this->conexion->real_escape_string(trim($prod['medida']));
+
+        $sql = "SELECT prod_coti_id, cantidad FROM productos_cotis
+            WHERE id_coti='$cotiId'
+            AND id_producto='{$prod['productoid']}'
+            AND medida='$medidaEsc'
+            AND presenta_cnt='$presentaCntInt'
+            ORDER BY COALESCE(fecha_registro, '1970-01-01') DESC, prod_coti_id DESC";
+        $result = $this->conexion->query($sql);
+
+        if ($result) {
+            foreach ($result as $row) {
+                if ($cantidadReducir <= 0) break;
+                $rowId = $row['prod_coti_id'];
+                $rowQty = (float)$row['cantidad'];
+                if ($rowQty <= $cantidadReducir) {
+                    $this->conexion->query("DELETE FROM productos_cotis WHERE prod_coti_id='$rowId'");
+                    $cantidadReducir -= $rowQty;
+                } else {
+                    $nuevaCantidad = $rowQty - $cantidadReducir;
+                    $this->conexion->query("UPDATE productos_cotis SET cantidad='$nuevaCantidad' WHERE prod_coti_id='$rowId'");
+                    $cantidadReducir = 0;
+                }
+            }
+        }
+    }
+
+    private function normalizarProductosCotizacion($productos)
+    {
+        $normalizados = [];
+
+        foreach ($productos as $prod) {
+            $key = $this->productoCotizacionKey($prod['productoid'], $prod['medida'], $prod['presentacionCnt']);
+
+            if (!isset($normalizados[$key])) {
+                $normalizados[$key] = $prod;
+                $normalizados[$key]['cantidad'] = 0;
+            }
+
+            $normalizados[$key]['cantidad'] += (float)$prod['cantidad'];
+        }
+
+        return $normalizados;
+    }
+
+    private function insertarProductoCotizacion($cotiId, $prod, $cantidad, $fechaRegistro)
+    {
+        if ($cantidad <= 0) {
+            return;
+        }
+
+        $sql = "insert into productos_cotis set id_coti='$cotiId',
+              id_producto='{$prod['productoid']}',
+              cantidad='$cantidad',
+              precio='{$prod['precioVenta']}',
+              medida='{$prod['medida']}',
+              presenta_cnt='{$prod['presentacionCnt']}',
+              presenta='{$prod['presentacion']}',
+              costo='{$prod['costo']}',
+              fecha_registro='$fechaRegistro'";
+        $this->conexion->query($sql);
     }
     public function eliminarCotizacion()
     {
@@ -137,19 +256,41 @@ class CotizacionesController extends Controller
                 }
             }
 
-            $sql = "delete from productos_cotis where id_coti='{$_POST['cotiId']}'";
-            $this->conexion->query($sql);
+            date_default_timezone_set('America/Lima');
+            $fechaMovimiento = date('Y-m-d H:i:s');
+            $cotiId = $_POST['cotiId'];
+            $productosAnteriores = $this->getProductosCotizacionActuales($cotiId);
+            $productosNormalizados = $this->normalizarProductosCotizacion($productos);
 
-            foreach ($productos as $prod) {
-                $sql = "insert into productos_cotis set id_coti='{$_POST['cotiId']}',
-              id_producto='{$prod['productoid']}',
-              cantidad='{$prod['cantidad']}',
-              precio='{$prod['precioVenta']}',
-              medida='{$prod['medida']}',
-              presenta_cnt='{$prod['presentacionCnt']}',
-              presenta='{$prod['presentacion']}',
-              costo='{$prod['costo']}'";
-                $this->conexion->query($sql);
+            // Eliminar productos que ya no están en el pedido
+            foreach ($productosAnteriores as $key => $anterior) {
+                if (!isset($productosNormalizados[$key])) {
+                    [$idProducto, $medida, $presentaCnt] = explode('|', $key, 3);
+                    $presentaCntInt = (int)round((float)$presentaCnt);
+                    $medidaEsc = $this->conexion->real_escape_string(trim($medida));
+                    $this->conexion->query("DELETE FROM productos_cotis WHERE id_coti='$cotiId' AND id_producto='$idProducto' AND medida='$medidaEsc' AND presenta_cnt='$presentaCntInt'");
+                }
+            }
+
+            foreach ($productosNormalizados as $key => $prod) {
+                $cantidadNueva = (float)$prod['cantidad'];
+                $cantidadAnterior = isset($productosAnteriores[$key]) ? (float)$productosAnteriores[$key]['cantidad'] : 0;
+
+                if ($cantidadAnterior == 0) {
+                    // Producto nuevo: insertar con timestamp actual
+                    $this->insertarProductoCotizacion($cotiId, $prod, $cantidadNueva, $fechaMovimiento);
+                } elseif ($cantidadNueva > $cantidadAnterior) {
+                    // Aumento: insertar solo el delta con timestamp actual, preservar filas anteriores
+                    $this->actualizarPrecioProductoCotizacion($cotiId, $prod);
+                    $this->insertarProductoCotizacion($cotiId, $prod, $cantidadNueva - $cantidadAnterior, $fechaMovimiento);
+                } elseif ($cantidadNueva < $cantidadAnterior) {
+                    // Reducción: eliminar de las filas más nuevas primero
+                    $this->reducirProductoCotizacion($cotiId, $prod, $cantidadAnterior - $cantidadNueva);
+                    $this->actualizarPrecioProductoCotizacion($cotiId, $prod);
+                } else {
+                    // Misma cantidad: solo actualizar precio
+                    $this->actualizarPrecioProductoCotizacion($cotiId, $prod);
+                }
             }
         }
 
@@ -256,11 +397,17 @@ class CotizacionesController extends Controller
         }
 
         $data["productos"] = [];
-        $sql = "SELECT p.cnt_presenta, pc.medida,pc.presenta,pc.presenta_cnt,p.codigo,pc.id_producto,pc.cantidad,p.descripcion,p.codsunat,p.precio,p.precio2,p.precio3,p.costo,pc.precio AS precioVenta,p.precio4,p.precio_unidad
+        $sql = "SELECT p.cnt_presenta, pc.medida, pc.presenta, pc.presenta_cnt, p.codigo, pc.id_producto,
+            SUM(pc.cantidad) AS cantidad,
+            p.descripcion, p.codsunat, p.precio, p.precio2, p.precio3, p.costo,
+            MAX(pc.precio) AS precioVenta, p.precio4, p.precio_unidad
         FROM productos_cotis pc
         JOIN productos p ON p.id_producto = pc.id_producto
-        WHERE pc.id_coti = '{$data['cotizacion_id']}'";
-        
+        WHERE pc.id_coti = '{$data['cotizacion_id']}'
+        GROUP BY pc.id_producto, pc.medida, pc.presenta_cnt, pc.presenta,
+            p.cnt_presenta, p.codigo, p.descripcion, p.codsunat,
+            p.precio, p.precio2, p.precio3, p.costo, p.precio4, p.precio_unidad";
+
         error_log("DEBUG: SQL productos: " . $sql);
         $productosR = $this->conexion->query($sql);
         
@@ -414,16 +561,8 @@ class CotizacionesController extends Controller
                 $this->conexion->query($sql);
             }
 
-            foreach ($listaProd as $prod) {
-                $sql = "insert into productos_cotis set id_coti='$idCoti',
-              id_producto='{$prod['productoid']}',
-              cantidad='{$prod['cantidad']}',
-              precio='{$prod['precioVenta']}',
-              costo='{$prod['costo']}', 
-              medida='{$prod['medida']}',
-              presenta='{$prod['presentacion']}',
-              presenta_cnt='{$prod['presentacionCnt']}'";
-                $this->conexion->query($sql);
+            foreach ($this->normalizarProductosCotizacion($listaProd) as $prod) {
+                $this->insertarProductoCotizacion($idCoti, $prod, (float)$prod['cantidad'], $fecha_registro);
             }
 
 
@@ -431,6 +570,7 @@ class CotizacionesController extends Controller
         }
         return json_encode($respuesta);
     }
+
 
     public function listar()
     {

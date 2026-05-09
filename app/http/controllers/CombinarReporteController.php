@@ -1723,22 +1723,9 @@ class CombinarReporteController extends Controller
         }
         $queryClientes = "";
         if ($fechaSeleccionada != "") {
-            $queryClientes .= " AND co.fecha between '$fechaSeleccionada' AND '$fechaFinSeleccionada' ";
+            $queryClientes .= $this->buildFiltroFechaCorte($fechaSeleccionada, $fechaFinSeleccionada, $horario);
         }
-        if ($horario != "") {
-            if ($horario == 'diurno') {
-                // Turno diurno: 08:00 AM - 03:00 PM
-                $queryClientes .= " AND TIME(co.fecha_registro) >= '08:00:00' AND TIME(co.fecha_registro) < '15:00:00' ";
-            }
-            if ($horario == 'nocturno') {
-                // Turno nocturno: 06:00 PM - 07:59 AM (abarca dos días)
-                $queryClientes .= " AND (TIME(co.fecha_registro) >= '15:00:00' OR TIME(co.fecha_registro) < '08:00:00') ";
-            }
-            if ($horario == 'todos') {
-                // Incluye todo el día
-                $queryClientes .= " AND TIME(co.fecha_registro) >= '00:00:00' AND TIME(co.fecha_registro) <= '23:59:59' ";
-            }
-        }
+        $queryProductosHorario = $this->buildFiltroHorarioProductoCorte($fechaSeleccionada, $fechaFinSeleccionada, $horario);
 
         if ($mercado != "") {
             //$queryClientes .= " AND c.mercado= '$mercado'";
@@ -1746,7 +1733,7 @@ class CombinarReporteController extends Controller
         $arrQueryClientes = array();
 
         foreach ($filtros as $key => $filtro) {
-            $arrQueryClientes[] = "( c.dias_visitas = '{$key}' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
+            $arrQueryClientes[] = "( c.dias_visitas LIKE '{$key}%' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
         }
 
         if (sizeof($arrQueryClientes) > 0) {
@@ -1803,9 +1790,14 @@ class CombinarReporteController extends Controller
             $html .= "<p style=''>Periodo: {$fechaSeleccionada}  al  {$fechaFinSeleccionada}</p>";
         }
         if (!empty($horario)) {
-            $horarioLabels = ['todos' => 'Todos', 'diurno' => 'De 8:00 a.m. a 3:00 p.m.', 'nocturno' => 'De 3:00 p.m. a 7:59 a.m.'];
-            $horarioTexto = $horarioLabels[$horario] ?? $horario;
-            $html .= "<p style=''>Horario: {$horarioTexto}</p>";
+            $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaSeleccionada);
+            $horarioLabels = [
+                'todos'         => 'Todos',
+                'primer_corte'  => "Primer Corte — Pedidos base ({$fechaInicioPrimerCorte} 08:00 - {$fechaFinSeleccionada} 08:00)",
+                'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFinSeleccionada} 08:00 - 13:00)",
+                'tercer_corte'  => "Tercer Corte — Aumentos tarde/noche ({$fechaFinSeleccionada} 15:00 - 23:59)",
+            ];
+            $html .= "<p style=''>Horario: " . ($horarioLabels[$horario] ?? ucfirst($horario)) . "</p>";
         }
 
         if (!empty($diasVisita)) {
@@ -1871,13 +1863,14 @@ class CombinarReporteController extends Controller
             if (!empty($medida)) {
                 $query_productos .= " AND pc.medida = '$medida'";
             }
+            $query_productos .= $queryProductosHorario;
 
             // Consolidado Camión: agrupa sin presenta_cnt (junta todas las presentaciones)
             // Consolidado por Mercados: agrupa con presenta_cnt (separa por presentación)
             if ($tipo == "porCamionConsolidado") {
-                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion ORDER BY p.descripcion ASC";
+                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
             } else {
-                $query_productos .= " GROUP BY pc.id_producto, pc.presenta_cnt, pc.medida ORDER BY p.descripcion ASC";
+                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
             }
 
             // Ejecutar la consulta
@@ -2036,9 +2029,14 @@ class CombinarReporteController extends Controller
             $html .= "<p style=''>Periodo: {$fechaSeleccionada}  al  {$fechaFinSeleccionada}</p>";
         }
         if (!empty($horario)) {
-            $horarioLabels = ['todos' => 'Todos', 'diurno' => 'De 8:00 a.m. a 3:00 p.m.', 'nocturno' => 'De 3:00 p.m. a 7:59 a.m.'];
-            $horarioTexto = $horarioLabels[$horario] ?? $horario;
-            $html .= "<p style=''>Horario: {$horarioTexto}</p>";
+            $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaSeleccionada);
+            $horarioLabels = [
+                'todos'         => 'Todos',
+                'primer_corte'  => "Primer Corte — Pedidos base ({$fechaInicioPrimerCorte} 08:00 - {$fechaFinSeleccionada} 08:00)",
+                'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFinSeleccionada} 08:00 - 13:00)",
+                'tercer_corte'  => "Tercer Corte — Aumentos tarde/noche ({$fechaFinSeleccionada} 15:00 - 23:59)",
+            ];
+            $html .= "<p style=''>Horario: " . ($horarioLabels[$horario] ?? ucfirst($horario)) . "</p>";
         }
 
         if (!empty($diasVisita)) {
@@ -2086,22 +2084,9 @@ class CombinarReporteController extends Controller
         #
         $queryClientes = "";
         if ($fechaSeleccionada != "") {
-            $queryClientes .= " AND co.fecha between '$fechaSeleccionada' AND '$fechaFinSeleccionada' ";
+            $queryClientes .= $this->buildFiltroFechaCorte($fechaSeleccionada, $fechaFinSeleccionada, $horario);
         }
-        if ($horario != "") {
-            if ($horario == 'diurno') {
-                // Turno diurno: 08:00 AM - 03:00 PM
-                $queryClientes .= " AND TIME(co.fecha_registro) >= '08:00:00' AND TIME(co.fecha_registro) < '15:00:00' ";
-            }
-            if ($horario == 'nocturno') {
-                // Turno nocturno: 06:00 PM - 07:59 AM (abarca dos días)
-                $queryClientes .= " AND (TIME(co.fecha_registro) >= '15:00:00' OR TIME(co.fecha_registro) < '08:00:00') ";
-            }
-            if ($horario == 'todos') {
-                // Incluye todo el día
-                $queryClientes .= " AND TIME(co.fecha_registro) >= '00:00:00' AND TIME(co.fecha_registro) <= '23:59:59' ";
-            }
-        }
+        $queryProductosHorario = $this->buildFiltroHorarioProductoCorte($fechaSeleccionada, $fechaFinSeleccionada, $horario);
 
         if ($mercado != "") {
             $queryClientes .= " AND c.mercado= '$mercado'";
@@ -2110,7 +2095,7 @@ class CombinarReporteController extends Controller
 
         foreach ($filtros as $key => $filtro_a) {
             foreach ($filtro_a as $clave => $filtro) {
-                $arrQueryClientes[] = "( c.dias_visitas = '{$clave}' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
+                $arrQueryClientes[] = "( c.dias_visitas LIKE '{$clave}%' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
             }
         }
 
@@ -2190,8 +2175,9 @@ class CombinarReporteController extends Controller
             if (!empty($medida)) {
                 $query_productos .= " AND pc.medida = '$medida'";
             }
+            $query_productos .= $queryProductosHorario;
 
-            $query_productos .= " GROUP BY p.codigo, p.descripcion, pc.medida ORDER BY p.descripcion ASC";
+            $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
             // Ejecutar la consulta
 
             // $html .= "<p style=''>query: {$query_productos}</p>";
@@ -2299,9 +2285,14 @@ class CombinarReporteController extends Controller
             $html .= "<p style=''>Periodo: {$fechaSeleccionada}  al  {$fechaFinSeleccionada}</p>";
         }
         if (!empty($horario)) {
-            $horarioLabels = ['todos' => 'Todos', 'diurno' => 'De 8:00 a.m. a 3:00 p.m.', 'nocturno' => 'De 3:00 p.m. a 7:59 a.m.'];
-            $horarioTexto = $horarioLabels[$horario] ?? $horario;
-            $html .= "<p style=''>Horario: {$horarioTexto}</p>";
+            $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaSeleccionada);
+            $horarioLabels = [
+                'todos'         => 'Todos',
+                'primer_corte'  => "Primer Corte — Pedidos base ({$fechaInicioPrimerCorte} 08:00 - {$fechaFinSeleccionada} 08:00)",
+                'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFinSeleccionada} 08:00 - 13:00)",
+                'tercer_corte'  => "Tercer Corte — Aumentos tarde/noche ({$fechaFinSeleccionada} 15:00 - 23:59)",
+            ];
+            $html .= "<p style=''>Horario: " . ($horarioLabels[$horario] ?? ucfirst($horario)) . "</p>";
         }
 
         if (!empty($diasVisita)) {
@@ -2364,22 +2355,9 @@ class CombinarReporteController extends Controller
             }
             $queryClientes = "";
             if ($fechaSeleccionada != "") {
-                $queryClientes .= " AND co.fecha between '$fechaSeleccionada' AND '$fechaFinSeleccionada' ";
+                $queryClientes .= $this->buildFiltroFechaCorte($fechaSeleccionada, $fechaFinSeleccionada, $horario);
             }
-            if ($horario != "") {
-                if ($horario == 'diurno') {
-                    // Turno diurno: 08:00 AM - 03:00 PM
-                    $queryClientes .= " AND TIME(co.fecha_registro) >= '08:00:00' AND TIME(co.fecha_registro) < '15:00:00' ";
-                }
-                if ($horario == 'nocturno') {
-                    // Turno nocturno: 06:00 PM - 07:59 AM (abarca dos días)
-                    $queryClientes .= " AND (TIME(co.fecha_registro) >= '15:00:00' OR TIME(co.fecha_registro) < '08:00:00') ";
-                }
-                if ($horario == 'todos') {
-                    // Incluye todo el día
-                    $queryClientes .= " AND TIME(co.fecha_registro) >= '00:00:00' AND TIME(co.fecha_registro) <= '23:59:59' ";
-                }
-            }
+            $queryProductosHorario = $this->buildFiltroHorarioProductoCorte($fechaSeleccionada, $fechaFinSeleccionada, $horario);
 
             if ($mercado != "") {
                 //$queryClientes .= " AND c.mercado= '$mercado'";
@@ -2387,7 +2365,7 @@ class CombinarReporteController extends Controller
             $arrQueryClientes = array();
 
             foreach ($filtros as $key => $filtro) {
-                $arrQueryClientes[] = "( c.dias_visitas = '{$key}' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
+                $arrQueryClientes[] = "( c.dias_visitas LIKE '{$key}%' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
             }
 
             if (sizeof($arrQueryClientes) > 0) {
@@ -2452,10 +2430,9 @@ class CombinarReporteController extends Controller
                 if (!empty($medida)) {
                     $query_productos .= " AND pc.medida = '$medida'";
                 }
+                $query_productos .= $queryProductosHorario;
 
-                $query_productos .= $tipo == "porCamionConsolidado" ? " GROUP BY p.codigo, pc.id_producto, p.descripcion ORDER BY
-                p.descripcion ASC" : " GROUP BY pc.id_producto, pc.presenta_cnt ORDER BY
-                p.descripcion ASC";
+                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
                 // Ejecutar la consulta
 
                 // $html .= "<p style=''>query: {$query_productos}</p>";
@@ -2526,6 +2503,46 @@ class CombinarReporteController extends Controller
         $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
         $mpdf->Output("Consolidado_camion_{$camion}.pdf", 'I');
     }
+    private function getFechaInicioPrimerCorte($fechaInicio)
+    {
+        if (date('N', strtotime($fechaInicio)) == 7) {
+            return date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
+        }
+        return $fechaInicio;
+    }
+
+    private function buildFiltroFechaCorte($fechaInicio, $fechaFin, $horario = "")
+    {
+        $fechaInicioFiltro = $fechaInicio;
+        if ($horario == 'primer_corte') {
+            $fechaInicioFiltro = $this->getFechaInicioPrimerCorte($fechaInicio);
+        }
+        return " AND DATE(co.fecha) BETWEEN '$fechaInicioFiltro' AND '$fechaFin' ";
+    }
+
+    private function buildFiltroHorarioCorte($fechaInicio, $fechaFin, $horario)
+    {
+        if ($horario == "" || $horario == "todos") {
+            return "";
+        }
+        $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaInicio);
+        if ($horario == 'primer_corte') {
+            return " AND co.fecha_registro >= '{$fechaInicioPrimerCorte} 08:00:00' AND co.fecha_registro < '{$fechaFin} 08:00:00' ";
+        }
+        if ($horario == 'segundo_corte') {
+            return " AND co.fecha_registro >= '{$fechaFin} 08:00:00' AND co.fecha_registro < '{$fechaFin} 15:00:00' ";
+        }
+        if ($horario == 'tercer_corte') {
+            return " AND co.fecha_registro >= '{$fechaFin} 15:00:00' AND co.fecha_registro <= '{$fechaFin} 23:59:59' ";
+        }
+        return "";
+    }
+
+    private function buildFiltroHorarioProductoCorte($fechaInicio, $fechaFin, $horario)
+    {
+        return str_replace('co.fecha_registro', 'pc.fecha_registro', $this->buildFiltroHorarioCorte($fechaInicio, $fechaFin, $horario));
+    }
+
     public function comprobantePedidoPorClientes()
     {
         $camion = $_GET['camion'] ?? "";

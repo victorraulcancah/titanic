@@ -127,11 +127,9 @@
                     <label for="filtro-horario" class="mt-2">Filtrar por horario:</label>
                     <select id="filtro-horario" class="form-control">
                         <option value="todos">Todos</option>
-                        <option value="diurno">De 8:00 a.m. a 3:00 p.m.</option>
-                        <option value="nocturno">De 3:00 p.m. a 7:59 a.m.</option>
                         <option value="primer_corte">PRIMER CORTE — Pedidos base (antes 08:00 día carga)</option>
-                        <option value="segundo_corte">SEGUNDO CORTE — Aumentos mañana (08:00 - 13:00 día carga)</option>
-                        <option value="tercer_corte">TERCER CORTE — Aumentos tarde/noche (13:00 - 23:59 día carga)</option>
+                        <option value="segundo_corte">SEGUNDO CORTE — Aumentos mañana (08:00 - 15:00 día carga)</option>
+                        <option value="tercer_corte">TERCER CORTE — Aumentos tarde/noche (15:00 - 23:59 día carga)</option>
                     </select>
                 </div>
                 <div id="imprimirPorMedida" class="mt-3" style="display:none;">
@@ -195,11 +193,9 @@
                     <label for="horarioLog">Corte de horario (Opcional):</label>
                     <select id="horarioLog" class="form-control">
                         <option value="todos">Todos</option>
-                        <option value="diurno">De 8:00 a.m. a 3:00 p.m.</option>
-                        <option value="nocturno">De 3:00 p.m. a 7:59 a.m.</option>
                         <option value="primer_corte">PRIMER CORTE — Pedidos base (antes 08:00 día carga)</option>
-                        <option value="segundo_corte">SEGUNDO CORTE — Aumentos mañana (08:00 - 13:00 día carga)</option>
-                        <option value="tercer_corte">TERCER CORTE — Aumentos tarde/noche (13:00 - 23:59 día carga)</option>
+                        <option value="segundo_corte">SEGUNDO CORTE — Aumentos mañana (08:00 - 15:00 día carga)</option>
+                        <option value="tercer_corte">TERCER CORTE — Aumentos tarde/noche (15:00 - 23:59 día carga)</option>
                     </select>
                 </div>
                 <div class="mt-3">

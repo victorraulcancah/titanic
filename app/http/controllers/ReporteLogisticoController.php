@@ -16,6 +16,71 @@ class ReporteLogisticoController extends Controller
     {
         $this->mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4', 0]);
         $this->conexion = (new Conexion())->getConexion();
+        $this->ensureProductosCotisFechaRegistro();
+    }
+
+    private function ensureProductosCotisFechaRegistro()
+    {
+        $columna = $this->conexion->query("SHOW COLUMNS FROM productos_cotis LIKE 'fecha_registro'");
+        if ($columna && $columna->num_rows == 0) {
+            $this->conexion->query("ALTER TABLE productos_cotis ADD COLUMN fecha_registro DATETIME NULL AFTER costo");
+            $this->conexion->query("UPDATE productos_cotis pc
+                INNER JOIN cotizaciones co ON co.cotizacion_id = pc.id_coti
+                SET pc.fecha_registro = co.fecha_registro
+                WHERE pc.fecha_registro IS NULL");
+        }
+    }
+
+    private function getFechaInicioPrimerCorte($fechaInicio)
+    {
+        if (date('N', strtotime($fechaInicio)) == 7) {
+            return date('Y-m-d', strtotime($fechaInicio . ' -1 day'));
+        }
+
+        return $fechaInicio;
+    }
+
+    private function buildFiltroFechaCorte($fechaInicio, $fechaFin, $horario = "")
+    {
+        $fechaInicioFiltro = $fechaInicio;
+
+        if ($horario == 'primer_corte') {
+            $fechaInicioFiltro = $this->getFechaInicioPrimerCorte($fechaInicio);
+        }
+
+        return " AND DATE(co.fecha) BETWEEN '$fechaInicioFiltro' AND '$fechaFin' ";
+    }
+
+    private function buildFiltroHorarioCorte($fechaInicio, $fechaFin, $horario)
+    {
+        if ($horario == "") {
+            return "";
+        }
+
+        if ($horario == 'todos') {
+            return " AND TIME(co.fecha_registro) >= '00:00:00' AND TIME(co.fecha_registro) <= '23:59:59' ";
+        }
+
+        $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaInicio);
+
+        if ($horario == 'primer_corte') {
+            return " AND co.fecha_registro >= '{$fechaInicioPrimerCorte} 08:00:00' AND co.fecha_registro < '{$fechaFin} 08:00:00' ";
+        }
+
+        if ($horario == 'segundo_corte') {
+            return " AND co.fecha_registro >= '{$fechaFin} 08:00:00' AND co.fecha_registro < '{$fechaFin} 15:00:00' ";
+        }
+
+        if ($horario == 'tercer_corte') {
+            return " AND co.fecha_registro >= '{$fechaFin} 15:00:00' AND co.fecha_registro <= '{$fechaFin} 23:59:59' ";
+        }
+
+        return "";
+    }
+
+    private function buildFiltroHorarioProductoCorte($fechaInicio, $fechaFin, $horario)
+    {
+        return str_replace('co.fecha_registro', 'pc.fecha_registro', $this->buildFiltroHorarioCorte($fechaInicio, $fechaFin, $horario));
     }
 
     public function reporteLogistico()
@@ -27,34 +92,9 @@ class ReporteLogisticoController extends Controller
         $diasVisita = $_GET['diasVisita'] ?? '';
         $horario = $_GET['horario'] ?? '';
 
-        $queryClientes = " AND DATE(co.fecha) BETWEEN '$fechaInicio' AND '$fechaFin' ";
+        $queryClientes = $this->buildFiltroFechaCorte($fechaInicio, $fechaFin, $horario);
 
-        // Día de despacho/carga = fechaFin - 1 día
-        $diaDespacho = date('Y-m-d', strtotime($fechaFin . ' -1 day'));
-
-        if ($horario != "") {
-            if ($horario == 'diurno') {
-                $queryClientes .= " AND TIME(co.fecha_registro) >= '08:00:00' AND TIME(co.fecha_registro) < '15:00:00' ";
-            }
-            if ($horario == 'nocturno') {
-                $queryClientes .= " AND (TIME(co.fecha_registro) >= '15:00:00' OR TIME(co.fecha_registro) < '08:00:00') ";
-            }
-            if ($horario == 'todos') {
-                $queryClientes .= " AND TIME(co.fecha_registro) >= '00:00:00' AND TIME(co.fecha_registro) <= '23:59:59' ";
-            }
-            if ($horario == 'primer_corte') {
-                // Pedidos base: todo lo registrado antes de las 08:00 del día de carga
-                $queryClientes .= " AND co.fecha_registro < '{$diaDespacho} 08:00:00' ";
-            }
-            if ($horario == 'segundo_corte') {
-                // Aumentos mañana del día de carga: 08:00 a 13:00
-                $queryClientes .= " AND co.fecha_registro >= '{$diaDespacho} 08:00:00' AND co.fecha_registro < '{$diaDespacho} 13:00:00' ";
-            }
-            if ($horario == 'tercer_corte') {
-                // Aumentos tarde/noche del día de carga: 13:00 a 23:59
-                $queryClientes .= " AND co.fecha_registro >= '{$diaDespacho} 13:00:00' AND co.fecha_registro <= '{$diaDespacho} 23:59:59' ";
-            }
-        }
+        $queryProductosHorario = $this->buildFiltroHorarioProductoCorte($fechaInicio, $fechaFin, $horario);
 
         if ($camion !== '0' && $camion !== '') {
             $filtros = array();
@@ -115,9 +155,10 @@ class ReporteLogisticoController extends Controller
         // Para consolidado logístico, agrupamos considerando el código de producto y la presentación
         $query_productos = "SELECT p.codigo,
                 pc.id_producto, p.descripcion, p.peso_bruto,
-                pc.presenta_cnt AS total_medida, pc.medida,
+                MAX(CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_medida, pc.medida,
+                MIN(pc.fecha_registro) AS fecha_registro,
                 SUM(pc.cantidad) AS total_cantidad, 
-                SUM(pc.cantidad * pc.presenta_cnt) AS total_multiplicado
+                SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
                 FROM productos_cotis pc
                 INNER JOIN productos p ON p.id_producto = pc.id_producto
                 WHERE pc.id_coti IN ($sql)";
@@ -125,8 +166,10 @@ class ReporteLogisticoController extends Controller
         if (!empty($medida)) {
             $query_productos .= " AND pc.medida = '$medida'";
         }
+        $query_productos .= $queryProductosHorario;
 
-        $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY p.descripcion ASC";
+        $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, CAST(pc.presenta_cnt AS DECIMAL(10,2)), pc.medida
+            ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ASC";
 
         $listaProd = $this->conexion->query($query_productos);
 
@@ -142,7 +185,7 @@ class ReporteLogisticoController extends Controller
         ";
 
         $camionTexto = ($camion === '0' || $camion === '') ? 'Todos' : $camion;
-        
+
         $html .= "<h1>Consolidado Logístico</h1>";
         $html .= "<p><strong>Camión:</strong> $camionTexto</p>";
         $html .= "<p><strong>Periodo:</strong> $fechaInicio al $fechaFin</p>";
@@ -150,13 +193,12 @@ class ReporteLogisticoController extends Controller
             $html .= "<p><strong>Día de visita:</strong> " . ucfirst($diasVisita) . "</p>";
         }
         if (!empty($horario)) {
+            $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaInicio);
             $horarioTexto = [
-                'todos'         => 'Todos',
-                'diurno'        => 'Diurno (08:00 - 15:00)',
-                'nocturno'      => 'Nocturno (15:00 - 07:59)',
-                'primer_corte'  => "Primer Corte — Pedidos base (antes del {$diaDespacho} 08:00)",
-                'segundo_corte' => "Segundo Corte — Aumentos mañana ({$diaDespacho} 08:00 - 13:00)",
-                'tercer_corte'  => "Tercer Corte — Aumentos tarde/noche ({$diaDespacho} 13:00 - 23:59)",
+                'todos' => 'Todos',
+                'primer_corte' => "Primer Corte — Pedidos base ({$fechaInicioPrimerCorte} 08:00 - {$fechaFin} 08:00)",
+                'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFin} 08:00 - 15:00)",
+                'tercer_corte' => "Tercer Corte — Aumentos tarde/noche ({$fechaFin} 15:00 - 23:59)",
             ];
             $html .= "<p><strong>Horario:</strong> " . ($horarioTexto[$horario] ?? ucfirst($horario)) . "</p>";
         }
@@ -169,6 +211,7 @@ class ReporteLogisticoController extends Controller
             <thead>
                 <tr>
                     <th>item</th>
+                    <!-- <th>FECHA/HORA</th> -->
                     <th>Código</th>
                     <th>M</th>
                     <th>PRODUCTO</th>
@@ -191,6 +234,7 @@ class ReporteLogisticoController extends Controller
 
                 $html .= "<tr>
                     <td>{$contador}</td>
+                    <!-- <td>{$prod['fecha_registro']}</td> -->
                     <td>" . trim($prod['codigo']) . "</td>
                     <td>{$m_multiplicado}</td>
                     <td class='left'>{$prod['descripcion']}</td>
@@ -214,7 +258,7 @@ class ReporteLogisticoController extends Controller
             "format" => "A4",
             "mode" => "utf-8"
         ]);
-        
+
         // Agregar CSS para color negro y negrita
         // Pasando el HTML completo sin forzar HTMLParserMode para que evalúe correctamente las etiquetas <style>
         $mpdf->WriteHTML($html);
