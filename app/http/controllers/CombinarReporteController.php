@@ -33,6 +33,19 @@ class CombinarReporteController extends Controller
         $this->mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' => 'A4', 0]);
         $this->conexion = (new Conexion())->getConexion();
         $this->venta = new Venta();
+        $this->ensureProductosCotisFechaRegistro();
+    }
+
+    private function ensureProductosCotisFechaRegistro()
+    {
+        $columna = $this->conexion->query("SHOW COLUMNS FROM productos_cotis LIKE 'fecha_registro'");
+        if ($columna && $columna->num_rows == 0) {
+            $this->conexion->query("ALTER TABLE productos_cotis ADD COLUMN fecha_registro DATETIME NULL AFTER costo");
+            $this->conexion->query("UPDATE productos_cotis pc
+                INNER JOIN cotizaciones co ON co.cotizacion_id = pc.id_coti
+                SET pc.fecha_registro = co.fecha_registro
+                WHERE pc.fecha_registro IS NULL");
+        }
     }
 
 
@@ -1203,6 +1216,7 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
+        if ($ruta === 'null') $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $filtros = array();
         if ($camion == "" || $fechaSeleccionada == "" || $fechaFinSeleccionada == "") {
@@ -1670,6 +1684,7 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
+        if ($ruta === 'null') $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $medida = $_GET['medida'] ?? "";
         $horario = $_GET['horario'] ?? "";
@@ -1820,7 +1835,7 @@ class CombinarReporteController extends Controller
         $validacionMercado = false;
         if ($tipo == "porCamionConsolidado") {
             $validacionMercado = true;
-            $mercados[] = "";
+            $mercados[] = ['mercado' => ''];
         } else if (!empty($mercado)) {
             $mercados[] = $mercado;
         } else {
@@ -1989,6 +2004,7 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
+        if ($ruta === 'null') $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $medida = $_GET['medida'] ?? "";
         $horario = $_GET['horario'] ?? "";
@@ -2119,7 +2135,7 @@ class CombinarReporteController extends Controller
         $validacionMercado = false;
         if ($tipo == "porCamionConsolidado") {
             $validacionMercado = true;
-            $mercados[] = "";
+            $mercados[] = ['mercado' => ''];
         } else if (!empty($mercado)) {
             $mercados[] = $mercado;
         } else {
@@ -2270,6 +2286,7 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
+        if ($ruta === 'null') $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $medida = $_GET['medida'] ?? "";
         $horario = $_GET['horario'] ?? "";
@@ -2387,7 +2404,7 @@ class CombinarReporteController extends Controller
             $validacionMercado = false;
             if ($tipo == "porCamionConsolidado") {
                 $validacionMercado = true;
-                $mercados[] = "";
+                $mercados[] = ['mercado' => ''];
             } else if (!empty($mercado)) {
                 $mercados[] = $mercado;
             } else {
@@ -2550,6 +2567,7 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
+        if ($ruta === 'null') $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $filtros = array();
         if ($camion == "" || $fechaSeleccionada == "" || $fechaFinSeleccionada == "") {

@@ -179,6 +179,7 @@ class ReporteLogisticoController extends Controller
             table { width: 100%; border-collapse: collapse; margin-top: 10px; }
             th, td { border: 1px solid #000; padding: 4px; font-size: 11px; text-align: center; }
             .left { text-align: left; }
+            .total-row td { background-color: #000000; color: #ffffff; font-weight: bold; font-size: 12px; }
             h1 { text-align: center; font-size: 18px; margin-bottom: 5px; }
             p { margin: 2px 0; font-size: 12px; }
         </style>
@@ -224,13 +225,14 @@ class ReporteLogisticoController extends Controller
         ";
 
         $contador = 1;
+        $totalM = 0;
 
         if ($listaProd && $listaProd->num_rows > 0) {
             foreach ($listaProd as $prod) {
-                // Formateo de cantidades para evitar decimales innecesarios si son enteros
                 $m_multiplicado = number_format($prod['total_multiplicado'], 0);
                 $cantidad_real = number_format($prod['total_cantidad'], 0);
-                $medida_cnt = floatval($prod['total_medida']); // o number_format si lo prefiere
+                $medida_cnt = floatval($prod['total_medida']);
+                $totalM += floatval($prod['total_multiplicado']);
 
                 $html .= "<tr>
                     <td>{$contador}</td>
@@ -248,10 +250,19 @@ class ReporteLogisticoController extends Controller
             $html .= "<tr><td colspan='7'>No hay datos para mostrar</td></tr>";
         }
 
-        $html .= "
-            </tbody>
-        </table>
-        ";
+        $html .= "</tbody>";
+
+        if (!empty($medida)) {
+            $html .= "<tfoot>
+                <tr class='total-row'>
+                    <td colspan='2'>TOTAL</td>
+                    <td>" . number_format($totalM, 0) . "</td>
+                    <td colspan='4'>{$medida}</td>
+                </tr>
+            </tfoot>";
+        }
+
+        $html .= "</table>";
 
         // Mpdf settings para que reconozca los estilos
         $mpdf = new \Mpdf\Mpdf([
