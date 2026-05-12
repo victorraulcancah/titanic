@@ -1216,7 +1216,8 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
-        if ($ruta === 'null') $ruta = '';
+        if ($ruta === 'null')
+            $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $filtros = array();
         if ($camion == "" || $fechaSeleccionada == "" || $fechaFinSeleccionada == "") {
@@ -1684,7 +1685,8 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
-        if ($ruta === 'null') $ruta = '';
+        if ($ruta === 'null')
+            $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $medida = $_GET['medida'] ?? "";
         $horario = $_GET['horario'] ?? "";
@@ -1807,10 +1809,10 @@ class CombinarReporteController extends Controller
         if (!empty($horario)) {
             $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaSeleccionada);
             $horarioLabels = [
-                'todos'         => 'Todos',
-                'primer_corte'  => "Primer Corte — Pedidos base ({$fechaInicioPrimerCorte} 08:00 - {$fechaFinSeleccionada} 08:00)",
+                'todos' => 'Todos',
+                'primer_corte' => "Primer Corte — Pedidos base (hasta {$fechaFinSeleccionada} 08:00)",
                 'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFinSeleccionada} 08:00 - 13:00)",
-                'tercer_corte'  => "Tercer Corte — Aumentos tarde/noche ({$fechaFinSeleccionada} 15:00 - 23:59)",
+                'tercer_corte' => "Tercer Corte — Aumentos tarde/noche ({$fechaFinSeleccionada} 15:00 - 23:59)",
             ];
             $html .= "<p style=''>Horario: " . ($horarioLabels[$horario] ?? ucfirst($horario)) . "</p>";
         }
@@ -1868,8 +1870,8 @@ class CombinarReporteController extends Controller
 
             $query_productos = "SELECT p.codigo,
                 pc.id_producto, p.descripcion,
-                pc.presenta_cnt AS total_medida, pc.medida,
-                SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * pc.presenta_cnt) AS total_multiplicado
+                CAST(pc.presenta_cnt AS DECIMAL(10,2)) AS total_medida, pc.medida,
+                SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
                     FROM productos_cotis pc
                     INNER JOIN productos p ON p.id_producto = pc.id_producto
                     WHERE pc.id_coti IN ($sql)";
@@ -1880,13 +1882,7 @@ class CombinarReporteController extends Controller
             }
             $query_productos .= $queryProductosHorario;
 
-            // Consolidado Camión: agrupa sin presenta_cnt (junta todas las presentaciones)
-            // Consolidado por Mercados: agrupa con presenta_cnt (separa por presentación)
-            if ($tipo == "porCamionConsolidado") {
-                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
-            } else {
-                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
-            }
+            $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.medida, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ASC";
 
             // Ejecutar la consulta
 
@@ -1902,13 +1898,13 @@ class CombinarReporteController extends Controller
                 $total_consolidado += $prod['total_cantidad'];
                 $prod['codigo'] = trim($prod['codigo']);
 
-                // M = MEDIDA × CANTIDAD
-                $multi = $prod['total_cantidad'] * $prod['total_medida'];
-                $multi_formateado = number_format($multi, 0);
+                // M = SUM(cantidad * presenta_cnt) from SQL
+                $multi_formateado = number_format($prod['total_multiplicado'], 0);
 
                 // AHORA sí formatear
                 $prod['total_cantidad'] = number_format($prod['total_cantidad'], 0);
                 $prod['total_multiplicado'] = number_format($prod['total_multiplicado'], 0);
+                $prod['total_medida'] = number_format($prod['total_medida'], 0);
 
                 // Generar filas según el tipo
                 if ($tipo == 'porCamionConsolidado') {
@@ -2004,7 +2000,8 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
-        if ($ruta === 'null') $ruta = '';
+        if ($ruta === 'null')
+            $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $medida = $_GET['medida'] ?? "";
         $horario = $_GET['horario'] ?? "";
@@ -2047,10 +2044,10 @@ class CombinarReporteController extends Controller
         if (!empty($horario)) {
             $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaSeleccionada);
             $horarioLabels = [
-                'todos'         => 'Todos',
-                'primer_corte'  => "Primer Corte — Pedidos base ({$fechaInicioPrimerCorte} 08:00 - {$fechaFinSeleccionada} 08:00)",
+                'todos' => 'Todos',
+                'primer_corte' => "Primer Corte — Pedidos base (hasta {$fechaFinSeleccionada} 08:00)",
                 'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFinSeleccionada} 08:00 - 13:00)",
-                'tercer_corte'  => "Tercer Corte — Aumentos tarde/noche ({$fechaFinSeleccionada} 15:00 - 23:59)",
+                'tercer_corte' => "Tercer Corte — Aumentos tarde/noche ({$fechaFinSeleccionada} 13:00 - 23:59)",
             ];
             $html .= "<p style=''>Horario: " . ($horarioLabels[$horario] ?? ucfirst($horario)) . "</p>";
         }
@@ -2180,9 +2177,10 @@ class CombinarReporteController extends Controller
 
             $query_productos = "SELECT p.codigo,
             p.descripcion,
+            CAST(pc.presenta_cnt AS DECIMAL(10,2)) AS total_medida,
             pc.medida,
             p.peso_bruto,
-            SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * pc.presenta_cnt) AS total_multiplicado
+            SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
             FROM productos_cotis pc
             INNER JOIN productos p ON p.id_producto = pc.id_producto
             WHERE pc.id_coti IN ($sql)";
@@ -2193,7 +2191,7 @@ class CombinarReporteController extends Controller
             }
             $query_productos .= $queryProductosHorario;
 
-            $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
+            $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.medida, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ASC";
             // Ejecutar la consulta
 
             // $html .= "<p style=''>query: {$query_productos}</p>";
@@ -2216,12 +2214,12 @@ class CombinarReporteController extends Controller
 
                 $rowHTML .= "
                 <tr>
-                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
-                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; white-space: nowrap;'>{$prod['codigo']}</td>
-                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; white-space: nowrap;'>$multi_formateado</td>
-                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px;'>{$prod['descripcion']}</td>
-                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; white-space: nowrap;'>{$prod['medida']}</td>
-                    <td class='' style='text-align: center; color: #000; font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding: 2px; white-space: nowrap;'>{$prod['total_cantidad']}</td>
+                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width:30px; white-space: nowrap;'>$contador</td>
+                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff; padding:2px; width:65px; white-space: nowrap;'>{$prod['codigo']}</td>
+                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width:35px; white-space: nowrap;'>$multi_formateado</td>
+                    <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff; padding:2px;'>{$prod['descripcion']}</td>
+                    <!-- <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; white-space: nowrap;'>{$prod['medida']}</td> -->
+                    <!-- <td class='' style='text-align: center; color: #000; font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding: 2px; white-space: nowrap;'>{$prod['total_cantidad']}</td> -->
                 </tr>
             ";
                 $contador++;
@@ -2233,26 +2231,23 @@ class CombinarReporteController extends Controller
             $html .= "<div style='width: 100%; padding-top: 20px;page-break-inside=always;'>
             <table style='width:100%; border-bottom: 1px solid #fff;border-collapse: collapse;page-break-inside=avoid;'>
                 <tr style='border-bottom: 1px solid #fff;'>
-                    <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff; padding:0; white-space: nowrap;'><strong>item</strong></td>
-                    <td style=' font-size: 12px; color: #000;border: 1px solid #fff;border-collapse: collapse; padding: 0; white-space: nowrap;'><strong>Código</strong></td>
-                    <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff; padding:0; white-space: nowrap;'><strong>M</strong></td>
+                    <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff; padding:0; width:30px; white-space: nowrap;'><strong>item</strong></td>
+                    <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff; padding:0; width:65px; white-space: nowrap;'><strong>Código</strong></td>
+                    <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff; padding:0; width:35px; white-space: nowrap;'><strong>M</strong></td>
                     <td style=' font-size: 12px;text-align: left; color: #000;border: 1px solid #fff;'><strong>PRODUCTO</strong></td>
-                    <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;border-collapse: collapse; padding:2px; white-space: nowrap;'><strong>UNIDAD MEDIDA</strong></td>
-                    <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;border-collapse: collapse; padding:2px; white-space: nowrap;'><strong>CANTIDAD</strong></td>
+                    <!-- <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;border-collapse: collapse; padding:2px; white-space: nowrap;'><strong>UNIDAD MEDIDA</strong></td> -->
+                    <!-- <td style=' font-size: 12px;text-align: center; color: #000;border: 1px solid #fff;border-collapse: collapse; padding:2px; white-space: nowrap;'><strong>CANTIDAD</strong></td> -->
                 </tr>
                 $rowHTML
                 <tr>
-                    <td class='' style=' font-size: 11px; border-left: 1px solid #fff;border-bottom: 1px solid #fff;color: white; padding:2px;'>.</td>
-                    <td class='' style=' font-size: 11px; border-left: 1px solid #fff;border-bottom: 1px solid #fff; padding:2px;'> </td>
-                    <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 1px solid #fff;  padding:2px;'> </td>
-                    <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;'> </td>
-                    <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-right: 1px solid #fff;border-bottom: 2px solid #000;'> </td>
-                    <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-right: 1px solid #fff;border-bottom: 2px solid #000;'> </td>
+                    <td class='' style=' font-size: 11px; border-left: 1px solid #fff;border-bottom: 2px solid #000;color: white; padding:2px;'>.</td>
+                    <td class='' style=' font-size: 11px; border-left: 1px solid #fff;border-bottom: 2px solid #000; padding:2px;'> </td>
+                    <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 2px solid #000; padding:2px;'> </td>
+                    <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #fff;border-bottom: 2px solid #000;'> </td>
                 </tr>
                 <tr>
-                    <td colspan='4'></td>
-                    <td class='' style='text-align:right;font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:0;  width: 50px; white-space: nowrap;'>Total</td>
-                    <td class='' style='text-align:right;font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:0;  width: 50px; white-space: nowrap;'>{$total_consolidado}</td>
+                    <td colspan='3'></td>
+                    <td class='' style='text-align:right;font-weight: bold; font-family: Arial, sans-serif; font-size: 11px; border-left: 1px solid #fff; padding:0; white-space: nowrap;'>Total: {$total_consolidado}</td>
                 </tr>
             </table>
         </div>
@@ -2286,7 +2281,8 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
-        if ($ruta === 'null') $ruta = '';
+        if ($ruta === 'null')
+            $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $medida = $_GET['medida'] ?? "";
         $horario = $_GET['horario'] ?? "";
@@ -2304,10 +2300,10 @@ class CombinarReporteController extends Controller
         if (!empty($horario)) {
             $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaSeleccionada);
             $horarioLabels = [
-                'todos'         => 'Todos',
-                'primer_corte'  => "Primer Corte — Pedidos base ({$fechaInicioPrimerCorte} 08:00 - {$fechaFinSeleccionada} 08:00)",
+                'todos' => 'Todos',
+                'primer_corte' => "Primer Corte — Pedidos base (hasta {$fechaFinSeleccionada} 08:00)",
                 'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFinSeleccionada} 08:00 - 13:00)",
-                'tercer_corte'  => "Tercer Corte — Aumentos tarde/noche ({$fechaFinSeleccionada} 15:00 - 23:59)",
+                'tercer_corte' => "Tercer Corte — Aumentos tarde/noche ({$fechaFinSeleccionada} 13:00 - 23:59)",
             ];
             $html .= "<p style=''>Horario: " . ($horarioLabels[$horario] ?? ucfirst($horario)) . "</p>";
         }
@@ -2437,8 +2433,8 @@ class CombinarReporteController extends Controller
 
                 $query_productos = "SELECT p.codigo,
             pc.id_producto, p.descripcion,
-            pc.presenta_cnt AS total_medida, pc.medida,
-            SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * pc.presenta_cnt) AS total_multiplicado
+                CAST(pc.presenta_cnt AS DECIMAL(10,2)) AS total_medida, pc.medida,
+                SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
                 FROM productos_cotis pc
                 INNER JOIN productos p ON p.id_producto = pc.id_producto
                 WHERE pc.id_coti IN ($sql)";
@@ -2449,7 +2445,7 @@ class CombinarReporteController extends Controller
                 }
                 $query_productos .= $queryProductosHorario;
 
-                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.presenta_cnt, pc.medida ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
+                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.medida, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ASC";
                 // Ejecutar la consulta
 
                 // $html .= "<p style=''>query: {$query_productos}</p>";
@@ -2472,7 +2468,7 @@ class CombinarReporteController extends Controller
                     <tr>
                         <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>$contador</td>
                         <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['codigo']}</td>
-                        <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_cantidad']}</td>
+                        <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: center; border-left: 1px solid #fff; padding: 2px; width: auto; white-space: nowrap;'>{$prod['total_multiplicado']}</td>
                         <td class='' style='font-weight: bold; color: #000; font-family: Arial, sans-serif; font-size: 11px; text-align: left;border-left: 1px solid #fff;  padding:2px; width: auto; '>{$prod['descripcion']}</td>
                     </tr>
                 "; // CAMBIO: M y CANTIDAD muestran el mismo valor
@@ -2544,19 +2540,22 @@ class CombinarReporteController extends Controller
         }
         $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaInicio);
         if ($horario == 'primer_corte') {
-            return " AND co.fecha_registro >= '{$fechaInicioPrimerCorte} 08:00:00' AND co.fecha_registro < '{$fechaFin} 08:00:00' ";
+            return " AND co.fecha_registro < '{$fechaFin} 08:00:00' ";
         }
         if ($horario == 'segundo_corte') {
-            return " AND co.fecha_registro >= '{$fechaFin} 08:00:00' AND co.fecha_registro < '{$fechaFin} 15:00:00' ";
+            return " AND co.fecha_registro >= '{$fechaFin} 08:00:00' AND co.fecha_registro < '{$fechaFin} 13:00:00' ";
         }
         if ($horario == 'tercer_corte') {
-            return " AND co.fecha_registro >= '{$fechaFin} 15:00:00' AND co.fecha_registro <= '{$fechaFin} 23:59:59' ";
+            return " AND co.fecha_registro >= '{$fechaFin} 13:00:00' AND co.fecha_registro <= '{$fechaFin} 23:59:59' ";
         }
         return "";
     }
 
     private function buildFiltroHorarioProductoCorte($fechaInicio, $fechaFin, $horario)
     {
+        if ($horario == 'primer_corte') {
+            return " AND (pc.fecha_registro IS NULL OR pc.fecha_registro < '{$fechaFin} 08:00:00') ";
+        }
         return str_replace('co.fecha_registro', 'pc.fecha_registro', $this->buildFiltroHorarioCorte($fechaInicio, $fechaFin, $horario));
     }
 
@@ -2567,7 +2566,8 @@ class CombinarReporteController extends Controller
         $fechaFinSeleccionada = $_GET['fechaFinSeleccionada'] ?? "";
         $diasVisita = $_GET['diasVisita'] ?? "";
         $ruta = $_GET['ruta'] ?? "";
-        if ($ruta === 'null') $ruta = '';
+        if ($ruta === 'null')
+            $ruta = '';
         $mercado = $_GET['mercado'] ?? "";
         $filtros = array();
         if ($camion == "" || $fechaSeleccionada == "" || $fechaFinSeleccionada == "") {

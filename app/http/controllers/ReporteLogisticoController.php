@@ -64,15 +64,15 @@ class ReporteLogisticoController extends Controller
         $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaInicio);
 
         if ($horario == 'primer_corte') {
-            return " AND co.fecha_registro >= '{$fechaInicioPrimerCorte} 08:00:00' AND co.fecha_registro < '{$fechaFin} 08:00:00' ";
+            return " AND co.fecha_registro < '{$fechaFin} 08:00:00' ";
         }
 
         if ($horario == 'segundo_corte') {
-            return " AND co.fecha_registro >= '{$fechaFin} 08:00:00' AND co.fecha_registro < '{$fechaFin} 15:00:00' ";
+            return " AND co.fecha_registro >= '{$fechaFin} 08:00:00' AND co.fecha_registro < '{$fechaFin} 13:00:00' ";
         }
 
         if ($horario == 'tercer_corte') {
-            return " AND co.fecha_registro >= '{$fechaFin} 15:00:00' AND co.fecha_registro <= '{$fechaFin} 23:59:59' ";
+            return " AND co.fecha_registro >= '{$fechaFin} 13:00:00' AND co.fecha_registro <= '{$fechaFin} 23:59:59' ";
         }
 
         return "";
@@ -80,6 +80,9 @@ class ReporteLogisticoController extends Controller
 
     private function buildFiltroHorarioProductoCorte($fechaInicio, $fechaFin, $horario)
     {
+        if ($horario == 'primer_corte') {
+            return " AND (pc.fecha_registro IS NULL OR pc.fecha_registro < '{$fechaFin} 08:00:00') ";
+        }
         return str_replace('co.fecha_registro', 'pc.fecha_registro', $this->buildFiltroHorarioCorte($fechaInicio, $fechaFin, $horario));
     }
 
@@ -155,9 +158,9 @@ class ReporteLogisticoController extends Controller
         // Para consolidado logístico, agrupamos considerando el código de producto y la presentación
         $query_productos = "SELECT p.codigo,
                 pc.id_producto, p.descripcion, p.peso_bruto,
-                MAX(CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_medida, pc.medida,
+                CAST(pc.presenta_cnt AS DECIMAL(10,2)) AS total_medida, pc.medida,
                 MIN(pc.fecha_registro) AS fecha_registro,
-                SUM(pc.cantidad) AS total_cantidad, 
+                SUM(pc.cantidad) AS total_cantidad,
                 SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
                 FROM productos_cotis pc
                 INNER JOIN productos p ON p.id_producto = pc.id_producto
@@ -168,7 +171,7 @@ class ReporteLogisticoController extends Controller
         }
         $query_productos .= $queryProductosHorario;
 
-        $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, CAST(pc.presenta_cnt AS DECIMAL(10,2)), pc.medida
+        $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.medida, CAST(pc.presenta_cnt AS DECIMAL(10,2))
             ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ASC";
 
         $listaProd = $this->conexion->query($query_productos);
@@ -197,9 +200,9 @@ class ReporteLogisticoController extends Controller
             $fechaInicioPrimerCorte = $this->getFechaInicioPrimerCorte($fechaInicio);
             $horarioTexto = [
                 'todos' => 'Todos',
-                'primer_corte' => "Primer Corte — Pedidos base ({$fechaInicioPrimerCorte} 08:00 - {$fechaFin} 08:00)",
-                'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFin} 08:00 - 15:00)",
-                'tercer_corte' => "Tercer Corte — Aumentos tarde/noche ({$fechaFin} 15:00 - 23:59)",
+                'primer_corte' => "Primer Corte — Pedidos base (hasta {$fechaFin} 08:00)",
+                'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFin} 08:00 - 13:00)",
+                'tercer_corte' => "Tercer Corte — Aumentos tarde/noche ({$fechaFin} 13:00 - 23:59)",
             ];
             $html .= "<p><strong>Horario:</strong> " . ($horarioTexto[$horario] ?? ucfirst($horario)) . "</p>";
         }
@@ -229,10 +232,10 @@ class ReporteLogisticoController extends Controller
 
         if ($listaProd && $listaProd->num_rows > 0) {
             foreach ($listaProd as $prod) {
-                $m_multiplicado = number_format($prod['total_multiplicado'], 0);
                 $cantidad_real = number_format($prod['total_cantidad'], 0);
                 $medida_cnt = floatval($prod['total_medida']);
-                $totalM += floatval($prod['total_multiplicado']);
+                $m_multiplicado = number_format($medida_cnt * floatval($prod['total_cantidad']), 0);
+                $totalM += $medida_cnt * floatval($prod['total_cantidad']);
 
                 $html .= "<tr>
                     <td>{$contador}</td>
