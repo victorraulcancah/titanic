@@ -148,29 +148,28 @@ class ArqueoDiarioController extends Controller
         $result_detalles = $this->conexion->query($sql_detalles);
         if ($result_detalles) {
             while ($row = $result_detalles->fetch_assoc()) {
-                $ids_a_agregar = array_unique([$row['id_usuario_pago'], $row['id_vendedor']]);
+                // El cobro pertenece al usuario que lo registró, o al vendedor de la venta si no hay usuario registrado
+                $uid = !empty($row['id_usuario_pago']) ? $row['id_usuario_pago'] : $row['id_vendedor'];
                 
-                foreach ($ids_a_agregar as $uid) {
-                    if (empty($uid)) continue;
-                    
-                    // Aseguramos que el usuario exista en el resumen
-                    if (!isset($vendedores[$uid])) {
-                        $vendedores[$uid] = [
-                            'usuario_id' => $uid,
-                            'usuario' => 'Usuario ' . $uid,
-                            'efectivo' => 0,
-                            'bancos' => 0,
-                            'total' => 0,
-                            'pagos_digitales_sistema' => []
-                        ];
-                    }
-                    
-                    $vendedores[$uid]['pagos_digitales_sistema'][] = [
-                        'cliente_nombre' => $row['cliente_nombre'],
-                        'tipo_pago' => $row['tipo_pago'],
-                        'monto' => floatval($row['monto'])
+                if (empty($uid)) continue;
+                
+                // Aseguramos que el usuario exista en el resumen
+                if (!isset($vendedores[$uid])) {
+                    $vendedores[$uid] = [
+                        'usuario_id' => $uid,
+                        'usuario' => 'Usuario ' . $uid,
+                        'efectivo' => 0,
+                        'bancos' => 0,
+                        'total' => 0,
+                        'pagos_digitales_sistema' => []
                     ];
                 }
+                
+                $vendedores[$uid]['pagos_digitales_sistema'][] = [
+                    'cliente_nombre' => $row['cliente_nombre'],
+                    'tipo_pago' => $row['tipo_pago'],
+                    'monto' => floatval($row['monto'])
+                ];
             }
         }
 
