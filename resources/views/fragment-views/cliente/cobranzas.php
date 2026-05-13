@@ -83,6 +83,13 @@
                                     <option value="">Todos</option>
                                 </select>
                             </div>
+                            <div class="col-md-3">
+                                <label for="estado" class="form-label form-label-sm fs-7">Estado</label>
+                                <select id="estado" name="estado" class="form-select form-select-sm">
+                                    <option value="pendiente">Pendientes</option>
+                                    <option value="pagado">Pagados</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -240,7 +247,8 @@
             fecha_fin: $('#fecha_fin').val(),
             camion: $('#camion').val(),
             diasVisita: $('#diasVisita').val(),
-            ruta: $('#ruta').val()
+            ruta: $('#ruta').val(),
+            estado: $('#estado').val()
         };
 
         fetch(_URL + "/ajs/cobranzas/pdf", {
@@ -254,7 +262,8 @@
                 fecha_fin: $('#fecha_fin').val(),
                 camion: $('#camion').val(),
                 diasVisita: $('#diasVisita').val(),
-                ruta: $('#ruta').val()
+                ruta: $('#ruta').val(),
+                estado: $('#estado').val()
             })
         })
             .then(response => response.blob()) // PDF será un blob
@@ -314,6 +323,7 @@
         let camion = $('#camion').val();
         let diasVisita = $('#diasVisita').val();
         let ruta = $('#ruta').val();
+        let estado = $('#estado').val();
 
         $.ajax({
             url: _URL + "/ajs/cobranzas/buscar",
@@ -324,7 +334,8 @@
                 fecha_fin: fecha_fin,
                 camion: camion,
                 diasVisita: diasVisita,
-                ruta: ruta
+                ruta: ruta,
+                estado: estado
             },
             success: function (res) {
                 try {
@@ -448,7 +459,13 @@
                     const total = parseFloat(row.total);
                     const pagado = parseFloat(row.pagado);
                     const diferencia = Math.abs(total - pagado);
-                    return diferencia > 0.0000001;
+                    let estado = $('#estado').val();
+                    if (estado === 'pendiente') {
+                        return diferencia > 0.0000001;
+                    } else if (estado === 'pagado') {
+                        return diferencia <= 0.0000001;
+                    }
+                    return true; // todos
                 });
 
                 // Inicializar DataTables con los datos filtrados
@@ -463,6 +480,7 @@
                     ordering: true,
                     searching: true,
                     destroy: true,
+                    deferRender: true, // Optimización: no crear el DOM para todas las 40k+ filas
                     data: datosFiltrados, // Usar los datos filtrados aquí
                     language: {
                         url: "ServerSide/Spanish.json",
@@ -810,10 +828,10 @@
                                     // Si está pagado, mostrar la fecha en la que se pagó
                                     fecha = (row.fecha && row.fecha != '0000-00-00') ? row.fecha : '';
                                 }
-                                
+
                                 // Permitir editar la fecha si es admin (rol 1) o si no está pagado
                                 let IsDisabled = (row.estado == 1 && id_rol != 1) ? 'disabled' : '';
-                                
+
                                 return `<input  data-tipo="${row.tipo_doc}" data-cod="${row.dias_venta_id}"  class="lisopcpafecha" type="date" value="${fecha}" ${IsDisabled}>`;
                             }
                         },
@@ -1301,17 +1319,17 @@ ${listaOpc.join("")}
                 dias_venta_id: 'nuevo_' + nuevoId, // ID temporal con el siguiente número
                 monto: '0.00',
                 fecha: '<?php echo date('Y-m-d') ?>',
-                estado: '0',
-                tipo_pago: '',
-                tipo_doc: tipoDoc,
-                es_nuevo: true // Marcador para identificar filas nuevas
-            };
+                    estado: '0',
+                        tipo_pago: '',
+                            tipo_doc: tipoDoc,
+                                es_nuevo: true // Marcador para identificar filas nuevas
+        };
 
-            // Agregar la fila a la tabla
-            datatable.row.add(nuevaFila).draw();
+        // Agregar la fila a la tabla
+        datatable.row.add(nuevaFila).draw();
 
-            // Recalcular totales
-            sumarTotal();
-        });
+        // Recalcular totales
+        sumarTotal();
+    });
     })
 </script>

@@ -1868,13 +1868,23 @@ class CombinarReporteController extends Controller
             ORDER BY c.mercado ASC, c.datos ASC, co.numero ASC
             ";
 
-            $query_productos = "SELECT p.codigo,
-                pc.id_producto, p.descripcion,
-                CAST(pc.presenta_cnt AS DECIMAL(10,2)) AS total_medida, pc.medida,
-                SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
-                    FROM productos_cotis pc
-                    INNER JOIN productos p ON p.id_producto = pc.id_producto
-                    WHERE pc.id_coti IN ($sql)";
+            if ($tipo == 'porCamionConsolidado') {
+                $query_productos = "SELECT p.codigo,
+                    pc.id_producto, p.descripcion,
+                    MAX(CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_medida, MAX(pc.medida) as medida,
+                    SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
+                        FROM productos_cotis pc
+                        INNER JOIN productos p ON p.id_producto = pc.id_producto
+                        WHERE pc.id_coti IN ($sql)";
+            } else {
+                $query_productos = "SELECT p.codigo,
+                    pc.id_producto, p.descripcion,
+                    CAST(pc.presenta_cnt AS DECIMAL(10,2)) AS total_medida, pc.medida,
+                    SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
+                        FROM productos_cotis pc
+                        INNER JOIN productos p ON p.id_producto = pc.id_producto
+                        WHERE pc.id_coti IN ($sql)";
+            }
 
             // Si se proporciona una medida, agregar la condición al SQL
             if (!empty($medida)) {
@@ -1882,7 +1892,11 @@ class CombinarReporteController extends Controller
             }
             $query_productos .= $queryProductosHorario;
 
-            $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.medida, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ASC";
+            if ($tipo == 'porCamionConsolidado') {
+                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
+            } else {
+                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.medida, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ASC";
+            }
 
             // Ejecutar la consulta
 
@@ -2177,8 +2191,8 @@ class CombinarReporteController extends Controller
 
             $query_productos = "SELECT p.codigo,
             p.descripcion,
-            CAST(pc.presenta_cnt AS DECIMAL(10,2)) AS total_medida,
-            pc.medida,
+            MAX(CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_medida,
+            MAX(pc.medida) AS medida,
             p.peso_bruto,
             SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
             FROM productos_cotis pc
@@ -2191,7 +2205,7 @@ class CombinarReporteController extends Controller
             }
             $query_productos .= $queryProductosHorario;
 
-            $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.medida, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ASC";
+            $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
             // Ejecutar la consulta
 
             // $html .= "<p style=''>query: {$query_productos}</p>";
@@ -2433,7 +2447,7 @@ class CombinarReporteController extends Controller
 
                 $query_productos = "SELECT p.codigo,
             pc.id_producto, p.descripcion,
-                CAST(pc.presenta_cnt AS DECIMAL(10,2)) AS total_medida, pc.medida,
+                MAX(CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_medida, MAX(pc.medida) AS medida,
                 SUM(pc.cantidad) AS total_cantidad, SUM(pc.cantidad * CAST(pc.presenta_cnt AS DECIMAL(10,2))) AS total_multiplicado
                 FROM productos_cotis pc
                 INNER JOIN productos p ON p.id_producto = pc.id_producto
@@ -2445,7 +2459,7 @@ class CombinarReporteController extends Controller
                 }
                 $query_productos .= $queryProductosHorario;
 
-                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion, pc.medida, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC, CAST(pc.presenta_cnt AS DECIMAL(10,2)) ASC";
+                $query_productos .= " GROUP BY p.codigo, pc.id_producto, p.descripcion ORDER BY TRIM(p.descripcion) ASC, p.codigo ASC";
                 // Ejecutar la consulta
 
                 // $html .= "<p style=''>query: {$query_productos}</p>";

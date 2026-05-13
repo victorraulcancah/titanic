@@ -37,6 +37,7 @@ class ClientesController extends Controller
         $camion = isset($_POST['camion']) && $_POST['camion'] !== '' ? $_POST['camion'] : null;
         $diasVisita = isset($_POST['diasVisita']) && $_POST['diasVisita'] !== '' ? $_POST['diasVisita'] : null;
         $ruta = isset($_POST['ruta']) && $_POST['ruta'] !== '' ? $_POST['ruta'] : null;
+        $estado = isset($_POST['estado']) && $_POST['estado'] !== '' ? $_POST['estado'] : 'pendiente';
 
         // Condicional para fechas
         $whereFechaCoti = '';
@@ -105,7 +106,7 @@ class ClientesController extends Controller
         try {
             // Detectar si están activos los 3 filtros: día de visita, ruta y fecha fin
             $tieneLosTresFiltros = !empty($diasVisita) && !empty($ruta) && !empty($fecha_fin);
-            
+
             if ($tieneLosTresFiltros) {
                 // Ordenamiento: primero mercado, luego cliente (solo nombre), luego fecha
                 $orderBy = "ORDER BY 
@@ -163,7 +164,7 @@ class ClientesController extends Controller
                 $whereClientes
                 $whereDiasVisita
             GROUP BY v.id_venta
-            HAVING v.total > SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END)
+            " . ($estado === 'pendiente' ? "HAVING v.total > SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END)" : ($estado === 'pagado' ? "HAVING v.total <= SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END)" : "")) . "
             $orderBy";
 
             $filaVentas = mysqli_query($this->conectar, $sqlVentas);
@@ -197,7 +198,7 @@ class ClientesController extends Controller
                     $whereRuta
                     $whereDiasVisita
             ) tb 
-            WHERE tb.total > tb.pagado
+            " . ($estado === 'pendiente' ? "WHERE tb.total > tb.pagado" : ($estado === 'pagado' ? "WHERE tb.total <= tb.pagado" : "")) . "
             $orderBy";
 
             $fila = mysqli_query($this->conectar, $sql);
@@ -216,29 +217,29 @@ class ClientesController extends Controller
                 // Ordenamiento: primero mercado (ASC), luego cliente (ASC alfabético), luego fecha (DESC)
                 $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
                 $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
-                
+
                 if ($mercadoA !== $mercadoB) {
                     return $mercadoA - $mercadoB;
                 }
-                
+
                 // Si mercados son iguales, comparar por nombre de cliente (ASC alfabético)
                 $partsA = explode('|', $a['cliente']);
                 $partsB = explode('|', $b['cliente']);
-                
+
                 $clienteA = isset($partsA[1]) ? trim($partsA[1]) : trim($partsA[0]);
                 $clienteB = isset($partsB[1]) ? trim($partsB[1]) : trim($partsB[0]);
-                
+
                 // Remover información entre paréntesis para ordenar
                 $clienteA = preg_replace('/\s*\([^)]*\)/', '', $clienteA);
                 $clienteB = preg_replace('/\s*\([^)]*\)/', '', $clienteB);
-                
+
                 $clienteA_lower = strtolower($clienteA);
                 $clienteB_lower = strtolower($clienteB);
-                
+
                 if ($clienteA_lower !== $clienteB_lower) {
                     return strcmp($clienteA_lower, $clienteB_lower);
                 }
-                
+
                 // Si clientes son iguales, comparar por fecha (DESC)
                 return strcmp($b['fecha_emision'], $a['fecha_emision']);
             });
@@ -261,6 +262,7 @@ class ClientesController extends Controller
         $camion = isset($data['camion']) && $data['camion'] !== '' ? $data['camion'] : null;
         $diasVisita = isset($data['diasVisita']) && $data['diasVisita'] !== '' ? $data['diasVisita'] : null;
         $ruta = isset($data['ruta']) && $data['ruta'] !== '' ? $data['ruta'] : null;
+        $estado = isset($data['estado']) && $data['estado'] !== '' ? $data['estado'] : 'pendiente';
 
         $whereFechaCoti = '';
         if ($fecha_inicio && $fecha_fin) {
@@ -343,6 +345,12 @@ class ClientesController extends Controller
                 $whereUsuarioVentas = "AND v.id_vendedor = '$id_usuario'";
             }
 
+            // Aplicar límite si es 'pagado' y no hay filtro de fechas
+            $limitQuery = '';
+            if ($estado === 'pagado' && empty($fecha_inicio) && empty($fecha_fin)) {
+                $limitQuery = "LIMIT 500";
+            }
+
             // PRIMERA CONSULTA (ventas) - Con filtros unificados y ORDER BY
             $sqlVentas = "SELECT 
                 'v' as tipo_co, 
@@ -371,6 +379,7 @@ class ClientesController extends Controller
                 $whereClientes
                 $whereDiasVisita
             GROUP BY v.id_venta
+            " . ($estado === 'pendiente' ? "HAVING v.total > SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END)" : ($estado === 'pagado' ? "HAVING v.total <= SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END)" : "")) . "
             $orderBy";
 
             $fila = mysqli_query($this->conectar, $sqlVentas);
@@ -404,6 +413,7 @@ class ClientesController extends Controller
                     $whereRuta
                     $whereDiasVisita
             ) tb 
+            " . ($estado === 'pendiente' ? "WHERE tb.total > tb.pagado" : ($estado === 'pagado' ? "WHERE tb.total <= tb.pagado" : "")) . "
             $orderBy";
 
             $fila = mysqli_query($this->conectar, $sql);
