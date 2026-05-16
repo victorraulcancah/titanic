@@ -155,3 +155,5 @@ Route::postBase("/mi-caja","FragmentController@miCaja");
 Route::postBase("/mis-cobros","FragmentController@misCobros");
 // Ruta Arqueo Diario
 Route::postBase("/arqueo-diario","FragmentController@arqueoDiario");
+// Eliminar Arqueo Diario
+Route::postBase("/ajs/arqueo/eliminar","ArqueoDiarioController@eliminarArqueo");

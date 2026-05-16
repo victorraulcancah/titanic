@@ -515,5 +515,40 @@ class ArqueoDiarioController extends Controller
         
         return json_encode($clientes);
     }
+    
+    // Eliminar arqueo diario
+    public function eliminarArqueo()
+    {
+        $respuesta = ["res" => false];
+        $arqueo_id = isset($_POST['arqueo_id']) ? intval($_POST['arqueo_id']) : 0;
+        
+        if ($arqueo_id <= 0) {
+            $respuesta["mensaje"] = "ID de arqueo no válido";
+            return json_encode($respuesta);
+        }
+        
+        $this->conexion->begin_transaction();
+        
+        try {
+            // Eliminar detalles primero
+            $this->conexion->query("DELETE FROM arqueo_efectivo_detalle WHERE arqueo_id = '$arqueo_id'");
+            $this->conexion->query("DELETE FROM arqueo_pagos_digitales WHERE arqueo_id = '$arqueo_id'");
+            
+            // Eliminar arqueo principal
+            if (!$this->conexion->query("DELETE FROM arqueos_diarios WHERE arqueo_id = '$arqueo_id'")) {
+                throw new Exception("Error al eliminar el registro principal");
+            }
+            
+            $this->conexion->commit();
+            $respuesta["res"] = true;
+            $respuesta["mensaje"] = "Arqueo eliminado correctamente";
+            
+        } catch (Exception $e) {
+            $this->conexion->rollback();
+            $respuesta["mensaje"] = "Error al eliminar: " . $e->getMessage();
+        }
+        
+        return json_encode($respuesta);
+    }
 }
 

@@ -67,6 +67,9 @@ $conexion = (new Conexion())->getConexion();
                                             <button @click="editarArqueoVendedor(vendedor)" class="btn btn-warning btn-sm" title="Editar">
                                                 <i class="fa fa-edit"></i>
                                             </button>
+                                            <button @click="eliminarArqueoVendedor(vendedor.arqueo.arqueo_id)" class="btn btn-danger btn-sm" title="Eliminar">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
                                             <span class="badge ms-1" :class="vendedor.arqueo.cuadra_efectivo == 1 && vendedor.arqueo.cuadra_bancos == 1 ? 'bg-success' : 'bg-danger'">
                                                 <i :class="vendedor.arqueo.cuadra_efectivo == 1 && vendedor.arqueo.cuadra_bancos == 1 ? 'fa fa-check' : 'fa fa-times'"></i>
                                             </span>
@@ -384,6 +387,9 @@ $conexion = (new Conexion())->getConexion();
                                     </button>
                                     <button @click="editarArqueo(arqueo)" class="btn btn-warning btn-sm" title="Editar">
                                         <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button @click="eliminarArqueoVendedor(arqueo.arqueo_id)" class="btn btn-danger btn-sm" title="Eliminar">
+                                        <i class="fa fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -841,6 +847,33 @@ $(document).ready(function() {
                     
                     $('#modalCuadreCaja').modal('show');
                 }
+            },
+            eliminarArqueoVendedor(arqueo_id) {
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Se eliminará el cuadre de caja de este vendedor.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.value) {
+                        _post('/ajs/arqueo/eliminar', { arqueo_id: arqueo_id }, (response) => {
+                            if (response.res) {
+                                Swal.fire('Eliminado', response.mensaje, 'success').then(() => {
+                                    this.cargarCobros();
+                                    if ($('#modalArqueosGuardados').hasClass('show')) {
+                                        this.verRegistrosGuardados();
+                                    }
+                                });
+                            } else {
+                                Swal.fire('Error', response.mensaje, 'error');
+                            }
+                        });
+                    }
+                });
             },
             verArqueo(arqueo) {
                 // Cargar datos del arqueo en modo solo lectura
