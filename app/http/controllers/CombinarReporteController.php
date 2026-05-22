@@ -1321,6 +1321,7 @@ class CombinarReporteController extends Controller
         }
 
         $item_contador = 1;
+        $primeraHoja = true;
         foreach ($cotizaciones as $key => $cotizacion) {
             $coti = $cotizacion['cotizacion_id'];
             $diaSemana = date('N');
@@ -1439,8 +1440,7 @@ class CombinarReporteController extends Controller
             $contador = 1;
             $igv = 0;
 
-            $rowHTML = '';
-            $rowHTMLTERT = '';
+            $rows = [];
 
             foreach ($listaProd1 as $prod) {
                 if ($datoVenta['moneda'] == 2) {
@@ -1471,33 +1471,32 @@ class CombinarReporteController extends Controller
                 $precioDisminu = $precio / $descuento;
                 $precioDisminu = number_format($precioDisminu, 2, '.', ',');
                 $multi = $prod['cantidad'] * $prod['presenta_cnt'];
-                $rowHTML = $rowHTML . "
+                $rows[] = "
               <tr>
-                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
-                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center; border-left: 1px solid #363636;'>$multi</td>
-                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: left;border-left: 1px solid #363636;'><strong>{$prod['descripcion']}</strong></td>
-                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['cantidad']} </td>
-                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>{$prod['presenta_cnt']}  </td>
-                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td> 
-                <td class='' style='font-weight: bold; color: #000000; font-size: 10px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 13px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 13px; text-align: center; border-left: 1px solid #363636;'>$multi</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 13px; text-align: left;border-left: 1px solid #363636;'><strong>{$prod['descripcion']}</strong></td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 13px; text-align: center;border-left: 1px solid #363636;'>{$prod['cantidad']} </td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 13px; text-align: center;border-left: 1px solid #363636;'>{$prod['presenta_cnt']}  </td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 13px; text-align: center;border-left: 1px solid #363636;'>$precioDisminu</td>
+                <td class='' style='font-weight: bold; color: #000000; font-size: 13px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'>$importe</td>
               </tr>
-              
             ";
                 $contador++;
             }
-            $cntRowEE = 41;
-            $rowHTMLTERT = "";
-            for ($tert = 0; $tert < ($cntRowEE - $contador) - $menosRowsNumH; $tert++) {
-                $rowHTMLTERT .= "<tr>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; color: white'>.</td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; '> </td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; '> </td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; '> </td> 
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; '> </td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636; '> </td>
-                <td class='' style=' font-size: 11px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'> </td>
+
+            // Paginación: máximo de filas de productos por hoja para que la letra NO se achique.
+            // Si un pedido tiene más, continúa en la siguiente hoja repitiendo el encabezado.
+            $rowsPerPage = 24;
+            $fillerRow = "<tr>
+                <td class='' style=' font-size: 13px; text-align: center;border-left: 1px solid #363636; color: white'>.</td>
+                <td class='' style=' font-size: 13px; text-align: center;border-left: 1px solid #363636; '> </td>
+                <td class='' style=' font-size: 13px; text-align: center;border-left: 1px solid #363636; '> </td>
+                <td class='' style=' font-size: 13px; text-align: center;border-left: 1px solid #363636; '> </td>
+                <td class='' style=' font-size: 13px; text-align: center;border-left: 1px solid #363636; '> </td>
+                <td class='' style=' font-size: 13px; text-align: center;border-left: 1px solid #363636; '> </td>
+                <td class='' style=' font-size: 13px; text-align: center;border-left: 1px solid #363636;border-right: 1px solid #363636;'> </td>
             </tr>";
-            }
 
             $totalLetras = $formatter->toInvoice(number_format($total, 2, '.', ''), 2, $datoVenta['moneda'] == 1 ? 'SOLES' : 'DOLARES');
 
@@ -1510,15 +1509,15 @@ class CombinarReporteController extends Controller
                         <!-- Columna del Logo y Datos -->
                         <td style='width: 75%; text-align: left; vertical-align: middle;'>
                             <img style='max-width: 250px; max-height: 48px;' src='" . URL::to('files/logos/' . $datoEmpresa['logo']) . "'><br>
-                            <span style='font-size: 9px;'><strong>Central Telefónica:</strong> <span style='color: #000000;'>{$datoEmpresa['telefono']}</span></span><br>
-                            <span style='font-size: 9px;'><strong>Email:</strong> <span style='color: #000000;'>info@titanicsac.com | Web: www.titanicsac.com</span></span><br>
-                            <span style='font-size: 9px;'><strong>Dirección:</strong> <span style='font-size: 9px; color: #000000;'>{$datoEmpresa['direccion']}</span></span>
+                            <span style='font-size: 12px;'><strong>Central Telefónica:</strong> <span style='color: #000000;'>{$datoEmpresa['telefono']}</span></span><br>
+                            <span style='font-size: 12px;'><strong>Email:</strong> <span style='color: #000000;'>info@titanicsac.com | Web: www.titanicsac.com</span></span><br>
+                            <span style='font-size: 12px;'><strong>Dirección:</strong> <span style='font-size: 12px; color: #000000;'>{$datoEmpresa['direccion']}</span></span>
                         </td>
                         <!-- Columna del Cuadro de Pedido -->
                           <td style='width: 25%; text-align: center; vertical-align: middle; border: 1px solid #1e1e1e;'>
-                                <span style='font-size: 9px;'>PEDIDO</span><br><br> <!-- Usamos dos <br> para separar -->
-                                <span style='font-size: 9px; font-weight: bold;'>{$datoVenta['numero']}</span><br><br>
-                                <span style='font-size: 11px; font-weight: bold;'>ITEM: " . ($item_contador) . "</span>
+                                <span style='font-size: 12px;'>PEDIDO</span><br><br> <!-- Usamos dos <br> para separar -->
+                                <span style='font-size: 13px; font-weight: bold;'>{$datoVenta['numero']}</span><br><br>
+                                <span style='font-size: 14px; font-weight: bold;'>ITEM: " . ($item_contador) . "</span>
                         </td>
                       </tr>
                   </table>
@@ -1548,42 +1547,27 @@ class CombinarReporteController extends Controller
             $tabla_datos_cliente = "
                 <table style='width: 100%; border: 1px solid #363636; margin-top: 3px; margin-bottom: 3px;'>
                     <tr>
-                        <td style='color: #000000; font-size: 8px; padding: 2px;'><strong style='color: #000000;'>CLIENTE:</strong> <span style='color: #000000;'>{$resultC['datos']}</span></td>
-                        <td style='color: #000000; font-size: 8px; padding: 2px;'><strong style='color: #000000;'>CELULAR:</strong> <span style='color: #000000;'>{$resultC['telefono']}</span></td>
+                        <td style='color: #000000; font-size: 11px; padding: 2px;'><strong style='color: #000000;'>CLIENTE:</strong> <span style='color: #000000;'>{$resultC['datos']}</span></td>
+                        <td style='color: #000000; font-size: 11px; padding: 2px;'><strong style='color: #000000;'>CELULAR:</strong> <span style='color: #000000;'>{$resultC['telefono']}</span></td>
                     </tr>
                     <tr>
-                        <td style='color: #000000; font-size: 8px; padding: 2px;'><strong style='color: #000000;'>DIRECCIÓN:</strong> <span style='color: #000000;'>{$resultC['direccion']}</span></td>
-                        <td style='color: #000000; font-size: 8px; padding: 2px;'><strong style='color: #000000;'>VENDEDOR:</strong> <span style='color: #000000;'>{$resultVemedor['nombres']}</span></td>
+                        <td style='color: #000000; font-size: 11px; padding: 2px;'><strong style='color: #000000;'>DIRECCIÓN:</strong> <span style='color: #000000;'>{$resultC['direccion']}</span></td>
+                        <td style='color: #000000; font-size: 11px; padding: 2px;'><strong style='color: #000000;'>VENDEDOR:</strong> <span style='color: #000000;'>{$resultVemedor['nombres']}</span></td>
                     </tr>
                     <tr>
-                        <td style='color: #000000; font-size: 8px; padding: 2px;'><strong style='color: #000000;'>RUC/DNI:</strong> <span style='color: #000000;'>{$resultC['documento']}</span></td>
-                        <td style='color: #000000; font-size: 8px; padding: 2px;'><strong style='color: #000000;'>FECHA:</strong> <span style='color: #000000;'>$fecha_emision</span></td>
+                        <td style='color: #000000; font-size: 11px; padding: 2px;'><strong style='color: #000000;'>RUC/DNI:</strong> <span style='color: #000000;'>{$resultC['documento']}</span></td>
+                        <td style='color: #000000; font-size: 11px; padding: 2px;'><strong style='color: #000000;'>FECHA:</strong> <span style='color: #000000;'>$fecha_emision</span></td>
                     </tr>
                     <tr>
-                        <td style='color: #000000; font-size: 8px; padding: 2px;'><strong style='color: #000000;'>MONEDA:</strong> <span style='color: #000000;'>$monedaVisual</span></td>
-                        <td style='color: #000000; font-size: 8px; padding: 2px;'><strong style='color: #000000;'>PAGO:</strong> <span style='color: #000000;'>Contado</span></td>
+                        <td style='color: #000000; font-size: 11px; padding: 2px;'><strong style='color: #000000;'>MONEDA:</strong> <span style='color: #000000;'>$monedaVisual</span></td>
+                        <td style='color: #000000; font-size: 11px; padding: 2px;'><strong style='color: #000000;'>PAGO:</strong> <span style='color: #000000;'>Contado</span></td>
                     </tr>
                 </table>";
-            $tabla = "
-                <table style='width:100%;border-bottom: 1px solid #363636;border-collapse: collapse;'>
-                    <tr style='border-bottom: 1px solid #363636;border-collapse: collapse;'>
-                    <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 20px;'><strong>ITEM</strong></td>
-                    <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 20px;'>--</td>
-                    <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>DESCRIPCION</strong></td>
-                    <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 40px;'><strong>Cantidad</strong></td>
-                    <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 40px;'><strong>MEDIDA</strong></td> 
-                    <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 40px;'><strong>PRECIO</strong></td> 
-                    <td style=' font-size: 8px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 70px;'><strong>SUB TOTAL</strong></td>
-                    </tr>
-                    $rowHTML
-                    $rowHTMLTERT
-                </table>
-                ";
             $tableconson = "
                 <table style='width: 100%;border: 1px solid #363636;margin-top: 3px;'>
                     <tr>
                         <td style=style='height: 10px;width: 100%; padding-bottom: 0px;'>
-                        <span style='font-size: 8px'>SON: | $totalLetras</span>
+                        <span style='font-size: 11px'>SON: | $totalLetras</span>
                         </td>
                     </tr>
                 </table>";
@@ -1598,17 +1582,16 @@ class CombinarReporteController extends Controller
                 }
                 $simbol000 = $datoVenta['moneda'] == 2 ? 'S/' : '$';
                 $monedahtmlDol = "<tr>
-                <td style='border:none; font-size: 12px; text-align: right'>TOTAL S/</td>
-                <td style='border-left: 1px solid #fff;border-collapse: collapse; font-size: 12px;  text-align: right'>$simbol000 $totalDolar</td>
+                <td style='border:none; font-size: 14px; text-align: right'>TOTAL S/</td>
+                <td style='border-left: 1px solid #fff;border-collapse: collapse; font-size: 14px;  text-align: right'>$simbol000 $totalDolar</td>
             </tr>";
             }
 
             $simbol00022 = $datoVenta['moneda'] == 1 ? 'S/' : '$';
-            // $mpdf->SetAutoPageBreak(true, 50);
             $tablaFooter = "<table style='width: 100%;'>
                 <tr>
                     <td style='width: 50%;'>
-                        <div style='width: 95%; padding: 3px; font-size: 10px;height: 90px; color: #000000;'>
+                        <div style='width: 95%; padding: 3px; font-size: 13px;height: 90px; color: #000000;'>
                       $hash_Doc
                       <strong style='color: #000000;'>Observaciones:</strong><br>
                        <span style='color: #000000;'>$observacion</span> <br>
@@ -1619,19 +1602,9 @@ class CombinarReporteController extends Controller
                     </td>
                     <td style='width: 50%;text-align: right;'>
                         <table style='width: 50%; border: 1px solid #363636; border-collapse: collapse;margin-right: 0px;'>
-                        <!--
                         <tr>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right; padding-right: 3px;'>Total Op. Gravado:</td>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right;'>$totalOpgravado</td>
-                        </tr>
-                        <tr>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right; padding-right: 3px;'>IGV:</td>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right;'>$igv</td>
-                        </tr>
-                        -->
-                        <tr>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right; padding-right: 3px; color: #000000;'>Total a Pagar:</td>
-                            <td style='border-left: 1px solid #363636; font-size: 9px; text-align: right; color: #000000;'>$simbol00022 $total</td>
+                            <td style='border-left: 1px solid #363636; font-size: 13px; text-align: right; padding-right: 3px; color: #000000;'>Total a Pagar:</td>
+                            <td style='border-left: 1px solid #363636; font-size: 13px; text-align: right; color: #000000;'>$simbol00022 $total</td>
                         </tr>
                         $monedahtmlDol
                     </table>
@@ -1639,40 +1612,74 @@ class CombinarReporteController extends Controller
                 </tr>
             </table>";
 
+            $headerFila = "<tr style='border-bottom: 1px solid #363636;border-collapse: collapse;'>
+                    <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 20px;'><strong>ITEM</strong></td>
+                    <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 20px;'>--</td>
+                    <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;'><strong>DESCRIPCION</strong></td>
+                    <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 40px;'><strong>Cantidad</strong></td>
+                    <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 40px;'><strong>MEDIDA</strong></td>
+                    <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 40px;'><strong>PRECIO</strong></td>
+                    <td style=' font-size: 12px;text-align: center; color: #000000;border: 1px solid #363636;border-collapse: collapse;width: 70px;'><strong>SUB TOTAL</strong></td>
+                    </tr>";
 
-            // if (($key + 1) < sizeof($cotizaciones)) $this->mpdf->AddPage();
-            $html = "
+            $paginas = array_chunk($rows, $rowsPerPage);
+            if (empty($paginas)) {
+                $paginas = [[]];
+            }
+            $totalPaginas = count($paginas);
+
+            foreach ($paginas as $pi => $filasPagina) {
+                $esUltima = ($pi === $totalPaginas - 1);
+
+                $cuerpoFilas = implode('', $filasPagina);
+                if ($esUltima) {
+                    $faltan = $rowsPerPage - count($filasPagina);
+                    for ($f = 0; $f < $faltan; $f++) {
+                        $cuerpoFilas .= $fillerRow;
+                    }
+                }
+
+                $tabla = "
+                <table style='width:100%;border-bottom: 1px solid #363636;border-collapse: collapse;'>
+                    $headerFila
+                    $cuerpoFilas
+                </table>
+                ";
+
+                if ($esUltima) {
+                    $bloqueFinal = $tableconson . $tablaFooter;
+                } else {
+                    $bloqueFinal = "<table style='width: 100%;border: 1px solid #363636;margin-top: 3px;'>
+                        <tr><td style='font-size: 11px; text-align: right; padding: 3px; color: #000000;'>... continúa en la siguiente hoja (hoja " . ($pi + 1) . " de {$totalPaginas}) ...</td></tr>
+                    </table>";
+                }
+
+                $copia = $htmlEncabezado . $tabla_datos_cliente . $tabla . $bloqueFinal;
+
+                $html = "
                     <table style='width: 100%; border-collapse: separate; border-spacing: 40px; position: relative;'>
                     <tr>
                         <td style='width: 50%;'>
-                            $htmlEncabezado
-                            $tabla_datos_cliente
-                            $tabla
-                            $tableconson
-                            $tablaFooter
+                            $copia
                         </td>
                         <td style='width: 50%; position: relative;'>
                             <div style='position: absolute; top: 20px; right: 80px;'>
-                                <h3 style='font-size: 8px;'>COPIA&nbsp;</h3>
+                                <h3 style='font-size: 12px;'>COPIA&nbsp;</h3>
                             </div>
-                            $htmlEncabezado
-                            $tabla_datos_cliente
-                            $tabla
-                            $tableconson
-                            $tablaFooter
+                            $copia
                         </td>
                     </tr>
                 </table>
+                ";
 
-
-
-            <!-- <h4>Observación:</h4>
-            {$datoVenta['observacion']} -->
-            ";
-            $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
+                if (!$primeraHoja) {
+                    $mpdf->AddPage();
+                }
+                $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
+                $primeraHoja = false;
+            }
             $item_contador++;
         }
-        $html = $html;
 
         $mpdf->Output("Cotizacion.pdf", 'I');
     }
