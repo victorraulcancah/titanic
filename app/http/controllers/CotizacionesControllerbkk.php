@@ -33,7 +33,7 @@ class CotizacionesController extends Controller
                 return;
             }
 
-            // Verificar si ya pasaron 34 horas desde la creación
+            // Verificar si ya pasaron 40 horas desde la creación
             date_default_timezone_set('America/Lima');
             $fecha_actual = new DateTime();
             $fecha_creacion = new DateTime($fecha_registro);
@@ -42,9 +42,9 @@ class CotizacionesController extends Controller
             // Calcular total de horas transcurridas
             $horas_transcurridas = ($diferencia->days * 24) + $diferencia->h;
 
-            // Si ya pasaron 34 horas o más, no puede eliminar
-            if ($horas_transcurridas >= 34) {
-                echo json_encode(["res" => false, "msg" => "No puedes eliminar pedidos después de 34 horas de creado. Han transcurrido {$horas_transcurridas} horas."]);
+            // Si ya pasaron 40 horas o más, no puede eliminar
+            if ($horas_transcurridas >= 40) {
+                echo json_encode(["res" => false, "msg" => "No puedes eliminar pedidos después de 40 horas de creado. Han transcurrido {$horas_transcurridas} horas."]);
                 return;
             }
         }
@@ -93,7 +93,7 @@ class CotizacionesController extends Controller
                     return json_encode(["res" => false, "msg" => "No puedes modificar pedidos de otros vendedores"]);
                 }
 
-                // Verificar si ya pasaron 34 horas desde la creación
+                // Verificar si ya pasaron 40 horas desde la creación
                 date_default_timezone_set('America/Lima');
                 $fecha_actual = new DateTime();
                 $fecha_creacion = new DateTime($fecha_registro);
@@ -107,9 +107,9 @@ class CotizacionesController extends Controller
                 error_log("DEBUG MODIFICAR - Fecha creación: " . $fecha_creacion->format('Y-m-d H:i:s'));
                 error_log("DEBUG MODIFICAR - Días: {$diferencia->days}, Horas: {$diferencia->h}, Total: {$horas_transcurridas}");
 
-                // Si ya pasaron 34 horas o más, no puede modificar
-                if ($horas_transcurridas >= 34) {
-                    return json_encode(["res" => false, "msg" => "No puedes modificar pedidos después de 34 horas de creado. Han transcurrido {$horas_transcurridas} horas."]);
+                // Si ya pasaron 40 horas o más, no puede modificar
+                if ($horas_transcurridas >= 40) {
+                    return json_encode(["res" => false, "msg" => "No puedes modificar pedidos después de 40 horas de creado. Han transcurrido {$horas_transcurridas} horas."]);
                 }
             }
         }

@@ -636,4 +636,46 @@ class CotizacionesController extends Controller
         $sql = "select v.cotizacion_id,v.numero, v.fecha,v.moneda,v.cm_tc, 
        v.id_tido, c.documento, c.datos, v.total, v.estado
         from cotizaciones as v
-            LEFT JOIN documentos_sunat ds on v
+            LEFT JOIN documentos_sunat ds on v.id_tido = ds.id_tido
+            LEFT JOIN clientes c on v.id_cliente = c.id_cliente
+            LEFT JOIN usuarios u on v.id_usuario = u.usuario_id
+        where v.id_empresa = '12'  and v.sucursal ='{$_SESSION['sucursal']}' and v.estado<>'2'";
+
+        // Aplicar filtros si existen
+        if (isset($_POST['vendedor']) && !empty($_POST['vendedor'])) {
+            $vendedor = $this->conexion->real_escape_string($_POST['vendedor']);
+            $sql .= " AND u.usuario = '$vendedor'";
+        }
+
+        if (isset($_POST['fecha_inicio']) && !empty($_POST['fecha_inicio'])) {
+            $fecha_inicio = $this->conexion->real_escape_string($_POST['fecha_inicio']);
+            $sql .= " AND v.fecha >= '$fecha_inicio'";
+        }
+
+        if (isset($_POST['fecha_fin']) && !empty($_POST['fecha_fin'])) {
+            $fecha_fin = $this->conexion->real_escape_string($_POST['fecha_fin']);
+            $sql .= " AND v.fecha <= '$fecha_fin'";
+        }
+
+        $sql .= " order by v.fecha asc";
+
+        $rest = $this->conexion->query($sql);
+        $lista = [];
+        foreach ($rest as $row) {
+            $lista[] = $row;
+        }
+        return json_encode($lista);
+    }
+
+    public function getVendedores()
+    {
+        $sql = "SELECT usuario_id,nombres from usuarios where id_rol =  3";
+
+        $rest = $this->conexion->query($sql);
+        $lista = [];
+        foreach ($rest as $row) {
+            $lista[] = $row;
+        }
+        return json_encode($lista);
+    }
+}

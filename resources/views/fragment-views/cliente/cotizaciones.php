@@ -367,7 +367,7 @@
                         // row[11] es fecha_registro
                         var fechaRegistro = row[11];
 
-                        // Calcular si han pasado 24 horas (solo para vendedores - rol 3)
+                        // Calcular si han pasado 40 horas (solo para vendedores - rol 3)
                         var disabled = false;
                         if (rol_usuario == 3) {
                             var fechaCreacion = new Date(fechaRegistro);
@@ -375,8 +375,8 @@
                             var diferenciaMs = fechaActual - fechaCreacion;
                             var horasTranscurridas = diferenciaMs / (1000 * 60 * 60);
 
-                            // Deshabilitar botones si pasaron 24 horas o más
-                            disabled = horasTranscurridas >= 24;
+                            // Deshabilitar botones si pasaron 40 horas o más
+                            disabled = horasTranscurridas >= 40;
                         }
 
                         var disabledAttr = disabled ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : '';
