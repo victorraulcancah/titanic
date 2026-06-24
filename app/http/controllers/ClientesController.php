@@ -25,149 +25,20 @@ class ClientesController extends Controller
         $usuarios = $this->conectar->query($sql)->fetch_all(MYSQLI_ASSOC);
         return json_encode($usuarios);
     }
-    //agregando 10/04/2025
 
-    //     public function buscarCobranzas()
-    // {
-    //     $filtros = [];
-    //     $arrQueryClientes = [];
-
-    //     $id_usuario   = isset($_POST['id_usuario']) && $_POST['id_usuario'] !== '' ? $_POST['id_usuario'] : null;
-    //     $fecha_inicio = isset($_POST['fecha_inicio']) && $_POST['fecha_inicio'] !== '' ? $_POST['fecha_inicio'] : null;
-    //     $fecha_fin    = isset($_POST['fecha_fin']) && $_POST['fecha_fin'] !== '' ? $_POST['fecha_fin'] : null;
-    //     $camion       = isset($_POST['camion']) && $_POST['camion'] !== '' ? $_POST['camion'] : null;
-    //     $diasVisita   = isset($_POST['diasVisita']) && $_POST['diasVisita'] !== '' ? $_POST['diasVisita'] : null;
-    //     $ruta      = isset($_POST['ruta']) && $_POST['ruta'] !== '' ? $_POST['ruta'] : null;
-
-    //     // Condicional para fechas independientes
-    //     $whereFechaCoti = '';
-    //     if ($fecha_inicio && $fecha_fin) {
-    //         $whereFechaCoti = "AND co.fecha BETWEEN '$fecha_inicio' AND '$fecha_fin'";
-    //     } elseif ($fecha_inicio) {
-    //         $whereFechaCoti = "AND co.fecha >= '$fecha_inicio'";
-    //     } elseif ($fecha_fin) {
-    //         $whereFechaCoti = "AND co.fecha <= '$fecha_fin'";
-    //     }
-
-    //     // Condicional para usuario
-    //     $whereUsuarioCoti = '';
-    //     if ($id_usuario) {
-    //         $whereUsuarioCoti = "AND co.id_usuario = '$id_usuario'";
-    //     }
-
-    //     // Filtro por mercado
-    //     $whereRuta = '';
-    //     if (!empty($ruta)) {
-    //         $whereRuta = "AND c.id_ruta = '$ruta'";
-    //     }
-
-    //     // Filtros por cami��n
-    //     switch ($camion) {
-    //         case '1':
-    //             $filtros = [
-    //                 'lunes'     => ['1', '7'],
-    //                 'martes'    => ['5', '7'],
-    //                 'miercoles' => ['5'],
-    //                 'jueves'    => ['1', '7'],
-    //                 'viernes'   => ['6', '7'],
-    //                 'sabado'    => ['7', '8'],
-    //             ];
-    //             break;
-    //         case '2':
-    //             $filtros = [
-    //                 'lunes'     => ['3', '6'],
-    //                 'martes'    => ['1', '3'],
-    //                 'miercoles' => ['1', '3'],
-    //                 'jueves'    => ['6', '3'],
-    //                 'viernes'   => ['3', '5'],
-    //                 'sabado'    => ['3', '6'],
-    //             ];
-    //             break;
-    //         case '3':
-    //             $filtros = [
-    //                 'miercoles' => ['6', '7'],
-    //                 'viernes'   => ['8', '2'],
-    //                 'sabado'    => ['1', '5'],
-    //             ];
-    //             break;
-    //         default:
-    //             break;
-    //     }
-
-    //     // Si se seleccion�� un d��a espec��fico
-    //     if ($diasVisita != "" && isset($filtros[$diasVisita])) {
-    //         $filtros = [
-    //             $diasVisita => $filtros[$diasVisita]
-    //         ];
-    //     }
-    //     if ($ruta != "") {
-    //         foreach ($filtros as $key => $filtro) {
-    //             $filtros[$key] = [$ruta];
-    //         }
-    //     }
-    //     foreach ($filtros as $key => $filtro) {
-    //         $arrQueryClientes[] = "( LOWER(c.dias_visitas) = LOWER('{$key}') AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
-    //     }
-
-    //     $whereClientes = '';
-    //     if (!empty($arrQueryClientes)) {
-    //         $whereClientes = "AND (" . implode(' OR ', $arrQueryClientes) . ")";
-    //     }
-    //     $whereDiasVisita = '';
-    //     if (!empty($diasVisita)) {
-    //         $whereDiasVisita = "AND LOWER(c.dias_visitas) = LOWER('$diasVisita')";
-    //     }
-
-    //     try {
-    //         // SEGUNDA CONSULTA (cotizaciones)
-    //         $sql = "SELECT tb.*, tb.total - tb.pagado AS saldo FROM (
-    //             SELECT 
-    //                 'c' AS tipo_co,
-    //                 co.cotizacion_id AS id_venta,
-    //                 CONCAT('#', co.numero) AS factura,
-    //                 us.usuario AS vendedor,
-    //                 co.fecha AS fecha_emision,
-    //                 (SELECT fecha FROM cuotas_cotizacion cc WHERE cc.id_coti = co.cotizacion_id ORDER BY fecha DESC LIMIT 1) AS fecha_vencimiento,
-    //                 CONCAT(c.documento, ' | ', c.datos) AS cliente,
-    //                 co.total,
-    //                 (SELECT IFNULL(SUM(cc.monto), 0) FROM cuotas_cotizacion cc WHERE cc.id_coti = co.cotizacion_id AND cc.estado = 1) AS pagado
-    //             FROM cotizaciones co
-    //             INNER JOIN clientes AS c ON c.id_cliente = co.id_cliente
-    //             JOIN usuarios us ON us.usuario_id = co.id_usuario
-    //             WHERE co.id_tipo_pago = 2 
-    //                 $whereFechaCoti
-    //                 $whereUsuarioCoti
-    //                 $whereClientes
-    //                 $whereRuta
-    //                 $whereDiasVisita
-    //         ) tb";
-
-    //         $fila = mysqli_query($this->conectar, $sql);
-    //         $lista2 = [];
-    //         if ($fila) {
-    //             $lista2 = mysqli_fetch_all($fila, MYSQLI_ASSOC);
-    //         } else {
-    //             echo "Error en la segunda consulta: " . mysqli_error($this->conectar);
-    //         }
-
-    //         return array_merge($lista2, array());
-    //     } catch (Exception $e) {
-    //         echo $e->getMessage();
-    //     }
-    // }
     public function buscarCobranzas()
     {
         $filtros = [];
         $arrQueryClientes = [];
-    
-        $id_usuario   = isset($_POST['id_usuario']) && $_POST['id_usuario'] !== '' ? $_POST['id_usuario'] : null;
+
+        $id_usuario = isset($_POST['id_usuario']) && $_POST['id_usuario'] !== '' ? $_POST['id_usuario'] : null;
         $fecha_inicio = isset($_POST['fecha_inicio']) && $_POST['fecha_inicio'] !== '' ? $_POST['fecha_inicio'] : null;
-        $fecha_fin    = isset($_POST['fecha_fin']) && $_POST['fecha_fin'] !== '' ? $_POST['fecha_fin'] : null;
-        $camion       = isset($_POST['camion']) && $_POST['camion'] !== '' ? $_POST['camion'] : null;
-        $diasVisita   = isset($_POST['diasVisita']) && $_POST['diasVisita'] !== '' ? $_POST['diasVisita'] : null;
-        $ruta      = isset($_POST['ruta']) && $_POST['ruta'] !== '' ? $_POST['ruta'] : null;
-    
-        // Condicional para fechas independientes
+        $fecha_fin = isset($_POST['fecha_fin']) && $_POST['fecha_fin'] !== '' ? $_POST['fecha_fin'] : null;
+        $camion = isset($_POST['camion']) && $_POST['camion'] !== '' ? $_POST['camion'] : null;
+        $diasVisita = isset($_POST['diasVisita']) && $_POST['diasVisita'] !== '' ? $_POST['diasVisita'] : null;
+        $ruta = isset($_POST['ruta']) && $_POST['ruta'] !== '' ? $_POST['ruta'] : null;
+
+        // Condicional para fechas
         $whereFechaCoti = '';
         if ($fecha_inicio && $fecha_fin) {
             $whereFechaCoti = "AND co.fecha BETWEEN '$fecha_inicio' AND '$fecha_fin'";
@@ -176,225 +47,82 @@ class ClientesController extends Controller
         } elseif ($fecha_fin) {
             $whereFechaCoti = "AND co.fecha <= '$fecha_fin'";
         }
-    
+
         // Condicional para usuario
         $whereUsuarioCoti = '';
         if ($id_usuario) {
             $whereUsuarioCoti = "AND co.id_usuario = '$id_usuario'";
         }
-    
-        // Filtro por mercado
+
+        // Filtro por ruta
         $whereRuta = '';
         if (!empty($ruta)) {
             $whereRuta = "AND c.id_ruta = '$ruta'";
         }
-    
-        // Filtros por camión
+
+        // Filtros por cami贸n
         switch ($camion) {
             case '1':
-                $filtros = [
-                    'lunes'     => ['1', '7'],
-                    'martes'    => ['5', '7'],
-                    'miercoles' => ['5'],
-                    'jueves'    => ['1', '7'],
-                    'viernes'   => ['6', '7'],
-                    'sabado'    => ['7', '8'],
-                ];
+                $filtros = ['lunes' => ['1', '7'], 'martes' => ['5', '7'], 'miercoles' => ['5'], 'jueves' => ['1', '7'], 'viernes' => ['6', '7'], 'sabado' => ['7', '8']];
                 break;
             case '2':
-                $filtros = [
-                    'lunes'     => ['3', '6'],
-                    'martes'    => ['1', '3'],
-                    'miercoles' => ['1', '3'],
-                    'jueves'    => ['6', '3'],
-                    'viernes'   => ['3', '5'],
-                    'sabado'    => ['3', '6'],
-                ];
+                $filtros = ['lunes' => ['3', '6'], 'martes' => ['1', '3'], 'miercoles' => ['1', '3'], 'jueves' => ['6', '3'], 'viernes' => ['3', '5'], 'sabado' => ['3', '6']];
                 break;
             case '3':
-                $filtros = [
-                    'miercoles' => ['6', '7'],
-                    'viernes'   => ['8', '2'],
-                    'sabado'    => ['1', '5'],
-                ];
-                break;
-            default:
+                $filtros = ['miercoles' => ['6', '7'], 'viernes' => ['8', '2'], 'sabado' => ['1', '5']];
                 break;
         }
-    
-        // Si se seleccionó un día específico
+
         if ($diasVisita != "" && isset($filtros[$diasVisita])) {
-            $filtros = [
-                $diasVisita => $filtros[$diasVisita]
-            ];
+            $filtros = [$diasVisita => $filtros[$diasVisita]];
         }
         if ($ruta != "") {
             foreach ($filtros as $key => $filtro) {
                 $filtros[$key] = [$ruta];
             }
         }
+        // Funci贸n auxiliar para normalizar acentos (insensible a acentos)
+        $normalizeAccents = function ($str) {
+            return "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LOWER($str),'谩','a'),'茅','e'),'铆','i'),'贸','o'),'煤','u')";
+        };
+
         foreach ($filtros as $key => $filtro) {
-            $arrQueryClientes[] = "( LOWER(c.dias_visitas) = LOWER('{$key}') AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
+            // B煤squeda insensible a acentos
+            $arrQueryClientes[] = "( " . $normalizeAccents('c.dias_visitas') . " LIKE LOWER('%$key%') AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
         }
-    
+
         $whereClientes = '';
         if (!empty($arrQueryClientes)) {
             $whereClientes = "AND (" . implode(' OR ', $arrQueryClientes) . ")";
         }
+
         $whereDiasVisita = '';
         if (!empty($diasVisita)) {
-            $whereDiasVisita = "AND LOWER(c.dias_visitas) = LOWER('$diasVisita')";
-        }
-    
-        try {
-            // Determinar ordenamiento dinámico basado en filtros de fecha
-            $hayFiltroFecha = !empty($fecha_inicio) || !empty($fecha_fin);
-            
-            if ($hayFiltroFecha) {
-                // Cuando hay filtro de fecha: FECHA primero
-                $orderBy = "ORDER BY 
-                    tb.fecha_emision DESC,
-                    CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC,
-                    SUBSTRING_INDEX(tb.cliente, ' | ', -1) ASC";
-            } else {
-                // Cuando NO hay filtro de fecha: MERCADO primero
-                $orderBy = "ORDER BY 
-                    CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC,
-                    SUBSTRING_INDEX(tb.cliente, ' | ', -1) ASC, 
-                    tb.fecha_emision DESC";
-            }
-
-            // CONSULTA con ORDER BY dinámico
-            $sql = "SELECT tb.*, tb.total - tb.pagado AS saldo FROM (
-                SELECT 
-                    'c' AS tipo_co,
-                    co.cotizacion_id AS id_venta,
-                    CONCAT('#', co.numero) AS factura,
-                    us.usuario AS vendedor,
-                    co.fecha AS fecha_emision,
-                    (SELECT fecha FROM cuotas_cotizacion cc WHERE cc.id_coti = co.cotizacion_id ORDER BY fecha DESC LIMIT 1) AS fecha_vencimiento,
-                    CONCAT(c.documento, ' | ', c.datos) AS cliente,
-                    co.total,
-                    c.mercado AS mercado,
-                    (SELECT IFNULL(SUM(cc.monto), 0) FROM cuotas_cotizacion cc WHERE cc.id_coti = co.cotizacion_id AND cc.estado = 1) AS pagado
-                FROM cotizaciones co
-                INNER JOIN clientes AS c ON c.id_cliente = co.id_cliente
-                JOIN usuarios us ON us.usuario_id = co.id_usuario
-                WHERE co.id_tipo_pago = 2 AND co.estado!=2 
-                    $whereFechaCoti
-                    $whereUsuarioCoti
-                    $whereClientes
-                    $whereRuta
-                    $whereDiasVisita
-            ) tb 
-            $orderBy";
-    
-            $fila = mysqli_query($this->conectar, $sql);
-            $lista2 = [];
-            if ($fila) {
-                $lista2 = mysqli_fetch_all($fila, MYSQLI_ASSOC);
-            } else {
-                echo "Error en la consulta: " . mysqli_error($this->conectar);
-            }
-    
-            return array_merge($lista2, array());
-        } catch (Exception $e) {
-            echo $e->getMessage();
-        }
-    }
-    public function pdf()
-    {
-        $filtros = [];
-        $arrQueryClientes = [];
-        // Leer los datos JSON del cuerpo de la solicitud
-        $data = json_decode(file_get_contents("php://input"), true);
-        // Asignar los valores de los datos recibidos a variables
-        $id_usuario   = isset($data['id_usuario']) && $data['id_usuario'] !== '' ? $data['id_usuario'] : null;
-        $fecha_inicio = isset($data['fecha_inicio']) && $data['fecha_inicio'] !== '' ? $data['fecha_inicio'] : null;
-        $fecha_fin    = isset($data['fecha_fin']) && $data['fecha_fin'] !== '' ? $data['fecha_fin'] : null;
-        $camion       = isset($data['camion']) && $data['camion'] !== '' ? $data['camion'] : null;
-        $diasVisita   = isset($data['diasVisita']) && $data['diasVisita'] !== '' ? $data['diasVisita'] : null;
-        $ruta      = isset($data['ruta']) && $data['ruta'] !== '' ? $data['ruta'] : null;
-
-        // Condicional para fechas independientes
-        $whereFechaCoti = '';
-        if ($fecha_inicio && $fecha_fin) {
-            $whereFechaCoti = "AND co.fecha BETWEEN '$fecha_inicio' AND '$fecha_fin'";
-        } elseif ($fecha_inicio) {
-            $whereFechaCoti = "AND co.fecha >= '$fecha_inicio'";
-        } elseif ($fecha_fin) {
-            $whereFechaCoti = "AND co.fecha <= '$fecha_fin'";
-        }
-
-        // Condicional para usuario
-        $whereUsuarioCoti = '';
-        if ($id_usuario) {
-            $whereUsuarioCoti = "AND co.id_usuario = '$id_usuario'";
-        }
-
-        // Filtro por mercado
-        $whereRuta = '';
-        if (!empty($ruta)) {
-            $whereRuta = "AND c.id_ruta = '$ruta'";
-        }
-
-
-        // Filtros por cami��n
-        switch ($camion) {
-            case '1':
-                $filtros = [
-                    'lunes'     => ['1', '7'],
-                    'martes'    => ['5', '7'],
-                    'miercoles' => ['5'],
-                    'jueves'    => ['1', '7'],
-                    'viernes'   => ['6', '7'],
-                    'sabado'    => ['7', '8'],
-                ];
-                break;
-            case '2':
-                $filtros = [
-                    'lunes'     => ['3', '6'],
-                    'martes'    => ['1', '3'],
-                    'miercoles' => ['1', '3'],
-                    'jueves'    => ['6', '3'],
-                    'viernes'   => ['3', '5'],
-                    'sabado'    => ['3', '6'],
-                ];
-                break;
-            case '3':
-                $filtros = [
-                    'miercoles' => ['6', '7'],
-                    'viernes'   => ['8', '2'],
-                    'sabado'    => ['1', '5'],
-                ];
-                break;
-            default:
-                break;
-        }
-
-        // Si se seleccion�� un d��a espec��fico
-        if ($diasVisita != "" && isset($filtros[$diasVisita])) {
-            $filtros = [
-                $diasVisita => $filtros[$diasVisita]
-            ];
-        }
-        if ($ruta != "") {
-            foreach ($filtros as $key => $filtro) {
-                $filtros[$key] = [$ruta];
-            }
-        }
-
-        foreach ($filtros as $key => $filtro) {
-            $arrQueryClientes[] = "( c.dias_visitas = '{$key}' AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
-        }
-
-        $whereClientes = '';
-        if (!empty($arrQueryClientes)) {
-            $whereClientes = "AND (" . implode(' OR ', $arrQueryClientes) . ")";
+            // B煤squeda insensible a acentos
+            $whereDiasVisita = "AND " . $normalizeAccents('c.dias_visitas') . " LIKE LOWER('%$diasVisita%')";
         }
 
         try {
-            // PRIMERA CONSULTA (ventas)
+            $orderBy = "ORDER BY 
+                tb.fecha_emision DESC,
+                CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC";
+
+            // Variables condicionales para ventas
+            $whereFechaVentas = '';
+            if ($fecha_inicio && $fecha_fin) {
+                $whereFechaVentas = "AND v.fecha_emision BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+            } elseif ($fecha_inicio) {
+                $whereFechaVentas = "AND v.fecha_emision >= '$fecha_inicio'";
+            } elseif ($fecha_fin) {
+                $whereFechaVentas = "AND v.fecha_emision <= '$fecha_fin'";
+            }
+
+            $whereUsuarioVentas = '';
+            if ($id_usuario) {
+                $whereUsuarioVentas = "AND v.id_vendedor = '$id_usuario'";
+            }
+
+            // PRIMERA CONSULTA (ventas) - Con filtros unificados y ORDER BY
             $sqlVentas = "SELECT 
                 'v' as tipo_co, 
                 v.id_venta, 
@@ -405,7 +133,10 @@ class ClientesController extends Controller
                 v.total, 
                 u.usuario AS vendedor,
                 SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END) AS pagado,
-                (v.total - SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END)) AS saldo
+                (v.total - SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END)) AS saldo,
+                c.mercado,
+                c.dias_visitas,
+                c.id_ruta
             FROM ventas AS v
             INNER JOIN dias_ventas AS dv ON v.id_venta = dv.id_venta 
             INNER JOIN clientes AS c ON v.id_cliente = c.id_cliente
@@ -413,13 +144,19 @@ class ClientesController extends Controller
             WHERE v.estado = 1 
                 AND v.id_empresa = '{$_SESSION['id_empresa']}' 
                 " . ($_SESSION["rol"] != 4 ? "AND v.sucursal = '{$_SESSION['sucursal']}'" : "") . "
-                AND v.id_vendedor = '$id_usuario'
-                AND v.fecha_emision BETWEEN '$fecha_inicio' AND '$fecha_fin'
+                $whereUsuarioVentas
+                $whereFechaVentas
                 $whereRuta
-            GROUP BY v.id_venta";
+                $whereClientes
+                $whereDiasVisita
+            GROUP BY v.id_venta
+            $orderBy";
 
-            $fila = mysqli_query($this->conectar, $sqlVentas);
-            $lista = $fila ? mysqli_fetch_all($fila, MYSQLI_ASSOC) : [];
+            $filaVentas = mysqli_query($this->conectar, $sqlVentas);
+            $listaVentas = [];
+            if ($filaVentas) {
+                $listaVentas = mysqli_fetch_all($filaVentas, MYSQLI_ASSOC);
+            }
 
             // SEGUNDA CONSULTA (cotizaciones)
             $sql = "SELECT tb.*, tb.total - tb.pagado AS saldo FROM (
@@ -432,6 +169,9 @@ class ClientesController extends Controller
                     (SELECT fecha FROM cuotas_cotizacion cc WHERE cc.id_coti = co.cotizacion_id ORDER BY fecha DESC LIMIT 1) AS fecha_vencimiento,
                     CONCAT(c.documento, ' | ', c.datos) AS cliente,
                     co.total,
+                    c.mercado AS mercado,
+                    c.dias_visitas,
+                    c.id_ruta,
                     (SELECT IFNULL(SUM(cc.monto), 0) FROM cuotas_cotizacion cc WHERE cc.id_coti = co.cotizacion_id AND cc.estado = 1) AS pagado
                 FROM cotizaciones co
                 INNER JOIN clientes AS c ON c.id_cliente = co.id_cliente
@@ -441,17 +181,243 @@ class ClientesController extends Controller
                     $whereUsuarioCoti
                     $whereClientes
                     $whereRuta
-            ) tb";
+                    $whereDiasVisita
+            ) tb 
+            $orderBy";
+
+            $fila = mysqli_query($this->conectar, $sql);
+            $listaCoti = [];
+            if ($fila) {
+                $listaCoti = mysqli_fetch_all($fila, MYSQLI_ASSOC);
+            } else {
+                echo "Error: " . mysqli_error($this->conectar);
+            }
+
+            // Unificar resultados y reordenar
+            $listaCompleta = array_merge($listaVentas, $listaCoti);
+
+            // Reordenar el array combinado (ordenamiento multinivel descendente)
+            usort($listaCompleta, function ($a, $b) {
+                // Mapeo de d铆as a n煤meros (insensible a acentos)
+                $diasOrden = [
+                    'lunes' => 1,
+                    'martes' => 2,
+                    'miercoles' => 3,
+                    'mi茅rcoles' => 3,
+                    'jueves' => 4,
+                    'viernes' => 5,
+                    'sabado' => 6,
+                    's谩bado' => 6,
+                    'domingo' => 7
+                ];
+
+                // Comparar fecha_emision (DESC)
+                $fechaComp = strcmp($b['fecha_emision'], $a['fecha_emision']);
+                if ($fechaComp !== 0)
+                    return $fechaComp;
+
+                // Comparar mercado (ASC)
+                $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
+                $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
+                return $mercadoA - $mercadoB;
+            });
+
+            return $listaCompleta;
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+    }
+    public function pdf()
+    {
+        $filtros = [];
+        $arrQueryClientes = [];
+        // Leer los datos JSON del cuerpo de la solicitud
+        $data = json_decode(file_get_contents("php://input"), true);
+        // Asignar los valores de los datos recibidos a variables
+        $id_usuario = isset($data['id_usuario']) && $data['id_usuario'] !== '' ? $data['id_usuario'] : null;
+        $fecha_inicio = isset($data['fecha_inicio']) && $data['fecha_inicio'] !== '' ? $data['fecha_inicio'] : null;
+        $fecha_fin = isset($data['fecha_fin']) && $data['fecha_fin'] !== '' ? $data['fecha_fin'] : null;
+        $camion = isset($data['camion']) && $data['camion'] !== '' ? $data['camion'] : null;
+        $diasVisita = isset($data['diasVisita']) && $data['diasVisita'] !== '' ? $data['diasVisita'] : null;
+        $ruta = isset($data['ruta']) && $data['ruta'] !== '' ? $data['ruta'] : null;
+
+        $whereFechaCoti = '';
+        if ($fecha_inicio && $fecha_fin) {
+            $whereFechaCoti = "AND co.fecha BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+        } elseif ($fecha_inicio) {
+            $whereFechaCoti = "AND co.fecha >= '$fecha_inicio'";
+        } elseif ($fecha_fin) {
+            $whereFechaCoti = "AND co.fecha <= '$fecha_fin'";
+        }
+
+        $whereUsuarioCoti = '';
+        if ($id_usuario) {
+            $whereUsuarioCoti = "AND co.id_usuario = '$id_usuario'";
+        }
+
+        $whereRuta = '';
+        if (!empty($ruta)) {
+            $whereRuta = "AND c.id_ruta = '$ruta'";
+        }
+
+        // Filtros por cami贸n
+        switch ($camion) {
+            case '1':
+                $filtros = ['lunes' => ['1', '7'], 'martes' => ['5', '7'], 'miercoles' => ['5'], 'jueves' => ['1', '7'], 'viernes' => ['6', '7'], 'sabado' => ['7', '8']];
+                break;
+            case '2':
+                $filtros = ['lunes' => ['3', '6'], 'martes' => ['1', '3'], 'miercoles' => ['1', '3'], 'jueves' => ['6', '3'], 'viernes' => ['3', '5'], 'sabado' => ['3', '6']];
+                break;
+            case '3':
+                $filtros = ['miercoles' => ['6', '7'], 'viernes' => ['8', '2'], 'sabado' => ['1', '5']];
+                break;
+        }
+
+        if ($diasVisita != "" && isset($filtros[$diasVisita])) {
+            $filtros = [$diasVisita => $filtros[$diasVisita]];
+        }
+        if ($ruta != "") {
+            foreach ($filtros as $key => $filtro) {
+                $filtros[$key] = [$ruta];
+            }
+        }
+        // Funci贸n auxiliar para normalizar acentos (insensible a acentos)
+        $normalizeAccents = function ($str) {
+            return "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LOWER($str),'谩','a'),'茅','e'),'铆','i'),'贸','o'),'煤','u')";
+        };
+
+        foreach ($filtros as $key => $filtro) {
+            // B煤squeda insensible a acentos
+            $arrQueryClientes[] = "( " . $normalizeAccents('c.dias_visitas') . " LIKE LOWER('%$key%') AND c.id_ruta IN (" . implode(',', $filtro) . ") )";
+        }
+
+        $whereClientes = '';
+        if (!empty($arrQueryClientes)) {
+            $whereClientes = "AND (" . implode(' OR ', $arrQueryClientes) . ")";
+        }
+
+        $whereDiasVisita = '';
+        if (!empty($diasVisita)) {
+            // B煤squeda insensible a acentos
+            $whereDiasVisita = "AND " . $normalizeAccents('c.dias_visitas') . " LIKE LOWER('%$diasVisita%')";
+        }
+
+        try {
+            $orderBy = "ORDER BY 
+                tb.fecha_emision DESC,
+                CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC";
+
+            // Variables condicionales para ventas (similar a cotizaciones)
+            $whereFechaVentas = '';
+            if ($fecha_inicio && $fecha_fin) {
+                $whereFechaVentas = "AND v.fecha_emision BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+            } elseif ($fecha_inicio) {
+                $whereFechaVentas = "AND v.fecha_emision >= '$fecha_inicio'";
+            } elseif ($fecha_fin) {
+                $whereFechaVentas = "AND v.fecha_emision <= '$fecha_fin'";
+            }
+
+            $whereUsuarioVentas = '';
+            if ($id_usuario) {
+                $whereUsuarioVentas = "AND v.id_vendedor = '$id_usuario'";
+            }
+
+            // PRIMERA CONSULTA (ventas) - Con filtros unificados y ORDER BY
+            $sqlVentas = "SELECT 
+                'v' as tipo_co, 
+                v.id_venta, 
+                CONCAT(v.serie, ' | ', v.numero) AS factura, 
+                v.fecha_emision, 
+                v.fecha_vencimiento,
+                CONCAT(c.documento, ' | ', c.datos) AS cliente, 
+                v.total, 
+                u.usuario AS vendedor,
+                SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END) AS pagado,
+                (v.total - SUM(CASE WHEN dv.estado = '1' THEN dv.monto ELSE 0 END)) AS saldo,
+                c.mercado,
+                c.dias_visitas,
+                c.id_ruta
+            FROM ventas AS v
+            INNER JOIN dias_ventas AS dv ON v.id_venta = dv.id_venta 
+            INNER JOIN clientes AS c ON v.id_cliente = c.id_cliente
+            LEFT JOIN usuarios u ON u.usuario_id = v.id_vendedor
+            WHERE v.estado = 1 
+                AND v.id_empresa = '{$_SESSION['id_empresa']}' 
+                " . ($_SESSION["rol"] != 4 ? "AND v.sucursal = '{$_SESSION['sucursal']}'" : "") . "
+                $whereUsuarioVentas
+                $whereFechaVentas
+                $whereRuta
+                $whereClientes
+                $whereDiasVisita
+            GROUP BY v.id_venta
+            $orderBy";
+
+            $fila = mysqli_query($this->conectar, $sqlVentas);
+            $lista = [];
+            if ($fila) {
+                $lista = mysqli_fetch_all($fila, MYSQLI_ASSOC);
+            }
+
+            // SEGUNDA CONSULTA (cotizaciones)
+            $sql = "SELECT tb.*, tb.total - tb.pagado AS saldo FROM (
+                SELECT 
+                    'c' AS tipo_co,
+                    co.cotizacion_id AS id_venta,
+                    CONCAT('#', co.numero) AS factura,
+                    us.usuario AS vendedor,
+                    co.fecha AS fecha_emision,
+                    (SELECT fecha FROM cuotas_cotizacion cc WHERE cc.id_coti = co.cotizacion_id ORDER BY fecha DESC LIMIT 1) AS fecha_vencimiento,
+                    CONCAT(c.documento, ' | ', c.datos) AS cliente,
+                    co.total,
+                    c.mercado AS mercado,
+                    c.dias_visitas,
+                    c.id_ruta,
+                    (SELECT IFNULL(SUM(cc.monto), 0) FROM cuotas_cotizacion cc WHERE cc.id_coti = co.cotizacion_id AND cc.estado = 1) AS pagado
+                FROM cotizaciones co
+                INNER JOIN clientes AS c ON c.id_cliente = co.id_cliente
+                JOIN usuarios us ON us.usuario_id = co.id_usuario
+                WHERE co.id_tipo_pago = 2 AND co.estado!=2 
+                    $whereFechaCoti
+                    $whereUsuarioCoti
+                    $whereClientes
+                    $whereRuta
+                    $whereDiasVisita
+            ) tb 
+            $orderBy";
 
             $fila = mysqli_query($this->conectar, $sql);
             $lista2 = [];
             if ($fila) {
                 $lista2 = mysqli_fetch_all($fila, MYSQLI_ASSOC);
-            } else {
-                echo "Error en la segunda consulta: " . mysqli_error($this->conectar);
             }
 
-            $datos = array_merge($lista2, $lista);
+            $datos = array_merge($lista, $lista2);
+
+            // Reordenar el array combinado (ordenamiento multinivel descendente)
+            usort($datos, function ($a, $b) {
+                // Mapeo de d铆as a n煤meros (insensible a acentos)
+                $diasOrden = [
+                    'lunes' => 1,
+                    'martes' => 2,
+                    'miercoles' => 3,
+                    'mi茅rcoles' => 3,
+                    'jueves' => 4,
+                    'viernes' => 5,
+                    'sabado' => 6,
+                    's谩bado' => 6,
+                    'domingo' => 7
+                ];
+
+                // Comparar fecha_emision (DESC)
+                $fechaComp = strcmp($b['fecha_emision'], $a['fecha_emision']);
+                if ($fechaComp !== 0)
+                    return $fechaComp;
+
+                // Comparar mercado (ASC)
+                $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
+                $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
+                return $mercadoA - $mercadoB;
+            });
 
             // Calcular resumen por vendedor
             $resumen = [];
@@ -476,89 +442,133 @@ class ClientesController extends Controller
 
             // Detalle por cliente
             // Agrupar los datos por vendedor
-            $ventasPorVendedor = [];
-            foreach ($datos as $row) {
-                $vendedor = $row['vendedor'] !== '' ? $row['vendedor'] : 'Sin asignar';
-                $ventasPorVendedor[$vendedor][] = $row;
+            $vendedores = [];
+            foreach ($datos as $venta) {
+                $vendedor = $venta['vendedor'] !== '' ? $venta['vendedor'] : 'Sin asignar';
+                if (!isset($vendedores[$vendedor])) {
+                    $vendedores[$vendedor] = [];
+                }
+                $vendedores[$vendedor][] = $venta;
             }
 
             $html = '
-     <style>
-         body {
-             font-size: 10px;
-             font-family: sans-serif;
-         }
-         table {
-             width: 100%;
-             border-collapse: collapse;
-             margin-bottom: 15px;
-         }
-         th, td {
-             border: 1px solid #ccc;
-             padding: 4px;
-             text-align: left;
-         }
-         h1 {
-             font-size: 14px;
-         }
-         h2 {
-             font-size: 12px;
-         }
-     </style>
-     
-     <h1>Reporte de Cobranzas</h1>
-     ';
-
-            foreach ($ventasPorVendedor as $vendedor => $ventas) {
-                $html .= "<h2>Vendedor: $vendedor</h2>";
-
-                $html .= '
-         <table>
-             <thead>
-                 <tr>
-                     <th>Factura</th>
-                     <th>Cliente</th>
-                     <th>F. Emisi��n</th>
-                     <th>F. Vencimiento</th>
-                     <th>Total (S/.)</th>
-                     <th>Pagado (S/.)</th>
-                     <th>Saldo (S/.)</th>
-                 </tr>
-             </thead>
-             <tbody>
-         ';
-
-                foreach ($ventas as $venta) {
-                    $html .= '<tr>';
-                    $html .= "<td>{$venta['factura']}</td>";
-                    $html .= "<td>{$venta['cliente']}</td>";
-                    $html .= "<td>{$venta['fecha_emision']}</td>";
-                    $html .= "<td>{$venta['fecha_vencimiento']}</td>";
-                    $html .= "<td>" . number_format($venta['total'], 2) . "</td>";
-                    $html .= "<td>" . number_format($venta['pagado'], 2) . "</td>";
-                    $html .= "<td>" . number_format($venta['saldo'], 2) . "</td>";
-                    $html .= '</tr>';
+            <style>
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 10px;
                 }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #f2f2f2;
+                }
+                .vendedor-header {
+                    background-color: #e0e0e0;
+                    font-weight: bold;
+                    padding: 10px;
+                    margin-top: 20px;
+                }
+            </style>
+            <h2 style="text-align: center;">Reporte de Cobranzas</h2>';
 
-                $html .= '</tbody></table>';
-
-                // Resumen por vendedor alineado a la derecha, con "Resumen de..." ocupando 3 columnas
-                $suma = $resumen[$vendedor];
+            foreach ($vendedores as $vendedor => $deudas) {
+                $html .= '<div class="vendedor-header">Vendedor: ' . $vendedor . '</div>';
                 $html .= '
-        <table style="width: 100%; margin-top: 10px; font-size: 10px;">
-            <tr>
-                <td colspan="3" style="text-align: right;"><strong>Resumen de ' . $vendedor . ':</strong></td>
-                <td style="text-align: right;">Total: S/. ' . number_format($suma['total'], 2) . '</td>
-                <td style="text-align: right;">Pagado: S/. ' . number_format($suma['pagado'], 2) . '</td>
-                <td style="text-align: right;">Saldo: S/. ' . number_format($suma['saldo'], 2) . '</td>
-            </tr>
-        </table><hr>';
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Codigo</th>
+                            <th>F. Emisi贸n</th>
+                            <th>F. Vencimiento</th>
+                            <th>Cliente</th>
+                            <th>Mercado</th>
+                            <th>Ruta</th>
+                            <th>Total</th>
+                            <th>Pagado</th>
+                            <th>Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+
+                foreach ($deudas as $venta) {
+                    $html .= '
+                        <tr>
+                            <td>' . $venta['id_venta'] . '</td>
+                            <td>' . $venta['factura'] . '</td>
+                            <td>' . $venta['fecha_emision'] . '</td>
+                            <td>' . $venta['fecha_vencimiento'] . '</td>
+                            <td>' . $venta['cliente'] . '</td>
+                            <td>' . $venta['mercado'] . '</td>
+                            <td>' . $venta['id_ruta'] . '</td>
+                            <td style="text-align: right;">S/. ' . number_format($venta['total'], 2) . '</td>
+                            <td style="text-align: right;">S/. ' . number_format($venta['pagado'], 2) . '</td>
+                            <td style="text-align: right;">S/. ' . number_format($venta['saldo'], 2) . '</td>
+                        </tr>';
+                }
+                $html .= '
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="7" style="text-align: right;"><strong>Subtotal (' . $vendedor . '):</strong></td>
+                            <td style="text-align: right;"><strong>S/. ' . number_format($resumen[$vendedor]['total'], 2) . '</strong></td>
+                            <td style="text-align: right;"><strong>S/. ' . number_format($resumen[$vendedor]['pagado'], 2) . '</strong></td>
+                            <td style="text-align: right;"><strong>S/. ' . number_format($resumen[$vendedor]['saldo'], 2) . '</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>';
             }
 
+            $html .= '<div style="margin-top: 20px; font-weight: bold; border-top: 2px solid #000; padding-top: 10px;">
+                        Resumen General de Cobranzas:
+                      </div>';
+
+            $total_general = 0;
+            $pagado_general = 0;
+            $saldo_general = 0;
+            foreach ($resumen as $res) {
+                $total_general += $res['total'];
+                $pagado_general += $res['pagado'];
+                $saldo_general += $res['saldo'];
+            }
+
+            $html .= '
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vendedor</th>
+                        <th>Total</th>
+                        <th>Pagado</th>
+                        <th>Saldo</th>
+                    </tr>
+                </thead>
+                <tbody>';
+            foreach ($resumen as $vendedor => $res) {
+                $html .= '<tr>
+                    <td>' . $vendedor . '</td>
+                    <td style="text-align: right;">S/. ' . number_format($res['total'], 2) . '</td>
+                    <td style="text-align: right;">S/. ' . number_format($res['pagado'], 2) . '</td>
+                    <td style="text-align: right;">S/. ' . number_format($res['saldo'], 2) . '</td>
+                </tr>';
+            }
+            $html .= '
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td style="text-align: right;"><strong>TOTAL GENERAL:</strong></td>
+                        <td style="text-align: right;"><strong>S/. ' . number_format($total_general, 2) . '</strong></td>
+                        <td style="text-align: right;"><strong>S/. ' . number_format($pagado_general, 2) . '</strong></td>
+                        <td style="text-align: right;"><strong>S/. ' . number_format($saldo_general, 2) . '</strong></td>
+                    </tr>
+                </tfoot>
+            </table>';
 
             $mpdf->WriteHTML($html);
-            $mpdf->Output('reporte_cobranzas.pdf', 'I'); // Mostrar en navegador
-
+            $mpdf->Output('reporte_cobranzas.pdf', 'I');
         } catch (Exception $e) {
             echo $e->getMessage();
         }
@@ -802,7 +812,7 @@ class ClientesController extends Controller
         $row++;
 
         foreach ($data as $index => $rowData) {
-            $sheet->setCellValue('A' . $row, $index + 1); // Columna # (Índice)
+            $sheet->setCellValue('A' . $row, $index + 1); // Columna # (锟�0锟�1ndice)
             $sheet->setCellValue('B' . $row, $rowData['documento']);
             $sheet->setCellValue('C' . $row, $rowData['datos']);
             $sheet->setCellValue('D' . $row, $rowData['direccion']);
@@ -875,7 +885,7 @@ class ClientesController extends Controller
             $clientes[] = $row;
         }
 
-        // Verificar si se encontró una cotización
+        // Verificar si se encontr锟斤拷 una cotizaci锟斤拷n
         if (sizeof($clientes) <= 0) {
             die("No se encontraron clientes para ruta: " . $id_ruta);
         }
@@ -934,6 +944,6 @@ class ClientesController extends Controller
         </div>";
         $mpdf->WriteHTML($html, \Mpdf\HTMLParserMode::HTML_BODY);
 
-        $mpdf->Output("clientes_día_{$dia_visita}.pdf", 'I');
+        $mpdf->Output("clientes_d锟斤拷a_{$dia_visita}.pdf", 'I');
     }
 }
