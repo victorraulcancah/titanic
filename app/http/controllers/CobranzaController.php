@@ -13,7 +13,6 @@ class CobranzaController extends Controller
     }
     public function render()
     {
-<<<<<<< HEAD
         try {
             $getAll = $this->cobranza->getAllCobranzas();
             
@@ -35,43 +34,6 @@ class CobranzaController extends Controller
                 "message" => $e->getMessage()
             ]);
         }
-=======
-        $getAll = $this->cobranza->getAllCobranzas();
-        
-        // Ordenar por mercado, cliente alfabético, y fecha
-        usort($getAll, function ($a, $b) {
-            // Ordenamiento: primero mercado (ASC), luego cliente (ASC alfabético), luego fecha (DESC)
-            $mercadoA = $a['mercado'] === '' || $a['mercado'] === null ? 999 : (int) $a['mercado'];
-            $mercadoB = $b['mercado'] === '' || $b['mercado'] === null ? 999 : (int) $b['mercado'];
-            
-            if ($mercadoA !== $mercadoB) {
-                return $mercadoA - $mercadoB;
-            }
-            
-            // Si mercados son iguales, comparar por nombre de cliente (ASC alfabético)
-            $partsA = explode('|', $a['cliente']);
-            $partsB = explode('|', $b['cliente']);
-            
-            $clienteA = isset($partsA[1]) ? trim($partsA[1]) : trim($partsA[0]);
-            $clienteB = isset($partsB[1]) ? trim($partsB[1]) : trim($partsB[0]);
-            
-            // Remover información entre paréntesis para ordenar
-            $clienteA = preg_replace('/\s*\([^)]*\)/', '', $clienteA);
-            $clienteB = preg_replace('/\s*\([^)]*\)/', '', $clienteB);
-            
-            $clienteA_lower = strtolower($clienteA);
-            $clienteB_lower = strtolower($clienteB);
-            
-            if ($clienteA_lower !== $clienteB_lower) {
-                return strcmp($clienteA_lower, $clienteB_lower);
-            }
-            
-            // Si clientes son iguales, comparar por fecha (DESC)
-            return strcmp($b['fecha_emision'], $a['fecha_emision']);
-        });
-        
-        echo json_encode($getAll);
->>>>>>> 9303b6e (combios de kardex motivos)
     }
     public function renderDeudas()
     {
