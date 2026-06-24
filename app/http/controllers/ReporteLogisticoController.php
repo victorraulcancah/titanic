@@ -68,11 +68,11 @@ class ReporteLogisticoController extends Controller
         }
 
         if ($horario == 'segundo_corte') {
-            return " AND co.fecha_registro >= '{$fechaFin} 08:00:00' AND co.fecha_registro < '{$fechaFin} 14:00:00' ";
+            return " AND co.fecha_registro >= '{$fechaFin} 08:00:00' AND co.fecha_registro < '{$fechaFin} 15:00:00' ";
         }
 
         if ($horario == 'tercer_corte') {
-            return " AND co.fecha_registro >= '{$fechaFin} 14:00:00' AND co.fecha_registro <= '{$fechaFin} 23:59:59' ";
+            return " AND co.fecha_registro >= '{$fechaFin} 15:00:00' AND co.fecha_registro <= '{$fechaFin} 23:59:59' ";
         }
 
         return "";
@@ -201,8 +201,8 @@ class ReporteLogisticoController extends Controller
             $horarioTexto = [
                 'todos' => 'Todos',
                 'primer_corte' => "Primer Corte — Pedidos base (hasta {$fechaFin} 08:00)",
-                'segundo_corte' => "Segundo Corte — Aumentos mañana ({$fechaFin} 08:00 - 14:00)",
-                'tercer_corte' => "Tercer Corte — Aumentos tarde/noche ({$fechaFin} 14:00 - 23:59)",
+                'segundo_corte' => "Segundo Corte — Aumentos ({$fechaFin} 08:00 - 15:00)",
+                'tercer_corte' => "Tercer Corte — Aumentos ({$fechaFin} 15:00 - 23:59)",
             ];
             $html .= "<p><strong>Horario:</strong> " . ($horarioTexto[$horario] ?? ucfirst($horario)) . "</p>";
         }
