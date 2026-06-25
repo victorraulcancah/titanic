@@ -5,7 +5,7 @@ define("DOMINIO","http://well-known.test/");
  * DATABASE_CONFIG
  */
 define("HOST_SS","localhost");
-define("DATABASE_SS","magusqao_titanic");
+define("DATABASE_SS","titanic");
 define("USER_SS","root");
 define("PASSWORD_SS","");
 
