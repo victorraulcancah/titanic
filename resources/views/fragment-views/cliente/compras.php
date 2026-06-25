@@ -53,6 +53,7 @@
                             <th style="text-align: center;" width="50%">Razon Social</th>
                             <th style="text-align: center;">Editar</th>
                             <th style="text-align: center;">Detalles</th>
+                            <th style="text-align: center;">Productos</th>
                             <th style="text-align: center;">Reporte</th>
                         </tr>
                         </thead>
@@ -160,6 +161,16 @@
                     class: "text-center",
                     render: function(data, type, row) {
                         return `<div class="text-center">
+              <div class="btn-group"><button data-id="${Number(
+                            row.id_compra
+                        )}" class="btn btn-sm btn-info btnProductosCompra"><i class="fa fa-cube"></i> </button></div></div>`;
+                    },
+                },
+                {
+                    data: null,
+                    class: "text-center",
+                    render: function(data, type, row) {
+                        return `<div class="text-center">
               <div class="btn-group"><a target="_blank" class="btn btn-sm btn-info" href="${_URL}/reporte/compras/pdf/${row.id_compra}" ><i class="fa fa-file"></i> </a></div></div>`;
                     },
                 },
@@ -168,6 +179,54 @@
 
 
         
+        $("#datatable").on("click", ".btnProductosCompra", function(event) {
+            $("#loader-menor").show()
+            var id = $(this).data("id");
+            $("#modalDetalle").modal("show");
+            $("#modalDetalle")
+                .find(".modal-title")
+                .text("Productos - Compra N°" + id);
+            $.ajax({
+                type: 'POST',
+                url: _URL + '/ajas/compra/detalle',
+                data: {
+                    id: id
+                },
+                success: function(resp) {
+                    $("#loader-menor").hide()
+                    let data = JSON.parse(resp)
+                    datatableProductoDetalle = $("#datatableProductoDetalle").DataTable({
+                        paging: true,
+                        bFilter: true,
+                        ordering: true,
+                        searching: true,
+                        destroy: true,
+                        language: {
+                            url: "ServerSide/Spanish.json",
+                        },
+                        data: data,
+                        columns: [{
+                            data: "id_producto_venta",
+                            class: "text-center",
+                        },
+                            {
+                                data: "descripcion",
+                                class: "text-center",
+                            },
+                            {
+                                data: "cantidad",
+                                class: "text-center",
+                            },
+                            {
+                                data: "precio",
+                                class: "text-center",
+                            },
+                        ],
+                    });
+                }
+            });
+        });
+
         $("#datatable").on("click", ".btnDetalle ", function(event) {
             $("#loader-menor").show()
             var table = $("#tabla_clientes").DataTable();
