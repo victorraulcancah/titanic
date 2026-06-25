@@ -27,6 +27,26 @@
 <div class="row">
     <div class="col-12">
         <div class="card" style="border-radius:20px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06)">
+            <div class="card-header">
+                <div class="row align-items-end g-3">
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-end align-items-center gap-4 flex-wrap">
+                            <div class="text-end">
+                                <label class="form-label form-label-sm fs-7 mb-0">Total</label>
+                                <div><span id="total" class="fw-bold text-primary fs-6">S/ 0.00</span></div>
+                            </div>
+                            <div class="text-end">
+                                <label class="form-label form-label-sm fs-7 mb-0">Pagado</label>
+                                <div><span id="pagado" class="fw-bold text-success fs-6">S/ 0.00</span></div>
+                            </div>
+                            <div class="text-end">
+                                <label class="form-label form-label-sm fs-7 mb-0">Saldo</label>
+                                <div><span id="saldo" class="fw-bold text-danger fs-6">S/ 0.00</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="card-body">
 
                 <div class="table-responsive">
@@ -131,6 +151,24 @@
                 }
             }
         });
+        function sumarTotales() {
+            let total = 0;
+            let pagado = 0;
+            let saldo = 0;
+
+            const data = datatable.rows({ search: 'applied' }).data();
+
+            for (let i = 0; i < data.length; i++) {
+                total += parseFloat(data[i].total ?? 0);
+                pagado += parseFloat(data[i].pagado ?? 0);
+                saldo += parseFloat(data[i].saldo ?? 0);
+            }
+
+            $("#total").text('S/ ' + total.toFixed(2));
+            $("#pagado").text('S/ ' + pagado.toFixed(2));
+            $("#saldo").text('S/ ' + saldo.toFixed(2));
+        }
+
         datatable = $("#datatable").DataTable({
             paging: true,
             bFilter: true,
@@ -141,6 +179,9 @@
                 url: _URL + "/ajas/cuentas/ventas/render",
                 method: "POST",
                 dataSrc: "",
+            },
+            drawCallback: function() {
+                sumarTotales();
             },
             language: {
                 url: "ServerSide/Spanish.json",
