@@ -291,6 +291,26 @@ class PagosController extends Controller
         }
     }
 
+    public function getAllProductosByIdCompra()
+    {
+        try {
+            $id = $_POST['id'];
+            $sql = "SELECT 
+                    pc.id_producto,
+                    pc.cantidad,
+                    p.precio,
+                    (pc.cantidad * p.precio) AS total,
+                    p.descripcion
+                FROM productos_compras pc
+                INNER JOIN productos p ON p.id_producto = pc.id_producto
+                WHERE pc.id_compra = '$id'";
+            $result = $this->conectar->query($sql);
+            return json_encode($result->fetch_all(MYSQLI_ASSOC));
+        } catch (Exception $e) {
+            return json_encode([]);
+        }
+    }
+
     public function editarCuotaVentas()
     {
         // Solo administradores pueden editar pagos

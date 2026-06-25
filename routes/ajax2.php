@@ -94,6 +94,7 @@ Route::post('/ajs/compras/obtener',"ComprasController@obtenerCompra");
 Route::post('/ajas/cuentas/ventas/render',"PagosController@render");
 Route::post('/ajas/getAllCuotas/byIdCompra',"PagosController@getAllByIdCompra");
 Route::post('/ajs/pagar/cuota/pago',"PagosController@pagarCuota");
+Route::post('/ajas/getAllProductos/byIdCompra',"PagosController@getAllProductosByIdCompra");
 
 
 Route::post("/ajas/ventas/porempresa","VentasController@listaVentasPorEmpresa");
@@ -139,7 +140,7 @@ Route::post("/ajs/cobros/vendedor/rango","CobrosVendedorController@obtenerCobros
 // Ruta para obtener detalle completo de caja (Admin)
 Route::post("/ajs/caja/detalle/completo","CajaVendedorController@obtenerDetalleCompleto")->Middleware([ValidarTokenMiddleware::class]);
 
-// Rutas nuevas para edici¨®n de caja
+// Rutas nuevas para ediciï¿½ï¿½n de caja
 Route::post("/ajs/caja/cobros/vendedor","CajaVendedorController@obtenerCobrosVendedor")->Middleware([ValidarTokenMiddleware::class]);
 Route::post("/ajs/caja/guardar","CajaVendedorController@guardarRegistroCaja")->Middleware([ValidarTokenMiddleware::class]);
 Route::post("/ajs/caja/registros/historicos","CajaVendedorController@obtenerRegistrosHistoricos")->Middleware([ValidarTokenMiddleware::class]);

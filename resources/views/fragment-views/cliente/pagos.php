@@ -68,11 +68,42 @@
                             <th style="text-align: center;">Situacion</th>
                             <th style="text-align: center;">Dias Vencidos</th>
                             <th style="text-align: center;">Detalles</th>
+                            <th style="text-align: center;">Productos</th>
 
                         </tr>
                         </thead>
 
                     </table>
+                </div>
+
+                <!-- Modal Productos -->
+                <div class="modal fade" id="modalProductos" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="col-xs-12 col-sm-12 col-md-12 no-padding table-responsive">
+                                    <table id="datatableProductos" class="table table-bordered dt-responsive nowrap text-center table-sm" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="text-align: center;">Id</th>
+                                                <th style="text-align: center;">Producto</th>
+                                                <th style="text-align: center;">Cantidad</th>
+                                                <th style="text-align: center;">Precio</th>
+                                                <th style="text-align: center;">Total</th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Modal -->
@@ -317,6 +348,16 @@
                         )}" class="btn btn-success btnDetalles btn-sm"><i class="fa fa-eye"></i> </button></div></div>`;
                     },
                 },
+                {
+                    data: null,
+                    class: "text-center",
+                    render: function(data, type, row) {
+                        return `<div class="text-center">
+                                            <div class="btn-group"><button data-id="${Number(
+                            row.id_compra
+                        )}" class="btn btn-info btnProductos btn-sm"><i class="fa fa-box"></i> </button></div></div>`;
+                    },
+                },
             ],
         });
 
@@ -426,6 +467,51 @@
                 },
             })
         });
+        $("#datatable").on("click", ".btnProductos", function(event) {
+            $("#loader-menor").show();
+            var id = $(this).data("id");
+
+            $("#modalProductos").modal("show");
+            $("#modalProductos")
+                .find(".modal-title")
+                .text("Detalles compra N° " + id);
+
+            $.ajax({
+                url: _URL + "/ajas/getAllProductos/byIdCompra",
+                type: "POST",
+                data: { id: id },
+                success: function(resp) {
+                    $("#loader-menor").hide();
+                    let data = JSON.parse(resp);
+
+                    if ($.fn.DataTable.isDataTable("#datatableProductos")) {
+                        $("#datatableProductos").DataTable().clear().destroy();
+                    }
+
+                    $("#datatableProductos").DataTable({
+                        data: data,
+                        columns: [
+                            { data: "id_producto", className: "text-center" },
+                            { data: "descripcion", className: "text-center" },
+                            { data: "cantidad", className: "text-center" },
+                            { data: "precio", className: "text-center" },
+                            {
+                                data: "total",
+                                className: "text-center",
+                                render: function(data, type, row) {
+                                    return `<div class="text-center"><div class="btn-group"><span class="badge bg-success">${parseFloat(data).toFixed(2)}</span></div></div>`;
+                                }
+                            }
+                        ]
+                    });
+                },
+                error: function(xhr, status, error) {
+                    $("#loader-menor").hide();
+                    console.error("Error en AJAX:", error);
+                }
+            });
+        });
+
         $("#datatableDiasCompras").on("click", ".btnPagar ", function(event) {
             var id = $(this).data("id");
             var montoTotal = parseFloat($(this).data("monto")).toFixed(2);
