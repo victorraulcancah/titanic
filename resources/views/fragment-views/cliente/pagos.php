@@ -106,39 +106,39 @@
                     </div>
                 </div>
 
-                <!-- Modal -->
-                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
+                <!-- Modal Cuotas -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-
                             </div>
                             <div class="modal-body">
-                                <div id="" class="col-xs-12 col-sm-12 col-md-12 no-padding">
-
-
+                                <div class="col-xs-12 col-sm-12 col-md-12 no-padding table-responsive">
+                                    <h4 id="title-cliente-cuotas"></h4>
                                     <table id="datatableDiasCompras" class="table table-bordered dt-responsive nowrap text-center table-sm" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
-
                                         <thead>
-                                        <tr>
-                                            <th style="text-align: center;">Id</th>
-                                            <th style="text-align: center;">Monto</th>
-                                            <th style="text-align: center;">F. Vencimiento</th>
-                                            <th style="text-align: center;">Estado</th>
-                                            <th style="text-align: center;">Pagar</th>
-
-
-                                        </tr>
+                                            <tr>
+                                                <th style="text-align: center;">Id</th>
+                                                <th style="text-align: center;">Monto</th>
+                                                <th style="text-align: center;">F. Pago</th>
+                                                <th style="text-align: center;">Estado</th>
+                                                <th style="text-align: center;">Pago</th>
+                                                <th style="text-align: center;">Accion</th>
+                                            </tr>
                                         </thead>
-
                                     </table>
+                                </div>
+                                <div class="d-flex gap-3 mt-2">
+                                    <p>Total: <input type="text" id="total_cuotas" class="border px-2 py-1" readonly></p>
+                                    <p>Falta pagar: <input type="text" id="restante_total" class="border px-2 py-1" readonly></p>
+                                    <p>Total Pagado: <input type="text" id="total_pagado" class="border px-2 py-1" readonly></p>
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-
+                                <button type="button" class="btn btn-primary" id="btnAgregarPagoCompra"><i class="fas fa-plus"></i> Agregar Pago</button>
+                                <button type="button" class="btn btn-danger cerrarpagos">Cerrar</button>
                             </div>
                         </div>
                     </div>
@@ -201,6 +201,7 @@
         }
 
         datatable = $("#datatable").DataTable({
+            order: [[8, 'asc']],
             paging: true,
             bFilter: true,
             ordering: true,
@@ -296,15 +297,19 @@
                         var yyyy = today.getFullYear();
                         today = mm + '/' + dd + '/' + yyyy;
                         if ((parseFloat(row.total).toFixed(3) == parseFloat(row.pagado).toFixed(3))) {
+                            if (type === 'sort') return 2;
                             return `<div class="text-center">
               <div class="btn-group"><span class="badge bg-success">Pagado</span></div></div>`;
                         } else if ((parseFloat(row.total).toFixed(3) > parseFloat(row.pagado).toFixed(3)) && today > vencimientoFecha) {
+                            if (type === 'sort') return 0;
                             return `<div class="text-center">
               <div class="btn-group"><span class="badge bg-danger">Vencido</span></div></div>`;
                         } else if ((parseFloat(row.total).toFixed(3) > parseFloat(row.pagado).toFixed(3)) && today < vencimientoFecha) {
+                            if (type === 'sort') return 1;
                             return `<div class="text-center">
               <div class="btn-group"><span class="badge bg-info">Vigente</span></div></div>`;
                         }
+                        if (type === 'sort') return 3;
                         return '';
 
 
@@ -367,36 +372,28 @@
             var trid = $(this).closest("tr").attr("id");
             var id = $(this).data("id");
             $("#exampleModal").modal("show");
+            var id_rol = <?= $_SESSION['rol'] ?>;
+            var tr = $(this).closest("tr")[0];
+            var td = tr.querySelectorAll('td')[4];
+            var td_texto = td.innerHTML;
+            var cliente = td_texto.split('|')[1];
+            $("#title-cliente-cuotas").html("Cliente: " + (cliente || ""));
             $("#exampleModal")
                 .find(".modal-title")
                 .text("Detalles compra N° " + id);
             $.ajax({
                 url: _URL + "/ajas/getAllCuotas/byIdCompra",
-                data: {
-                    id: id,
-                },
+                data: { id: id },
                 type: "post",
                 success: function(resp) {
                     $("#loader-menor").hide()
                     resp = JSON.parse(resp)
-                    console.log(resp[0]['fecha']);
 
-                    let vencimiento = resp[0]['fecha']
-                    const [year, month, day] = vencimiento.split('-');
-                    const vencimientoFecha = [month, day, year].join('/');
-                    var today = new Date();
-                    var dd = String(today.getDate()).padStart(2, '0');
-                    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-                    var yyyy = today.getFullYear();
-                    today = mm + '/' + dd + '/' + yyyy;
-                    const dateToday = new Date(today);
-                    const dateVencimiento = new Date(vencimientoFecha);
-                    const diffTime = Math.abs(dateToday - dateVencimiento);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    console.log(today);
-                    console.log('vencimient ' + vencimientoFecha);
+                    if ($.fn.DataTable.isDataTable("#datatableDiasCompras")) {
+                        $("#datatableDiasCompras").DataTable().clear().destroy();
+                    }
+
                     datatableDiasCompras = $("#datatableDiasCompras").DataTable({
-
                         paging: true,
                         bFilter: true,
                         ordering: true,
@@ -406,64 +403,102 @@
                         language: {
                             url: "ServerSide/Spanish.json",
                         },
+                        initComplete: function() {
+                            totalApagar(id);
+                        },
                         columns: [{
                             data: "dias_compra_id",
                             class: "text-center",
+                            render: function(data) {
+                                if (String(data).startsWith('nuevo_')) {
+                                    let num = String(data).replace('nuevo_', '');
+                                    return `<span class="badge bg-info">${num}</span>`;
+                                }
+                                return data;
+                            }
                         },
-                            {
-                                data: "monto",
-                                class: "text-center",
-                            },
-                            {
-                                data: "fecha",
-                                class: "text-center",
-                            },
-                            {
-                                data: null,
-                                class: "text-center",
-                                render: function(data, type, row) {
-
-                                    let vencimiento = row.fecha
+                        {
+                            data: "monto",
+                            class: "text-center",
+                            render: function(data, type, row) {
+                                let isDisabled = (row.estado == 1 && id_rol != 1) ? 'disabled' : '';
+                                return `<input data-cod="${row.dias_compra_id}" class="lisopcpavalor" type="number" step="0.01" min="0" value="${data}" ${isDisabled}>`;
+                            }
+                        },
+                        {
+                            data: "fecha",
+                            class: "text-center",
+                            render: function(data, type, row) {
+                                let fecha;
+                                if (row.estado == '0') {
+                                    const hoy = new Date();
+                                    const year = hoy.getFullYear();
+                                    const month = String(hoy.getMonth() + 1).padStart(2, '0');
+                                    const day = String(hoy.getDate()).padStart(2, '0');
+                                    fecha = year + '-' + month + '-' + day;
+                                } else {
+                                    fecha = (row.fecha && row.fecha != '0000-00-00') ? row.fecha : '';
+                                }
+                                let isDisabled = (row.estado == 1 && id_rol != 1) ? 'disabled' : '';
+                                return `<input data-cod="${row.dias_compra_id}" class="lisopcpafecha" type="date" value="${fecha}" ${isDisabled}>`;
+                            }
+                        },
+                        {
+                            data: null,
+                            class: "text-center",
+                            render: function(data, type, row) {
+                                let vencimiento = row.fecha;
+                                if (vencimiento) {
                                     const [year, month, day] = vencimiento.split('-');
-                                    const vencimientoFecha = [month, day, year].join('/');
+                                    const vencimientoFecha = month + '/' + day + '/' + year;
                                     var today = new Date();
                                     var dd = String(today.getDate()).padStart(2, '0');
-                                    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                                    var mm = String(today.getMonth() + 1).padStart(2, '0');
                                     var yyyy = today.getFullYear();
                                     today = mm + '/' + dd + '/' + yyyy;
                                     if ((today > vencimientoFecha) && row.estado == '0') {
-                                        return `<div class="text-center">
-              <div class="btn-group"><span class="badge bg-danger">Vencido</span></div></div>`;
-                                    } else if ((today < vencimientoFecha || vencimientoFecha == today) && row.estado == '0') {
-                                        return `<div class="text-center">
-              <div class="btn-group"><span class="badge bg-success">Vigente</span></div></div>`;
+                                        return '<div class="text-center"><div class="btn-group"><span class="badge bg-danger">Vencido</span></div></div>';
+                                    } else if ((today <= vencimientoFecha) && row.estado == '0') {
+                                        return '<div class="text-center"><div class="btn-group"><span class="badge bg-success">Vigente</span></div></div>';
                                     } else if (row.estado == '1') {
-                                        return `<div class="text-center">
-              <div class="btn-group"><span class="badge bg-info">Pagado</span></div></div>`;
+                                        return '<div class="text-center"><div class="btn-group"><span class="badge bg-info">Pagado</span></div></div>';
                                     }
-
-
-                                },
-                            },
-                            {
-                                data: null,
-                                class: "text-center",
-                                render: function(data, type, row) {
-                                    if (row.estado == '0') {
-                                        return `<div class="text-center">
-                                            <div class="btn-group"><button data-id="${Number(row.dias_compra_id)}" data-monto="${row.monto}" class="btn btn-success btnPagar btn-sm"><i class="fas fa-money-bill"></i> </button></div></div>`;
-                                    }
-                                    if (row.estado == '1') {
-                                        return `<div class="text-center">
-                                            <div class="btn-group"></div></div>`;
-                                    }
-                                },
-                            },
-
+                                }
+                                return '';
+                            }
+                        },
+                        {
+                            data: null,
+                            class: "text-center",
+                            render: function(data, type, row) {
+                                let dbPago = (row.tipo_pago || '').toUpperCase();
+                                let opciones = ["Efectivo", "Plin", "Yape", "BCP", "BBVA"].map(function(item) {
+                                    let uiItem = item.toUpperCase();
+                                    let selected = (uiItem === dbPago || dbPago.includes(uiItem)) ? 'selected' : '';
+                                    return '<option ' + selected + ' value="' + item + '">' + item + '</option>';
+                                });
+                                let isDisabled = (row.estado == 1 && id_rol != 1) ? 'disabled' : '';
+                                return '<select data-cod="' + row.dias_compra_id + '" class="lisopcpa" ' + isDisabled + '><option disabled selected value="">Elija Uno</option>' + opciones.join("") + '</select>';
+                            }
+                        },
+                        {
+                            data: null,
+                            class: "text-center",
+                            render: function(data, type, row) {
+                                let content = '<div class="text-center">';
+                                if (row.estado == '0') {
+                                    content += '<div class="btn-group"><button data-id="' + row.dias_compra_id + '" class="btn btn-success btnPagar btn-sm"><i class="fas fa-money-bill"></i></button></div>';
+                                }
+                                if (row.estado == '1' && id_rol == 1) {
+                                    content += '<div class="btn-group"><button data-id="' + row.dias_compra_id + '" class="btn btn-warning btnEditarPagoCompra btn-sm" title="Guardar cambios"><i class="fas fa-save"></i></button></div>';
+                                    content += '<div class="btn-group"><button data-id="' + row.dias_compra_id + '" class="btn btn-danger btnEliminarPagoCompra btn-sm"><i class="fas fa-trash"></i></button></div>';
+                                }
+                                content += '</div>';
+                                return content;
+                            }
+                        }
                         ],
                     });
-
-
                 },
             })
         });
@@ -512,50 +547,212 @@
             });
         });
 
-        $("#datatableDiasCompras").on("click", ".btnPagar ", function(event) {
-            var id = $(this).data("id");
-            var montoTotal = parseFloat($(this).data("monto")).toFixed(2);
+        function totalApagar(id) {
+            var total = 0;
+            var pagado = 0;
 
-            // Cerrar el modal de Bootstrap antes de abrir SweetAlert para evitar conflicto de focus trap
-            var bsModal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
-            if (bsModal) bsModal.hide();
+            if ($.fn.DataTable.isDataTable("#datatableDiasCompras")) {
+                var table = $("#datatableDiasCompras").DataTable();
+                table.rows().every(function() {
+                    var row = this.data();
+                    var monto = parseFloat(row.monto) || 0;
+                    total += monto;
+                    if (row.estado == '1') {
+                        pagado += monto;
+                    }
+                });
+            }
+
+            var restante = total - pagado;
+            $("#total_cuotas").val(total.toFixed(2));
+            $("#total_pagado").val(pagado.toFixed(2));
+            $("#restante_total").val(restante.toFixed(2));
+        }
+
+        $("#datatableDiasCompras").on("change", ".lisopcpavalor", function() {
+            var totalVenta = parseFloat($("#total_cuotas").val()) || 0;
+            var montos = $(".lisopcpavalor");
+            var pagado = 0;
+
+            montos.each(function() {
+                pagado += parseFloat($(this).val()) || 0;
+            });
+
+            pagado = Math.round(pagado * 100) / 100;
+            totalVenta = Math.round(totalVenta * 100) / 100;
+            var restante = Math.round((totalVenta - pagado) * 100) / 100;
+
+            if (pagado > totalVenta + 0.01) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No puedes cobrar mas del total. Total: S/ ' + totalVenta.toFixed(2),
+                    icon: 'error'
+                });
+                $(this).val('0');
+                pagado = 0;
+                montos.each(function() {
+                    pagado += parseFloat($(this).val()) || 0;
+                });
+                pagado = Math.round(pagado * 100) / 100;
+                restante = Math.round((totalVenta - pagado) * 100) / 100;
+            }
+
+            $("#total_pagado").val(pagado.toFixed(2));
+            $("#restante_total").val(restante.toFixed(2));
+        });
+
+        $("#datatableDiasCompras").on("click", ".btnPagar", function() {
+            var fila = $(this).closest("tr");
+            var id = $(this).data("id");
+            var monto = fila.find('.lisopcpavalor').val();
+            var fecha = fila.find('.lisopcpafecha').val();
+            var tipo_pago = fila.find('.lisopcpa').val();
+
+            if (isNaN(monto) || parseFloat(monto) <= 0) {
+                Swal.fire({ title: 'Primero debe ingresar un monto', icon: "error" });
+                return;
+            }
+            if (!tipo_pago) {
+                Swal.fire({ title: 'Elija el tipo de pago', icon: "error" });
+                return;
+            }
+            if (!fecha) {
+                Swal.fire({ title: 'Debe elegir la fecha', icon: "error" });
+                return;
+            }
 
             Swal.fire({
                 title: 'Pagar cuota N° ' + id,
-                input: 'text',
-                inputLabel: 'Monto a pagar (máx. S/ ' + montoTotal + ')',
-                inputValue: montoTotal,
+                text: 'Monto: S/ ' + parseFloat(monto).toFixed(2),
+                icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Pagar',
-                cancelButtonText: 'Cancelar',
-                preConfirm: function(monto) {
-                    monto = parseFloat(monto);
-                    if (!monto || monto <= 0) {
-                        Swal.showValidationMessage('Ingrese un monto válido');
-                        return false;
-                    }
-                    if (monto > parseFloat(montoTotal)) {
-                        Swal.showValidationMessage('No puede pagar más que S/ ' + montoTotal);
-                        return false;
-                    }
-                    return monto;
-                }
-            }).then((result) => {
+                confirmButtonText: 'Si'
+            }).then(function(result) {
                 if (result.isConfirmed) {
-                    $("#loader-menor").show()
+                    $("#loader-menor").show();
                     $.ajax({
                         type: 'POST',
                         url: _URL + '/ajs/pagar/cuota/pago',
-                        data: { id: id, monto_pagado: result.value },
-                        success: function(resp) {
-                            $("#loader-menor").hide()
+                        data: { id: id, monto_pagado: monto, tipo_pago: tipo_pago, fecha_pago: fecha },
+                        success: function() {
+                            $("#loader-menor").hide();
                             location.reload();
                         }
                     });
                 }
-            })
-        })
+            });
+        });
+
+        $("#datatableDiasCompras").on("click", ".btnEditarPagoCompra", function() {
+            var id = $(this).data("id");
+            var fila = $(this).closest("tr");
+            var monto = fila.find('.lisopcpavalor').val();
+            var fecha = fila.find('.lisopcpafecha').val();
+            var tipo_pago = fila.find('.lisopcpa').val();
+
+            if (isNaN(monto) || parseFloat(monto) <= 0) {
+                Swal.fire({ title: 'El monto debe ser mayor a 0', icon: "error" });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Guardar cambios en cuota N° ' + id,
+                text: 'Nuevo monto: S/ ' + parseFloat(monto).toFixed(2),
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si, guardar'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $("#loader-menor").show();
+                    $.ajax({
+                        type: 'POST',
+                        url: _URL + '/ajs/editar/cuota/compras',
+                        data: { id: id, monto: monto, fecha: fecha, tipo_pago: tipo_pago },
+                        success: function(resp) {
+                            $("#loader-menor").hide();
+                            var data = JSON.parse(resp);
+                            if (data.res) {
+                                Swal.fire({ title: 'Exito', text: 'Cuota actualizada', icon: 'success', timer: 1500, showConfirmButton: false }).then(function() {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({ title: 'Error', text: data.msg || 'No se pudo actualizar', icon: 'error' });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        $("#datatableDiasCompras").on("click", ".btnEliminarPagoCompra", function() {
+            var id = $(this).data("id");
+            Swal.fire({
+                title: 'Eliminar pago cuota N° ' + id + '?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $("#loader-menor").show();
+                    $.ajax({
+                        type: 'POST',
+                        url: _URL + '/ajs/pagar/cuota/eliminar/compra',
+                        data: { id: id },
+                        success: function() {
+                            $("#loader-menor").hide();
+                            location.reload();
+                        }
+                    });
+                }
+            });
+        });
+
+        $('.cerrarpagos').click(function() {
+            $('#exampleModal').modal('hide');
+        });
+
+        $('#btnAgregarPagoCompra').click(function() {
+            var restante = parseFloat($('#restante_total').val());
+            if (isNaN(restante) || restante <= 0) {
+                Swal.fire({ title: 'No hay saldo pendiente', text: 'La deuda ya esta completamente pagada', icon: 'info' });
+                return;
+            }
+
+            var table = $('#datatableDiasCompras').DataTable();
+            var maxId = 0;
+            table.rows().every(function() {
+                var row = this.data();
+                var currentId = parseInt(row.dias_compra_id);
+                if (!isNaN(currentId) && currentId > maxId) {
+                    maxId = currentId;
+                }
+            });
+
+            var nuevoId = maxId + 1;
+            var hoy = new Date();
+            var year = hoy.getFullYear();
+            var month = String(hoy.getMonth() + 1).padStart(2, '0');
+            var day = String(hoy.getDate()).padStart(2, '0');
+            var fechaHoy = year + '-' + month + '-' + day;
+
+            var nuevaFila = {
+                dias_compra_id: 'nuevo_' + nuevoId,
+                monto: '0.00',
+                fecha: fechaHoy,
+                estado: '0',
+                tipo_pago: '',
+                tipo_doc: 'v',
+                es_nuevo: true
+            };
+
+            table.row.add(nuevaFila).draw();
+            totalApagar();
+        });
     });
 </script>

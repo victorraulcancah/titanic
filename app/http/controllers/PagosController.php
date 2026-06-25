@@ -32,10 +32,8 @@ class PagosController extends Controller
     }
     public function getAllByIdCompra()
     {
-
-
         try {
-            $sql = "SELECT * FROM dias_compras WHERE id_compra = '{$_POST['id']}'";
+            $sql = "SELECT dc.*, 'v' as tipo_doc FROM dias_compras dc WHERE dc.id_compra = '{$_POST['id']}'";
             $fila = mysqli_query($this->conectar, $sql);
             return json_encode(mysqli_fetch_all($fila, MYSQLI_ASSOC));
         } catch (Exception $e) {
@@ -69,6 +67,18 @@ class PagosController extends Controller
     {
         $id      = intval($_POST['id']);
         $montoPagado = isset($_POST['monto_pagado']) ? floatval($_POST['monto_pagado']) : null;
+        $tipo_pago = isset($_POST['tipo_pago']) ? $_POST['tipo_pago'] : 'Efectivo';
+        $fecha_pago = isset($_POST['fecha_pago']) ? $_POST['fecha_pago'] : date('Y-m-d');
+
+        date_default_timezone_set('America/Lima');
+        $fecha_pago_real = date('Y-m-d H:i:s');
+
+        $id_usuario = null;
+        if (isset($_SESSION['usuario_fac']) && !empty($_SESSION['usuario_fac'])) {
+            $id_usuario = $_SESSION['usuario_fac'];
+        } elseif (isset($_SESSION['usuario_id']) && !empty($_SESSION['usuario_id'])) {
+            $id_usuario = $_SESSION['usuario_id'];
+        }
 
         // Obtener la cuota actual
         $cuota = $this->conectar->query("SELECT * FROM dias_compras WHERE dias_compra_id = '$id'")->fetch_assoc();
@@ -81,7 +91,7 @@ class PagosController extends Controller
 
         // Si no se envió monto o es igual/mayor al total → pago completo
         if ($montoPagado === null || $montoPagado >= $montoTotal) {
-            $sql = "UPDATE dias_compras SET estado = '1' WHERE dias_compra_id = '$id'";
+            $sql = "UPDATE dias_compras SET estado = '1', tipo_pago = '$tipo_pago', fecha = '$fecha_pago', id_usuario = " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", fecha_pago_real = '$fecha_pago_real' WHERE dias_compra_id = '$id'";
             $this->conectar->query($sql);
             echo json_encode(["res" => true]);
             return;
@@ -89,7 +99,7 @@ class PagosController extends Controller
 
         // Pago parcial: actualizar cuota actual con el monto pagado y marcarla pagada
         $saldo = round($montoTotal - $montoPagado, 2);
-        $this->conectar->query("UPDATE dias_compras SET estado = '1', monto = '$montoPagado' WHERE dias_compra_id = '$id'");
+        $this->conectar->query("UPDATE dias_compras SET estado = '1', monto = '$montoPagado', tipo_pago = '$tipo_pago', fecha = '$fecha_pago', id_usuario = " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", fecha_pago_real = '$fecha_pago_real' WHERE dias_compra_id = '$id'");
 
         // Crear nueva cuota con el saldo pendiente
         $idCompra = intval($cuota['id_compra']);
@@ -289,6 +299,52 @@ class PagosController extends Controller
 
             echo json_encode($result);
         }
+    }
+
+    public function editarCuotaCompras()
+    {
+        if ($_SESSION['rol'] != 1) {
+            echo json_encode(["res" => false, "msg" => "No tienes permisos para editar pagos"]);
+            return;
+        }
+
+        if (!isset($_POST['id']) || !isset($_POST['monto'])) {
+            echo json_encode(["res" => false, "msg" => "Faltan parametros requeridos"]);
+            return;
+        }
+
+        $id = intval($_POST['id']);
+        $monto = floatval($_POST['monto']);
+        $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : date('Y-m-d');
+        $tipo_pago = isset($_POST['tipo_pago']) ? $_POST['tipo_pago'] : 'Efectivo';
+
+        if ($monto <= 0) {
+            echo json_encode(["res" => false, "msg" => "El monto debe ser mayor a 0"]);
+            return;
+        }
+
+        $sql = "UPDATE dias_compras SET monto = '$monto', fecha = '$fecha', tipo_pago = '$tipo_pago' WHERE dias_compra_id = '$id'";
+        $result = $this->conectar->query($sql);
+
+        if ($result) {
+            echo json_encode(["res" => true, "msg" => "Cuota actualizada correctamente"]);
+        } else {
+            echo json_encode(["res" => false, "msg" => "Error al actualizar la cuota"]);
+        }
+    }
+
+    public function eliminarPagoCuotaCompras()
+    {
+        if ($_SESSION['rol'] == 3) {
+            echo json_encode(["res" => false, "msg" => "No tienes permisos para eliminar pagos"]);
+            return;
+        }
+
+        $id = intval($_POST['id']);
+        $sql = "UPDATE dias_compras SET estado = '0', tipo_pago = NULL, id_usuario = NULL, fecha_pago_real = NULL WHERE dias_compra_id = '$id'";
+        $result = $this->conectar->query($sql);
+
+        echo json_encode(["res" => $result]);
     }
 
     public function getAllProductosByIdCompra()

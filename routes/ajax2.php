@@ -95,6 +95,8 @@ Route::post('/ajas/cuentas/ventas/render',"PagosController@render");
 Route::post('/ajas/getAllCuotas/byIdCompra',"PagosController@getAllByIdCompra");
 Route::post('/ajs/pagar/cuota/pago',"PagosController@pagarCuota");
 Route::post('/ajas/getAllProductos/byIdCompra',"PagosController@getAllProductosByIdCompra");
+Route::post('/ajs/editar/cuota/compras',"PagosController@editarCuotaCompras");
+Route::post('/ajs/pagar/cuota/eliminar/compra',"PagosController@eliminarPagoCuotaCompras");
 
 
 Route::post("/ajas/ventas/porempresa","VentasController@listaVentasPorEmpresa");
