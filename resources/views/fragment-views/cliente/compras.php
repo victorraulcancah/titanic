@@ -50,8 +50,9 @@
                             <th style="text-align: center;">F. Vencimiento</th>
                             <th style="text-align: center;">Serie</th>
                             <th style="text-align: center;">Numero</th>
-                            <th style="text-align: center;" width="50%">Razon Social</th>
-                            <th style="text-align: center;">Editar</th>
+<th style="text-align: center;" width="50%">Razon Social</th>
+                             <th style="text-align: center;">Total</th>
+                             <th style="text-align: center;">Editar</th>
                             <th style="text-align: center;">Detalles</th>
                             <th style="text-align: center;">Reporte</th>
                         </tr>
@@ -162,7 +163,13 @@
                     data: "razon_social",
                     class: "text-center",
                 },
-
+                {
+                    data: "total",
+                    class: "text-center",
+                    render: function(data, type, row) {
+                        return "S/ " + parseFloat(data).toFixed(2);
+                    },
+                },
                 {
                     data: null,
                     class: "text-center",

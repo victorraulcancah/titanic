@@ -159,7 +159,7 @@ class ComprasController extends Controller
     public function getAll()
     {
         $where = ($_SESSION['rol'] == 1) ? "" : "and c.sucursal = {$_SESSION["sucursal"]} ";
-        $sql = "SELECT c.id_compra,c.fecha_emision,c.fecha_vencimiento,c.serie,c.numero,COALESCE(NULLIF(p.nombre_comercial, ''), p.razon_social) as razon_social FROM compras AS c LEFT JOIN proveedores AS p ON
+        $sql = "SELECT c.id_compra,c.fecha_emision,c.fecha_vencimiento,c.serie,c.numero,c.total,COALESCE(NULLIF(p.nombre_comercial, ''), p.razon_social) as razon_social FROM compras AS c LEFT JOIN proveedores AS p ON
         c.id_proveedor=p.proveedor_id where c.id_empresa='{$_SESSION['id_empresa']}' $where";
         //echo $sql;
         return $this->conectar->query($sql)->fetch_all(MYSQLI_ASSOC);

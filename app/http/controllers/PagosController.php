@@ -65,7 +65,8 @@ class PagosController extends Controller
     }
     public function pagarCuota()
     {
-        $id      = intval($_POST['id']);
+        $id      = $_POST['id'];
+        $es_nuevo = isset($_POST['es_nuevo']) ? intval($_POST['es_nuevo']) : 0;
         $montoPagado = isset($_POST['monto_pagado']) ? floatval($_POST['monto_pagado']) : null;
         $tipo_pago = isset($_POST['tipo_pago']) ? $_POST['tipo_pago'] : 'Efectivo';
         $fecha_pago = isset($_POST['fecha_pago']) ? $_POST['fecha_pago'] : date('Y-m-d');
@@ -80,8 +81,28 @@ class PagosController extends Controller
             $id_usuario = $_SESSION['usuario_id'];
         }
 
+        // Si es una cuota nueva (agregada desde el modal)
+        if ($es_nuevo == 1) {
+            $idCompra = isset($_POST['id_compra']) ? intval($_POST['id_compra']) : 0;
+            if ($idCompra <= 0) {
+                echo json_encode(["res" => false, "msg" => "Compra no especificada"]);
+                return;
+            }
+            if ($montoPagado === null || $montoPagado <= 0) {
+                echo json_encode(["res" => false, "msg" => "Monto invalido"]);
+                return;
+            }
+            $sql = "INSERT INTO dias_compras (id_compra, monto, fecha, estado, tipo_pago, id_usuario, fecha_pago_real) 
+                    VALUES ('$idCompra', '$montoPagado', '$fecha_pago', '1', '$tipo_pago', " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", '$fecha_pago_real')";
+            $this->conectar->query($sql);
+            echo json_encode(["res" => true, "insert_id" => $this->conectar->insert_id]);
+            return;
+        }
+
+        $idInt = intval($id);
+
         // Obtener la cuota actual
-        $cuota = $this->conectar->query("SELECT * FROM dias_compras WHERE dias_compra_id = '$id'")->fetch_assoc();
+        $cuota = $this->conectar->query("SELECT * FROM dias_compras WHERE dias_compra_id = '$idInt'")->fetch_assoc();
         if (!$cuota) {
             echo json_encode(["res" => false, "msg" => "Cuota no encontrada"]);
             return;
@@ -91,7 +112,7 @@ class PagosController extends Controller
 
         // Si no se envió monto o es igual/mayor al total → pago completo
         if ($montoPagado === null || $montoPagado >= $montoTotal) {
-            $sql = "UPDATE dias_compras SET estado = '1', tipo_pago = '$tipo_pago', fecha = '$fecha_pago', id_usuario = " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", fecha_pago_real = '$fecha_pago_real' WHERE dias_compra_id = '$id'";
+            $sql = "UPDATE dias_compras SET estado = '1', tipo_pago = '$tipo_pago', fecha = '$fecha_pago', id_usuario = " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", fecha_pago_real = '$fecha_pago_real' WHERE dias_compra_id = '$idInt'";
             $this->conectar->query($sql);
             echo json_encode(["res" => true]);
             return;
@@ -99,7 +120,7 @@ class PagosController extends Controller
 
         // Pago parcial: actualizar cuota actual con el monto pagado y marcarla pagada
         $saldo = round($montoTotal - $montoPagado, 2);
-        $this->conectar->query("UPDATE dias_compras SET estado = '1', monto = '$montoPagado', tipo_pago = '$tipo_pago', fecha = '$fecha_pago', id_usuario = " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", fecha_pago_real = '$fecha_pago_real' WHERE dias_compra_id = '$id'");
+        $this->conectar->query("UPDATE dias_compras SET estado = '1', monto = '$montoPagado', tipo_pago = '$tipo_pago', fecha = '$fecha_pago', id_usuario = " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", fecha_pago_real = '$fecha_pago_real' WHERE dias_compra_id = '$idInt'");
 
         // Crear nueva cuota con el saldo pendiente
         $idCompra = intval($cuota['id_compra']);

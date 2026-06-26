@@ -381,6 +381,7 @@
             $("#exampleModal")
                 .find(".modal-title")
                 .text("Detalles compra N° " + id);
+            $("#exampleModal").data("id_compra", id);
             $.ajax({
                 url: _URL + "/ajas/getAllCuotas/byIdCompra",
                 data: { id: id },
@@ -621,6 +622,14 @@
                 return;
             }
 
+            var esNuevo = String(id).startsWith('nuevo_');
+            var idCompra = $("#exampleModal").data("id_compra");
+
+            if (esNuevo && !idCompra) {
+                Swal.fire({ title: 'Error', text: 'No se encontro la compra asociada', icon: 'error' });
+                return;
+            }
+
             Swal.fire({
                 title: 'Pagar cuota N° ' + id,
                 text: 'Monto: S/ ' + parseFloat(monto).toFixed(2),
@@ -632,13 +641,31 @@
             }).then(function(result) {
                 if (result.isConfirmed) {
                     $("#loader-menor").show();
+                    var data = { id: id, monto_pagado: monto, tipo_pago: tipo_pago, fecha_pago: fecha };
+                    if (esNuevo) {
+                        data.es_nuevo = 1;
+                        data.id_compra = idCompra;
+                    }
                     $.ajax({
                         type: 'POST',
                         url: _URL + '/ajs/pagar/cuota/pago',
-                        data: { id: id, monto_pagado: monto, tipo_pago: tipo_pago, fecha_pago: fecha },
-                        success: function() {
+                        data: data,
+                        success: function(resp) {
                             $("#loader-menor").hide();
-                            location.reload();
+                            try {
+                                var r = JSON.parse(resp);
+                                if (r.res) {
+                                    location.reload();
+                                } else {
+                                    Swal.fire({ title: 'Error', text: r.msg || r.error || 'No se pudo registrar el pago', icon: 'error' });
+                                }
+                            } catch(e) {
+                                location.reload();
+                            }
+                        },
+                        error: function() {
+                            $("#loader-menor").hide();
+                            Swal.fire({ title: 'Error', text: 'Error de conexion al registrar el pago', icon: 'error' });
                         }
                     });
                 }
