@@ -635,11 +635,7 @@
                     ],
                 });
             },
-<<<<<<< HEAD
             error: function(xhr, status, error) {
-=======
-            error: function (error) {
->>>>>>> a01aeac (modified:   app/http/controllers/ClientesController.php)
                 console.error("Error al cargar los datos:", error);
                 console.error("Status:", status);
                 console.error("Response Status:", xhr.status);

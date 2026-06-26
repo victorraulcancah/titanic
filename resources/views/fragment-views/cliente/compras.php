@@ -53,7 +53,6 @@
                             <th style="text-align: center;" width="50%">Razon Social</th>
                             <th style="text-align: center;">Editar</th>
                             <th style="text-align: center;">Detalles</th>
-                            <th style="text-align: center;">Productos</th>
                             <th style="text-align: center;">Reporte</th>
                         </tr>
                         </thead>
@@ -62,13 +61,39 @@
                 </div>
 
                 <div class="modal fade" id="modalDetalle" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content modal-xl">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document" style="max-width: 900px;">
+                        <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLabel">Detalles de Productos</h5>
                             </div>
                             <div class="modal-body">
-                                <table id="datatableProductoDetalle" class="table table-bordered dt-responsive  text-center table-sm" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                                <div class="row mb-3" id="infoCards">
+                                    <div class="col-md-4">
+                                        <div class="card text-white bg-primary">
+                                            <div class="card-body text-center py-3">
+                                                <h6 class="card-title m-0">Total Productos</h6>
+                                                <h3 class="m-0" id="totalProductos">0</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-white bg-success">
+                                            <div class="card-body text-center py-3">
+                                                <h6 class="card-title m-0">Cantidad Total</h6>
+                                                <h3 class="m-0" id="cantidadTotal">0</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-white bg-info">
+                                            <div class="card-body text-center py-3">
+                                                <h6 class="card-title m-0">Total</h6>
+                                                <h3 class="m-0" id="totalMonto">S/ 0.00</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <table id="datatableProductoDetalle" class="table table-bordered dt-responsive text-center table-sm" style="border-collapse: collapse; border-spacing: 0; width: 100%;">
 
                                     <thead>
                                     <tr>
@@ -161,16 +186,6 @@
                     class: "text-center",
                     render: function(data, type, row) {
                         return `<div class="text-center">
-              <div class="btn-group"><button data-id="${Number(
-                            row.id_compra
-                        )}" class="btn btn-sm btn-info btnProductosCompra"><i class="fa fa-cube"></i> </button></div></div>`;
-                    },
-                },
-                {
-                    data: null,
-                    class: "text-center",
-                    render: function(data, type, row) {
-                        return `<div class="text-center">
               <div class="btn-group"><a target="_blank" class="btn btn-sm btn-info" href="${_URL}/reporte/compras/pdf/${row.id_compra}" ><i class="fa fa-file"></i> </a></div></div>`;
                     },
                 },
@@ -179,54 +194,6 @@
 
 
         
-        $("#datatable").on("click", ".btnProductosCompra", function(event) {
-            $("#loader-menor").show()
-            var id = $(this).data("id");
-            $("#modalDetalle").modal("show");
-            $("#modalDetalle")
-                .find(".modal-title")
-                .text("Productos - Compra N°" + id);
-            $.ajax({
-                type: 'POST',
-                url: _URL + '/ajas/compra/detalle',
-                data: {
-                    id: id
-                },
-                success: function(resp) {
-                    $("#loader-menor").hide()
-                    let data = JSON.parse(resp)
-                    datatableProductoDetalle = $("#datatableProductoDetalle").DataTable({
-                        paging: true,
-                        bFilter: true,
-                        ordering: true,
-                        searching: true,
-                        destroy: true,
-                        language: {
-                            url: "ServerSide/Spanish.json",
-                        },
-                        data: data,
-                        columns: [{
-                            data: "id_producto_venta",
-                            class: "text-center",
-                        },
-                            {
-                                data: "descripcion",
-                                class: "text-center",
-                            },
-                            {
-                                data: "cantidad",
-                                class: "text-center",
-                            },
-                            {
-                                data: "precio",
-                                class: "text-center",
-                            },
-                        ],
-                    });
-                }
-            });
-        });
-
         $("#datatable").on("click", ".btnDetalle ", function(event) {
             $("#loader-menor").show()
             var table = $("#tabla_clientes").DataTable();
@@ -245,6 +212,18 @@
                 success: function(resp) {
                     $("#loader-menor").hide()
                     let data = JSON.parse(resp)
+
+                    let totalProductos = data.length;
+                    let cantidadTotal = data.reduce((sum, item) => sum + Number(item.cantidad), 0);
+                    let totalMonto = data.reduce((sum, item) => sum + (Number(item.cantidad) * Number(item.precio)), 0);
+
+                    $("#totalProductos").text(totalProductos);
+                    $("#cantidadTotal").text(cantidadTotal);
+                    $("#totalMonto").text("S/ " + totalMonto.toFixed(2));
+
+                    if ($.fn.DataTable.isDataTable("#datatableProductoDetalle")) {
+                        $("#datatableProductoDetalle").DataTable().destroy();
+                    }
                     datatableProductoDetalle = $("#datatableProductoDetalle").DataTable({
 
                         paging: true,
