@@ -92,9 +92,13 @@ class PagosController extends Controller
                 echo json_encode(["res" => false, "msg" => "Monto invalido"]);
                 return;
             }
-            $sql = "INSERT INTO dias_compras (id_compra, monto, fecha, estado, tipo_pago, id_usuario, fecha_pago_real) 
-                    VALUES ('$idCompra', '$montoPagado', '$fecha_pago', '1', '$tipo_pago', " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", '$fecha_pago_real')";
+            $sql = "INSERT INTO dias_compras (id_compra, monto, fecha, estado) 
+                    VALUES ('$idCompra', '$montoPagado', '$fecha_pago', '1')";
             $this->conectar->query($sql);
+            if ($this->conectar->affected_rows <= 0) {
+                echo json_encode(["res" => false, "msg" => "No se pudo registrar el pago."]);
+                return;
+            }
             echo json_encode(["res" => true, "insert_id" => $this->conectar->insert_id]);
             return;
         }
@@ -112,15 +116,24 @@ class PagosController extends Controller
 
         // Si no se envió monto o es igual/mayor al total → pago completo
         if ($montoPagado === null || $montoPagado >= $montoTotal) {
-            $sql = "UPDATE dias_compras SET estado = '1', tipo_pago = '$tipo_pago', fecha = '$fecha_pago', id_usuario = " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", fecha_pago_real = '$fecha_pago_real' WHERE dias_compra_id = '$idInt'";
+            $sql = "UPDATE dias_compras SET estado = '1', fecha = '$fecha_pago' WHERE dias_compra_id = '$idInt'";
             $this->conectar->query($sql);
+            if ($this->conectar->affected_rows <= 0) {
+                echo json_encode(["res" => false, "msg" => "No se pudo actualizar la cuota. Verifique que exista."]);
+                return;
+            }
             echo json_encode(["res" => true]);
             return;
         }
 
         // Pago parcial: actualizar cuota actual con el monto pagado y marcarla pagada
         $saldo = round($montoTotal - $montoPagado, 2);
-        $this->conectar->query("UPDATE dias_compras SET estado = '1', monto = '$montoPagado', tipo_pago = '$tipo_pago', fecha = '$fecha_pago', id_usuario = " . ($id_usuario ? "'$id_usuario'" : "NULL") . ", fecha_pago_real = '$fecha_pago_real' WHERE dias_compra_id = '$idInt'");
+        $sqlUpdate = "UPDATE dias_compras SET estado = '1', monto = '$montoPagado', fecha = '$fecha_pago' WHERE dias_compra_id = '$idInt'";
+        $this->conectar->query($sqlUpdate);
+        if ($this->conectar->affected_rows <= 0) {
+            echo json_encode(["res" => false, "msg" => "No se pudo actualizar la cuota. Verifique que exista."]);
+            return;
+        }
 
         // Crear nueva cuota con el saldo pendiente
         $idCompra = intval($cuota['id_compra']);
