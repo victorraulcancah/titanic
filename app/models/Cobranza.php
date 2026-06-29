@@ -4,9 +4,7 @@
 
 class Cobranza
 {
-    private $conectar; // Declarar la propiedad para evitar deprecated warning en PHP 8.2+
-    
-
+    public $conectar;
     public function __construct()
     {
         $this->conectar = (new Conexion())->getConexion();
@@ -130,20 +128,11 @@ class Cobranza
         }
 
         $fila = mysqli_query($this->conectar, $sql);
-        
-        if (!$fila) {
-            error_log("Error en getAllCobranzas SQL: " . mysqli_error($this->conectar));
-            error_log("SQL Query: " . $sql);
-            return [];
-        }
-        
         $lista = mysqli_fetch_all($fila, MYSQLI_ASSOC);
 
         return $lista;
     } catch (Exception $e) {
-        error_log("Exception en getAllCobranzas: " . $e->getMessage());
-        error_log($e->getTraceAsString());
-        return [];
+        echo $e->getTraceAsString();
     }
 }
  public function getAllDeudas()
