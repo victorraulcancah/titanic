@@ -629,6 +629,9 @@
                     ],
                 });
                 sumarTotales();
+                datatable.on('draw.dt', function () {
+                    sumarTotales();
+                });
             },
             error: function (error) {
                 console.error("Error al cargar los datos:", error);
