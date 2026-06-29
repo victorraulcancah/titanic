@@ -6132,7 +6132,7 @@ class Otl
 		// http://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 		// http://www.microsoft.com/typography/otspec/languagetags.htm
 		// IETF tag = e.g. en-US, und-Arab, sr-Cyrl cf. class LangToFont
-		if ($available == '') {
+		if ($available == '' || $ietf === null || $ietf === '') {
 			return '';
 		}
 		$tags = preg_split('/-/', $ietf);
