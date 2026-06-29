@@ -108,17 +108,15 @@ class ClientesController extends Controller
             $tieneLosTresFiltros = !empty($diasVisita) && !empty($ruta) && !empty($fecha_fin);
 
             if ($tieneLosTresFiltros) {
-                // Ordenamiento: primero mercado, luego cliente (solo nombre), luego fecha
                 $orderBy = "ORDER BY 
-                    CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC,
-                    SUBSTRING_INDEX(tb.cliente, '|', -1) ASC,
-                    tb.fecha_emision DESC";
+                    CAST(CASE WHEN mercado IS NULL OR mercado = '' THEN 999 ELSE mercado END AS UNSIGNED) ASC,
+                    SUBSTRING_INDEX(cliente, '|', -1) ASC,
+                    fecha_emision DESC";
             } else {
-                // Ordenamiento por defecto: primero mercado, luego cliente (solo nombre), luego fecha
                 $orderBy = "ORDER BY 
-                    CAST(CASE WHEN tb.mercado IS NULL OR tb.mercado = '' THEN 999 ELSE tb.mercado END AS UNSIGNED) ASC,
-                    SUBSTRING_INDEX(tb.cliente, '|', -1) ASC,
-                    tb.fecha_emision DESC";
+                    CAST(CASE WHEN mercado IS NULL OR mercado = '' THEN 999 ELSE mercado END AS UNSIGNED) ASC,
+                    SUBSTRING_INDEX(cliente, '|', -1) ASC,
+                    fecha_emision DESC";
             }
 
             // Variables condicionales para ventas
