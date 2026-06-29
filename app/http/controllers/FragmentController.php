@@ -133,7 +133,7 @@ class FragmentController extends Controller
                     </div>
                     <div class='footer'>
                         <p style='text-align: right; font-size: 16px;'> <strong>TOTAL PAGADO : S/ " . number_format($totalpagado, 2) . "</strong></p>
-                        <p style='text-align: right; font-size: 16px; color: red;'> <strong>SALDO PENDIENTE : S/ " . number_format($totalpagado > 0 ? ($cotizacion['total'] - $totalpagado) : 0, 2) . "</strong></p>
+                        <p style='text-align: right; font-size: 16px; color: red;'> <strong>SALDO PENDIENTE : S/ " . number_format($cotizacion['total'] - $totalpagado, 2) . "</strong></p>
                     </div>
                 </body>
                 </html>";
