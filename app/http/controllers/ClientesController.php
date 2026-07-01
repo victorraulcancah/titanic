@@ -646,7 +646,7 @@ class ClientesController extends Controller
             $telefonoIntVal = intval($telefonoAgregar);
             $docIntVal = intval($doc);
             $id_ruta = trim($_POST['ruta']);
-            $mercado = trim($_POST['mercado']);
+            $mercado = intval($_POST['mercado']);
             if ($doc !== "" && $datosAgregar !== "") {
                 $telefonoTrueInt = filter_var($telefonoIntVal, FILTER_VALIDATE_INT);
                 $doctTrueInt = filter_var($docIntVal, FILTER_VALIDATE_INT);

@@ -554,7 +554,7 @@ id_notas_electronicas='$idNotaElectronica',
         $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InN5c3RlbWNyYWZ0LnBlQGdtYWlsLmNvbSJ9.yuNS5hRaC0hCwymX_PjXRoSZJWLNNBeOdlLRSUGlHGA';
 
         // Validar y sanitizar el documento
-        $doc = filter_var($_POST['doc'], FILTER_SANITIZE_STRING);
+        $doc = trim(preg_replace('/[^0-9]/', '', $_POST['doc'] ?? ''));
 
         if (strlen($doc) == 8) {
             // Consulta DNI

@@ -495,6 +495,9 @@ if(isset($_SESSION['rutas']) && sizeof($_SESSION['rutas'])>0){
             ],
         });
         $("#nuevoCliente").click(function() {
+            let $btn = $(this);
+            if ($btn.data('submitting')) return;
+            $btn.data('submitting', true).prop('disabled', true);
             $("#loader-menor").show();
             let data = $("#frmClientesAgregar").serializeArray();
             $.ajax({
@@ -517,6 +520,9 @@ if(isset($_SESSION['rutas']) && sizeof($_SESSION['rutas'])>0){
                             text: JSON.parse(resp),
                         });
                     }
+                },
+                complete: function() {
+                    $btn.data('submitting', false).prop('disabled', false);
                 },
             });
         });
