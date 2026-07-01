@@ -638,11 +638,11 @@ class ClientesController extends Controller
     {
         if (!empty($_POST)) {
             $doc = trim(filter_var($_POST['documentoAgregar'], FILTER_SANITIZE_NUMBER_INT));
-            $datosAgregar = trim(filter_var($_POST['datosAgregar'], FILTER_SANITIZE_STRING));
-            $direccionAgregar = trim(filter_var($_POST['direccionAgregar'], FILTER_SANITIZE_STRING));
-            $distrito = trim(filter_var($_POST['distrito'], FILTER_SANITIZE_STRING));
+            $datosAgregar = trim(strip_tags($_POST['datosAgregar']));
+            $direccionAgregar = trim(strip_tags($_POST['direccionAgregar']));
+            $distrito = trim(strip_tags($_POST['distrito']));
             $telefonoAgregar = trim(filter_var($_POST['telefonoAgregar'], FILTER_SANITIZE_NUMBER_INT));
-            $visita = trim(filter_var($_POST['visita'], FILTER_SANITIZE_STRING));
+            $visita = trim(strip_tags($_POST['visita']));
             $telefonoIntVal = intval($telefonoAgregar);
             $docIntVal = intval($doc);
             $id_ruta = trim($_POST['ruta']);
