@@ -15,76 +15,143 @@ $conexion = (new Conexion())->getConexion();
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <!-- Selector de fecha y botón cargar -->
+                    <!-- Selector de rango de fechas y botón cargar -->
                     <div class="row mb-4">
-                        <div class="col-md-4">
-                            <label class="form-label"><strong>Fecha de Arqueo</strong></label>
-                            <input type="date" class="form-control" v-model="fecha" :value="fechaHoy">
+                        <div class="col-md-3">
+                            <label class="form-label"><strong>Fecha Inicio</strong></label>
+                            <input type="date" class="form-control" v-model="fecha_inicio">
                         </div>
-                        <div class="col-md-4 d-flex align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label"><strong>Fecha Fin</strong></label>
+                            <input type="date" class="form-control" v-model="fecha_fin">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
                             <button @click="cargarCobros" class="btn btn-primary w-100">
-                                <i class="fa fa-sync"></i> Cargar Cobros del Día
+                                <i class="fa fa-sync"></i> Cargar Cobros
                             </button>
                         </div>
-                        <div class="col-md-4 d-flex align-items-end">
+                        <div class="col-md-3 d-flex align-items-end">
                             <button @click="verRegistrosGuardados" class="btn btn-info w-100">
                                 <i class="fa fa-history"></i> Ver Registros Guardados
                             </button>
                         </div>
                     </div>
 
+                    <!-- Tarjetas informativas -->
+                    <div v-if="cobrosLoaded" class="row mb-4">
+                        <div class="col">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center py-3">
+                                    <h6 class="mb-1">Total Cobros</h6>
+                                    <h4 class="mb-0">{{ formatMoney(totalGeneralFiltrado) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center py-3">
+                                    <h6 class="mb-1">Efectivo</h6>
+                                    <h4 class="mb-0">{{ formatMoney(totalEfectivoFiltrado) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center py-3">
+                                    <h6 class="mb-1">Bancos</h6>
+                                    <h4 class="mb-0">{{ formatMoney(totalBancosFiltrado) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center py-3">
+                                    <h6 class="mb-1">Registros</h6>
+                                    <h4 class="mb-0">{{ vendedoresFiltrados.length }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body text-center py-3">
+                                    <h6 class="mb-1"><i class="fa fa-exclamation-triangle"></i> Deuda Pendiente</h6>
+                                    <h4 class="mb-0">{{ formatMoney(totalDiferenciaFiltrado) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Tabla de cobros por vendedor -->
                     <div v-if="cobrosLoaded" class="mb-4">
-                        <h5 class="mb-3">Cobros del Día</h5>
-                        <table class="table table-bordered table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Usuario</th>
-                                    <th class="text-end">Efectivo</th>
-                                    <th class="text-end">Bancos</th>
-                                    <th class="text-end">Total</th>
-                                    <th class="text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="vendedor in resumenVendedores" :key="vendedor.usuario">
-                                    <td><strong>{{ vendedor.usuario }}</strong></td>
-                                    <td class="text-end">{{ formatMoney(vendedor.efectivo) }}</td>
-                                    <td class="text-end">{{ formatMoney(vendedor.bancos) }}</td>
-                                    <td class="text-end"><strong>{{ formatMoney(vendedor.total) }}</strong></td>
-                                    <td class="text-center">
-                                        <!-- Si no tiene arqueo guardado, mostrar botón Cuadrar -->
-                                        <button v-if="!vendedor.arqueo" @click="abrirModalCuadre(vendedor)" class="btn btn-success btn-sm">
-                                            <i class="fa fa-calculator"></i> Cuadrar
-                                        </button>
-                                        <!-- Si ya tiene arqueo guardado, mostrar botones Ver y Editar -->
-                                        <div v-else class="btn-group btn-group-sm">
-                                            <button @click="verArqueoVendedor(vendedor)" 
-                                                    :class="vendedor.arqueo.cuadra_efectivo == 1 && vendedor.arqueo.cuadra_bancos == 1 ? 'btn btn-info btn-sm' : 'btn btn-danger btn-sm'" 
-                                                    title="Ver">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                            <button @click="editarArqueoVendedor(vendedor)" class="btn btn-warning btn-sm" title="Editar">
-                                                <i class="fa fa-edit"></i>
-                                            </button>
-                                            <button @click="eliminarArqueoVendedor(vendedor.arqueo.arqueo_id)" class="btn btn-danger btn-sm" title="Eliminar">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                            <span class="badge ms-1" :class="vendedor.arqueo.cuadra_efectivo == 1 && vendedor.arqueo.cuadra_bancos == 1 ? 'bg-success' : 'bg-danger'">
-                                                <i :class="vendedor.arqueo.cuadra_efectivo == 1 && vendedor.arqueo.cuadra_bancos == 1 ? 'fa fa-check' : 'fa fa-times'"></i>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" placeholder="🔍 Buscar usuario..." v-model="filtroUsuario">
+                            </div>
+                            <div class="col-md-8 text-end">
+                                <span class="text-muted">Mostrando {{ vendedoresFiltrados.length }} de {{ resumenVendedores.length }} registros</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                            <table class="table table-bordered table-hover table-sm">
+                                <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Usuario</th>
+                                        <th class="text-end">Efectivo</th>
+                                        <th class="text-end">Bancos</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-end">Diferencia Efectivo</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="vendedor in vendedoresFiltrados" :key="vendedor.fecha_cobro + '_' + vendedor.usuario_id">
+                                        <td>{{ vendedor.fecha_cobro }}</td>
+                                        <td><strong>{{ vendedor.usuario }}</strong></td>
+                                        <td class="text-end">{{ formatMoney(vendedor.efectivo) }}</td>
+                                        <td class="text-end">{{ formatMoney(vendedor.bancos) }}</td>
+                                        <td class="text-end"><strong>{{ formatMoney(vendedor.total) }}</strong></td>
+                                        <td class="text-end" :class="diferenciaColor(vendedor)">
+                                            <strong>{{ vendedor.arqueo ? formatMoney(Math.abs(parseFloat(vendedor.arqueo.diferencia_efectivo))) : '—' }}</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <span v-if="vendedor.arqueo" class="badge" :class="vendedor.arqueo.cuadra_efectivo == 1 && vendedor.arqueo.cuadra_bancos == 1 ? 'bg-success' : 'bg-danger'">
+                                                {{ vendedor.arqueo.cuadra_efectivo == 1 && vendedor.arqueo.cuadra_bancos == 1 ? 'Cuadra' : 'No Cuadra' }}
                                             </span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="table-secondary">
-                                    <td><strong>TOTAL GENERAL</strong></td>
-                                    <td class="text-end"><strong>{{ formatMoney(totalEfectivo) }}</strong></td>
-                                    <td class="text-end"><strong>{{ formatMoney(totalBancos) }}</strong></td>
-                                    <td class="text-end"><strong>{{ formatMoney(totalGeneral) }}</strong></td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                            <span v-else class="badge bg-secondary">Sin arqueo</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <button v-if="!vendedor.arqueo" @click="abrirModalCuadre(vendedor)" class="btn btn-success btn-sm">
+                                                <i class="fa fa-calculator"></i> Cuadrar
+                                            </button>
+                                            <div v-else class="btn-group btn-group-sm">
+                                                <button @click="verArqueoVendedor(vendedor)" 
+                                                        :class="vendedor.arqueo.cuadra_efectivo == 1 && vendedor.arqueo.cuadra_bancos == 1 ? 'btn btn-info btn-sm' : 'btn btn-danger btn-sm'" 
+                                                        title="Ver">
+                                                    <i class="fa fa-eye"></i>
+                                                </button>
+                                                <button @click="editarArqueoVendedor(vendedor)" class="btn btn-warning btn-sm" title="Editar">
+                                                    <i class="fa fa-edit"></i>
+                                                </button>
+                                                <button @click="eliminarArqueoVendedor(vendedor.arqueo.arqueo_id)" class="btn btn-danger btn-sm" title="Eliminar">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-secondary">
+                                        <td colspan="2"><strong>TOTAL GENERAL</strong></td>
+                                        <td class="text-end"><strong>{{ formatMoney(totalEfectivoFiltrado) }}</strong></td>
+                                        <td class="text-end"><strong>{{ formatMoney(totalBancosFiltrado) }}</strong></td>
+                                        <td class="text-end"><strong>{{ formatMoney(totalGeneralFiltrado) }}</strong></td>
+                                        <td class="text-end"><strong>{{ formatMoney(totalDiferenciaFiltrado) }}</strong></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -413,6 +480,9 @@ $(document).ready(function() {
         el: '#app-arqueo',
         data: {
             fecha: '<?php echo date("Y-m-d"); ?>',
+            fecha_inicio: '<?php echo date("Y-m-d", strtotime("-7 days")); ?>',
+            fecha_fin: '<?php echo date("Y-m-d"); ?>',
+            filtroUsuario: '',
             cobrosLoaded: false,
             resumenVendedores: [],
             vendedorSeleccionado: null,
@@ -461,6 +531,38 @@ $(document).ready(function() {
             },
             totalGeneral() {
                 return this.totalEfectivo + this.totalBancos;
+            },
+            vendedoresFiltrados() {
+                if (!this.filtroUsuario) return this.resumenVendedores;
+                const filtro = this.filtroUsuario.toLowerCase();
+                return this.resumenVendedores.filter(v => 
+                    v.usuario.toLowerCase().includes(filtro)
+                );
+            },
+            totalEfectivoFiltrado() {
+                return this.vendedoresFiltrados.reduce((sum, v) => sum + v.efectivo, 0);
+            },
+            totalBancosFiltrado() {
+                return this.vendedoresFiltrados.reduce((sum, v) => sum + v.bancos, 0);
+            },
+            totalGeneralFiltrado() {
+                return this.totalEfectivoFiltrado + this.totalBancosFiltrado;
+            },
+            totalDiferenciaFiltrado() {
+                return this.vendedoresFiltrados.reduce((sum, v) => {
+                    if (v.arqueo) {
+                        return sum + Math.abs(parseFloat(v.arqueo.diferencia_efectivo) || 0);
+                    }
+                    return sum;
+                }, 0);
+            },
+            totalDiferencia() {
+                return this.resumenVendedores.reduce((sum, v) => {
+                    if (v.arqueo) {
+                        return sum + Math.abs(parseFloat(v.arqueo.diferencia_efectivo) || 0);
+                    }
+                    return sum;
+                }, 0);
             },
             // Valores del vendedor seleccionado
             efectivoVendedor() {
@@ -520,6 +622,12 @@ $(document).ready(function() {
             formatMoney(value) {
                 return 'S/ ' + parseFloat(value || 0).toFixed(2);
             },
+            diferenciaColor(vendedor) {
+                if (!vendedor.arqueo) return '';
+                const diff = Math.abs(parseFloat(vendedor.arqueo.diferencia_efectivo));
+                if (diff < 0.01) return 'text-success';
+                return 'text-danger fw-bold';
+            },
             cerrarModal() {
                 $('#modalCuadreCaja').modal('hide');
                 // Limpiar datos
@@ -550,12 +658,19 @@ $(document).ready(function() {
                 $('#modalArqueosGuardados').modal('hide');
             },
             cargarCobros() {
-                if (!this.fecha) {
-                    Swal.fire('Error', 'Selecciona una fecha', 'warning');
+                if (!this.fecha_inicio || !this.fecha_fin) {
+                    Swal.fire('Error', 'Selecciona el rango de fechas', 'warning');
                     return;
                 }
                 
-                _post('/ajs/arqueo/cobros/dia', { fecha: this.fecha }, (response) => {
+                _post('/ajs/arqueo/cobros/dia', { 
+                    fecha_inicio: this.fecha_inicio, 
+                    fecha_fin: this.fecha_fin 
+                }, (response) => {
+                    if (response.error) {
+                        Swal.fire('Error', response.error, 'error');
+                        return;
+                    }
                     this.resumenVendedores = response;
                     this.cobrosLoaded = true;
                     this.ingresos = { efectivo: 0, bancos: 0 };
@@ -566,26 +681,18 @@ $(document).ready(function() {
                 });
             },
             cargarArqueosDelDia() {
-                _post('/ajs/arqueo/listar', {}, (response) => {
-                    // Filtrar solo los arqueos de la fecha seleccionada
-                    const arqueosFecha = response.filter(a => a.fecha_arqueo === this.fecha);
-                    
-                    // Asociar arqueos con vendedores usando usuario_id
+                _post('/ajs/arqueo/listar', { 
+                    fecha_inicio: this.fecha_inicio, 
+                    fecha_fin: this.fecha_fin 
+                }, (response) => {
+                    // Asociar arqueos con filas por fecha + usuario
                     this.resumenVendedores.forEach(vendedor => {
-                        const arqueo = arqueosFecha.find(a => 
-                            a.vendedor_id == vendedor.usuario_id || 
-                            a.vendedor.trim() === vendedor.usuario.trim()
+                        const arqueo = response.find(a => 
+                            a.fecha_arqueo === vendedor.fecha_cobro &&
+                            (a.vendedor_id == vendedor.usuario_id || 
+                             a.vendedor.trim() === vendedor.usuario.trim())
                         );
-                        // Usar Vue.set para asegurar reactividad
                         this.$set(vendedor, 'arqueo', arqueo || null);
-                        
-                        // Debug: ver los valores
-                        if (arqueo) {
-                            console.log('Arqueo de ' + vendedor.usuario + ':', {
-                                cuadra_efectivo: arqueo.cuadra_efectivo,
-                                cuadra_bancos: arqueo.cuadra_bancos
-                            });
-                        }
                     });
                 });
             },
@@ -593,6 +700,7 @@ $(document).ready(function() {
                 this.vendedorSeleccionado = vendedor;
                 this.modoEdicion = false;
                 this.arqueoSeleccionado = null;
+                this.fecha = vendedor.fecha_cobro;
                 this.ingresos = { efectivo: 0, bancos: 0 };
                 this.egresos = { efectivo: 0, bancos: 0 };
                 this.detalleEfectivo = {
@@ -708,8 +816,10 @@ $(document).ready(function() {
                 });
             },
             verRegistrosGuardados() {
-                // Cargar arqueos guardados
-                _post('/ajs/arqueo/listar', {}, (response) => {
+                _post('/ajs/arqueo/listar', { 
+                    fecha_inicio: this.fecha_inicio, 
+                    fecha_fin: this.fecha_fin 
+                }, (response) => {
                     this.arqueosGuardados = response;
                     $('#modalArqueosGuardados').modal('show');
                 });

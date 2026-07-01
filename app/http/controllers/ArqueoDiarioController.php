@@ -12,11 +12,29 @@ class ArqueoDiarioController extends Controller
     // Obtener cobros del día agrupados por vendedor
     public function obtenerCobrosDia()
     {
-        $fecha = $_POST['fecha'];
+        $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : null;
+        $fecha_inicio = isset($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : null;
+        $fecha_fin = isset($_POST['fecha_fin']) ? $_POST['fecha_fin'] : null;
+        
+        if ($fecha_inicio && $fecha_fin) {
+            $whereFechaDV = "DATE(IFNULL(dv.fecha_pago_real, dv.fecha)) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+            $whereFechaCC = "DATE(IFNULL(cc.fecha_pago_real, cc.fecha)) BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+            $whereFechaDet = "(DATE(dv.fecha_pago_real) BETWEEN '$fecha_inicio' AND '$fecha_fin' OR (dv.fecha_pago_real IS NULL AND dv.fecha BETWEEN '$fecha_inicio' AND '$fecha_fin'))";
+            $whereFechaDetCC = "(DATE(cc.fecha_pago_real) BETWEEN '$fecha_inicio' AND '$fecha_fin' OR (cc.fecha_pago_real IS NULL AND cc.fecha BETWEEN '$fecha_inicio' AND '$fecha_fin'))";
+        } elseif ($fecha) {
+            $whereFechaDV = "DATE(IFNULL(dv.fecha_pago_real, dv.fecha)) = '$fecha'";
+            $whereFechaCC = "DATE(IFNULL(cc.fecha_pago_real, cc.fecha)) = '$fecha'";
+            $whereFechaDet = "(DATE(dv.fecha_pago_real) = '$fecha' OR (dv.fecha_pago_real IS NULL AND dv.fecha = '$fecha'))";
+            $whereFechaDetCC = "(DATE(cc.fecha_pago_real) = '$fecha' OR (cc.fecha_pago_real IS NULL AND cc.fecha = '$fecha'))";
+        } else {
+            return json_encode(['error' => 'Debe proporcionar una fecha o rango de fechas']);
+        }
+        
         $resumen = [];
         
-        // Obtener todos los cobros del día de dias_ventas
+        // Obtener todos los cobros del día de dias_ventas (agrupado por fecha + usuario)
         $sql_dv = "SELECT 
+            DATE(IFNULL(dv.fecha_pago_real, dv.fecha)) as fecha_cobro,
             IFNULL(dv.id_usuario, v.id_vendedor) as id_usuario,
             u.usuario,
             dv.tipo_pago,
@@ -24,11 +42,11 @@ class ArqueoDiarioController extends Controller
         FROM dias_ventas dv
         INNER JOIN ventas v ON v.id_venta = dv.id_venta
         LEFT JOIN usuarios u ON u.usuario_id = IFNULL(dv.id_usuario, v.id_vendedor)
-        WHERE DATE(IFNULL(dv.fecha_pago_real, dv.fecha)) = '$fecha'
+        WHERE $whereFechaDV
         AND dv.estado = '1'
         AND v.id_empresa = '{$_SESSION['id_empresa']}'
         AND v.sucursal = '{$_SESSION['sucursal']}'
-        GROUP BY IFNULL(dv.id_usuario, v.id_vendedor), u.usuario, dv.tipo_pago";
+        GROUP BY fecha_cobro, IFNULL(dv.id_usuario, v.id_vendedor), u.usuario, dv.tipo_pago";
         
         $result_dv = $this->conexion->query($sql_dv);
         
@@ -37,8 +55,9 @@ class ArqueoDiarioController extends Controller
             return;
         }
         
-        // Obtener cobros de cuotas_cotizacion
+        // Obtener cobros de cuotas_cotizacion (agrupado por fecha + usuario)
         $sql_cc = "SELECT 
+            DATE(IFNULL(cc.fecha_pago_real, cc.fecha)) as fecha_cobro,
             IFNULL(cc.id_usuario, co.id_usuario) as id_usuario,
             u.usuario,
             cc.tipo_pago,
@@ -46,11 +65,11 @@ class ArqueoDiarioController extends Controller
         FROM cuotas_cotizacion cc
         INNER JOIN cotizaciones co ON co.cotizacion_id = cc.id_coti
         LEFT JOIN usuarios u ON u.usuario_id = IFNULL(cc.id_usuario, co.id_usuario)
-        WHERE DATE(IFNULL(cc.fecha_pago_real, cc.fecha)) = '$fecha'
+        WHERE $whereFechaCC
         AND cc.estado = '1'
         AND co.id_empresa = '{$_SESSION['id_empresa']}'
         AND co.sucursal = '{$_SESSION['sucursal']}'
-        GROUP BY IFNULL(cc.id_usuario, co.id_usuario), u.usuario, cc.tipo_pago";
+        GROUP BY fecha_cobro, IFNULL(cc.id_usuario, co.id_usuario), u.usuario, cc.tipo_pago";
         
         $result_cc = $this->conexion->query($sql_cc);
         
@@ -59,16 +78,19 @@ class ArqueoDiarioController extends Controller
             return;
         }
         
-        // Procesar resultados
-        $vendedores = [];
+        // Procesar resultados con clave compuesta fecha + usuario
+        $filas = [];
         
         while ($row = $result_dv->fetch_assoc()) {
+            $fecha = $row['fecha_cobro'];
             $usuario_id = $row['id_usuario'];
             $usuario = $row['usuario'] ?? 'Sin nombre';
             $tipo_pago = $row['tipo_pago'] ?? 'Efectivo';
+            $key = $fecha . '_' . $usuario_id;
             
-            if (!isset($vendedores[$usuario_id])) {
-                $vendedores[$usuario_id] = [
+            if (!isset($filas[$key])) {
+                $filas[$key] = [
+                    'fecha_cobro' => $fecha,
                     'usuario_id' => $usuario_id,
                     'usuario' => $usuario, 
                     'efectivo' => 0, 
@@ -79,19 +101,22 @@ class ArqueoDiarioController extends Controller
             }
             
             if ($tipo_pago == 'Efectivo' || $tipo_pago == NULL) {
-                $vendedores[$usuario_id]['efectivo'] += floatval($row['total']);
+                $filas[$key]['efectivo'] += floatval($row['total']);
             } else {
-                $vendedores[$usuario_id]['bancos'] += floatval($row['total']);
+                $filas[$key]['bancos'] += floatval($row['total']);
             }
         }
         
         while ($row = $result_cc->fetch_assoc()) {
+            $fecha = $row['fecha_cobro'];
             $usuario_id = $row['id_usuario'];
             $usuario = $row['usuario'] ?? 'Sin nombre';
             $tipo_pago = $row['tipo_pago'] ?? 'Efectivo';
+            $key = $fecha . '_' . $usuario_id;
             
-            if (!isset($vendedores[$usuario_id])) {
-                $vendedores[$usuario_id] = [
+            if (!isset($filas[$key])) {
+                $filas[$key] = [
+                    'fecha_cobro' => $fecha,
                     'usuario_id' => $usuario_id,
                     'usuario' => $usuario, 
                     'efectivo' => 0, 
@@ -102,17 +127,18 @@ class ArqueoDiarioController extends Controller
             }
             
             if ($tipo_pago == 'Efectivo' || $tipo_pago == NULL) {
-                $vendedores[$usuario_id]['efectivo'] += floatval($row['total']);
+                $filas[$key]['efectivo'] += floatval($row['total']);
             } else {
-                $vendedores[$usuario_id]['bancos'] += floatval($row['total']);
+                $filas[$key]['bancos'] += floatval($row['total']);
             }
         }
         
-        // Obtener detalles de pagos digitales para pre-llenar el modal
+        // Obtener detalles de pagos digitales para pre-llenar el modal (con fecha)
         $sql_detalles = "SELECT 
-            id_usuario_pago, id_vendedor, tipo_pago, monto, cliente_nombre
+            fecha, id_usuario_pago, id_vendedor, tipo_pago, monto, cliente_nombre
         FROM (
             SELECT 
+                DATE(IFNULL(dv.fecha_pago_real, dv.fecha)) as fecha,
                 dv.id_usuario as id_usuario_pago,
                 v.id_vendedor,
                 dv.tipo_pago,
@@ -121,7 +147,7 @@ class ArqueoDiarioController extends Controller
             FROM dias_ventas dv
             INNER JOIN ventas v ON v.id_venta = dv.id_venta
             LEFT JOIN clientes c ON c.id_cliente = v.id_cliente
-            WHERE (DATE(dv.fecha_pago_real) = '$fecha' OR (dv.fecha_pago_real IS NULL AND dv.fecha = '$fecha'))
+            WHERE $whereFechaDet
             AND dv.estado = '1'
             AND TRIM(LOWER(IFNULL(dv.tipo_pago, ''))) NOT IN ('efectivo', '')
             AND v.id_empresa = '{$_SESSION['id_empresa']}'
@@ -130,6 +156,7 @@ class ArqueoDiarioController extends Controller
             UNION ALL
             
             SELECT 
+                DATE(IFNULL(cc.fecha_pago_real, cc.fecha)) as fecha,
                 cc.id_usuario as id_usuario_pago,
                 co.id_usuario as id_vendedor,
                 cc.tipo_pago,
@@ -138,7 +165,7 @@ class ArqueoDiarioController extends Controller
             FROM cuotas_cotizacion cc
             INNER JOIN cotizaciones co ON co.cotizacion_id = cc.id_coti
             LEFT JOIN clientes c ON c.id_cliente = co.id_cliente
-            WHERE (DATE(cc.fecha_pago_real) = '$fecha' OR (cc.fecha_pago_real IS NULL AND cc.fecha = '$fecha'))
+            WHERE $whereFechaDetCC
             AND cc.estado = '1'
             AND TRIM(LOWER(IFNULL(cc.tipo_pago, ''))) NOT IN ('efectivo', '')
             AND co.id_empresa = '{$_SESSION['id_empresa']}'
@@ -148,14 +175,15 @@ class ArqueoDiarioController extends Controller
         $result_detalles = $this->conexion->query($sql_detalles);
         if ($result_detalles) {
             while ($row = $result_detalles->fetch_assoc()) {
-                // El cobro pertenece al usuario que lo registró, o al vendedor de la venta si no hay usuario registrado
+                $fecha_pago = $row['fecha'];
                 $uid = !empty($row['id_usuario_pago']) ? $row['id_usuario_pago'] : $row['id_vendedor'];
+                $key = $fecha_pago . '_' . $uid;
                 
                 if (empty($uid)) continue;
                 
-                // Aseguramos que el usuario exista en el resumen
-                if (!isset($vendedores[$uid])) {
-                    $vendedores[$uid] = [
+                if (!isset($filas[$key])) {
+                    $filas[$key] = [
+                        'fecha_cobro' => $fecha_pago,
                         'usuario_id' => $uid,
                         'usuario' => 'Usuario ' . $uid,
                         'efectivo' => 0,
@@ -165,7 +193,7 @@ class ArqueoDiarioController extends Controller
                     ];
                 }
                 
-                $vendedores[$uid]['pagos_digitales_sistema'][] = [
+                $filas[$key]['pagos_digitales_sistema'][] = [
                     'cliente_nombre' => $row['cliente_nombre'],
                     'tipo_pago' => $row['tipo_pago'],
                     'monto' => floatval($row['monto'])
@@ -173,12 +201,19 @@ class ArqueoDiarioController extends Controller
             }
         }
 
-        // Calcular totales
-        foreach ($vendedores as &$v) {
-            $v['total'] = $v['efectivo'] + $v['bancos'];
+        // Calcular totales y ordenar por fecha ASC, usuario ASC
+        foreach ($filas as &$f) {
+            $f['total'] = $f['efectivo'] + $f['bancos'];
         }
         
-        return json_encode(array_values($vendedores));
+        $resultado = array_values($filas);
+        usort($resultado, function($a, $b) {
+            $cmp = strcmp($a['fecha_cobro'], $b['fecha_cobro']);
+            if ($cmp !== 0) return $cmp;
+            return strcmp($a['usuario'], $b['usuario']);
+        });
+        
+        return json_encode($resultado);
     }
     
     // Guardar arqueo diario
@@ -311,9 +346,22 @@ class ArqueoDiarioController extends Controller
     // Obtener arqueos guardados
     public function obtenerArqueosGuardados()
     {
+        $fecha_inicio = isset($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : null;
+        $fecha_fin = isset($_POST['fecha_fin']) ? $_POST['fecha_fin'] : null;
+        
+        $whereFecha = '';
+        if ($fecha_inicio && $fecha_fin) {
+            $whereFecha = "AND fecha_arqueo BETWEEN '$fecha_inicio' AND '$fecha_fin'";
+        } elseif ($fecha_inicio) {
+            $whereFecha = "AND fecha_arqueo >= '$fecha_inicio'";
+        } elseif ($fecha_fin) {
+            $whereFecha = "AND fecha_arqueo <= '$fecha_fin'";
+        }
+        
         $sql = "SELECT * FROM arqueos_diarios 
                 WHERE id_empresa = '{$_SESSION['id_empresa']}' 
                 AND sucursal = '{$_SESSION['sucursal']}'
+                $whereFecha
                 ORDER BY fecha_arqueo DESC, arqueo_id DESC";
         
         $result = $this->conexion->query($sql);
