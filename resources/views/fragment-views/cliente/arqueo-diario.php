@@ -480,7 +480,7 @@ $(document).ready(function() {
         el: '#app-arqueo',
         data: {
             fecha: '<?php echo date("Y-m-d"); ?>',
-            fecha_inicio: '<?php echo date("Y-m-d", strtotime("-7 days")); ?>',
+            fecha_inicio: '<?php echo date("Y-m-d"); ?>',
             fecha_fin: '<?php echo date("Y-m-d"); ?>',
             filtroUsuario: '',
             cobrosLoaded: false,
