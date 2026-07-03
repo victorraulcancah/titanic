@@ -375,7 +375,7 @@ class PagosController extends Controller
         }
 
         $id = intval($_POST['id']);
-        $sql = "UPDATE dias_compras SET estado = '0', tipo_pago = NULL, id_usuario = NULL, fecha_pago_real = NULL WHERE dias_compra_id = '$id'";
+        $sql = "UPDATE dias_compras SET estado = '0', monto = '0', tipo_pago = NULL, id_usuario = NULL, fecha_pago_real = NULL WHERE dias_compra_id = '$id'";
         $result = $this->conectar->query($sql);
 
         if ($result && $this->conectar->affected_rows > 0) {
