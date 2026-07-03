@@ -472,7 +472,7 @@
                             data: null,
                             class: "text-center",
                             render: function(data, type, row) {
-                                let dbPago = (row.tipo_pago || '').toUpperCase();
+                                let dbPago = (row.tipo_pago || (row.estado == 1 ? 'EFECTIVO' : '')).toUpperCase();
                                 let opciones = ["Efectivo", "Plin", "Yape", "BCP", "BBVA"].map(function(item) {
                                     let uiItem = item.toUpperCase();
                                     let selected = (uiItem === dbPago || dbPago.includes(uiItem)) ? 'selected' : '';
@@ -731,9 +731,22 @@
                         type: 'POST',
                         url: _URL + '/ajs/pagar/cuota/eliminar/compra',
                         data: { id: id },
-                        success: function() {
+                        success: function(resp) {
                             $("#loader-menor").hide();
-                            location.reload();
+                            try {
+                                var r = JSON.parse(resp);
+                                if (r.res) {
+                                    location.reload();
+                                } else {
+                                    Swal.fire({ title: 'Error', text: r.msg || 'No se pudo eliminar el pago', icon: 'error' });
+                                }
+                            } catch(e) {
+                                location.reload();
+                            }
+                        },
+                        error: function() {
+                            $("#loader-menor").hide();
+                            Swal.fire({ title: 'Error', text: 'Error de conexion al eliminar el pago', icon: 'error' });
                         }
                     });
                 }
