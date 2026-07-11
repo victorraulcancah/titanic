@@ -2751,10 +2751,15 @@ class CombinarReporteController extends Controller
             $contador++;
         }
 
+        $nombreCamion = 'TODOS LOS CAMIONES';
+        if ($camion == '1') $nombreCamion = 'CAMIÓN 1';
+        elseif ($camion == '2') $nombreCamion = 'CAMIÓN 2';
+        elseif ($camion == '3') $nombreCamion = 'CAMIÓN 3';
+
         $html = "
     <div style='width: 100%; padding-top: 60px; overflow: hidden;clear: both;'>
         <p>{$time}</p>
-        <h1 style='text-align:center;'>Detalle por Cliente</h1>
+        <h1 style='text-align:center;'>Detalle por Cliente - {$nombreCamion}</h1>
         <p style='text-align:center;'> <strong>DEL</strong> {$fecha_ini[2]}/{$fecha_ini[1]}/{$fecha_ini[0]} <strong>AL</strong> {$fecha_fin[2]}/{$fecha_fin[1]}/{$fecha_fin[0]}</p>
     </div>
     <div style='width: 100%; padding-top: 20px; margin-left: 20px'>
