@@ -467,8 +467,8 @@
                     numero: '',
                     tipo_pago: '1',
                     dias_pago: '',
-                    fecha: $("#fecha-app").val(),
-                    fechaVen: $("#fecha-app").val(),
+                    fecha: new Date().toISOString().split('T')[0],
+                    fechaVen: new Date().toISOString().split('T')[0],
                     sendwp: false,
                     numwp: "",
                     num_doc: "",
@@ -560,9 +560,18 @@
                                     // Cargar días de pago para créditos
                                     if (data.compra.dias_pagos) {
                                         self.venta.dias_pago = data.compra.dias_pagos;
+                                    } else if (data.compra.id_tipo_pago == 2) {
+                                        self.venta.dias_pago = '1';
                                     }
-                                    if (data.dias_lista && data.dias_lista.length > 0) {
+                                    if (data.dias_lista && data.dias_lista.length > 0 && parseFloat(data.dias_lista[0].monto) > 0) {
                                         self.venta.dias_lista = data.dias_lista;
+                                    } else if (data.compra.id_tipo_pago == 2) {
+                                        var fecha = new Date(self.venta.fecha);
+                                        fecha.setDate(fecha.getDate() + 1);
+                                        self.venta.dias_lista = [{
+                                            fecha: self.formatDate(fecha),
+                                            monto: self.venta.total
+                                        }];
                                     }
                                     
                                     // Cambiar título
@@ -838,7 +847,7 @@
                     console.log(event.target.value)
                     this.venta.fechaVen = this.venta.fecha;
                     this.venta.dias_lista = []
-                    this.venta.dias_pago = ''
+                    this.venta.dias_pago = event.target.value == '2' ? '1' : ''
                 },
                 chageMoneda(event) {
                     console.log(event.target.value)
@@ -1143,6 +1152,19 @@
                         total += prod.precio * prod.cantidad
                     })
                     this.venta.total = total;
+                    if (this.venta.dias_lista && this.venta.dias_lista.length > 0) {
+                        var self = this;
+                        var porcion = total / this.venta.dias_lista.length;
+                        var totalTemp = total;
+                        this.venta.dias_lista.forEach(function(item, idx) {
+                            if (idx === self.venta.dias_lista.length - 1) {
+                                item.monto = totalTemp;
+                            } else {
+                                item.monto = porcion;
+                                totalTemp -= porcion;
+                            }
+                        });
+                    }
                     return total.toFixed(2);
                 }
             }
