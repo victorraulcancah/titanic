@@ -191,7 +191,7 @@
                                                                     <td>{{index+1}}</td>
                                                                     <td>{{item.codigo_app}} |{{item.descripcion}}</td>
                                                                     <td>{{item.cantidad}}</td>
-                                                                    <td>{{item.precio}}</td>
+                                                                     <td><input type="text" class="form-control form-control-sm text-end" v-model="item.precio" style="width:100px"></td>
                                                                     <td>{{item.precio*item.cantidad}}</td>
                                                                     <td><button @click="eliminarItemPro(index)" type="button" class="btn btn-danger btn-xs">
                                                                             <i class="fa fa-times"></i>
