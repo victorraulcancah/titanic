@@ -330,10 +330,21 @@ class ComprasController extends Controller
                 }
             }
             
+            // Obtener cuotas (dias_compras) para créditos
+            $sqlDias = "SELECT monto, fecha, estado FROM dias_compras WHERE id_compra = '$id' ORDER BY dias_compra_id ASC";
+            $resultDias = $this->conectar->query($sqlDias);
+            $diasLista = [];
+            if ($resultDias) {
+                while ($row = $resultDias->fetch_assoc()) {
+                    $diasLista[] = $row;
+                }
+            }
+
             echo json_encode([
                 'res' => true,
                 'compra' => $compra,
-                'productos' => $productos
+                'productos' => $productos,
+                'dias_lista' => $diasLista
             ]);
         } else {
             echo json_encode([

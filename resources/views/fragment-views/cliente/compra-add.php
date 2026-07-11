@@ -546,6 +546,14 @@
                                     if (data.productos && data.productos.length > 0) {
                                         self.productos = data.productos;
                                     }
+
+                                    // Cargar días de pago para créditos
+                                    if (data.compra.dias_pagos) {
+                                        self.venta.dias_pago = data.compra.dias_pagos;
+                                    }
+                                    if (data.dias_lista && data.dias_lista.length > 0) {
+                                        self.venta.dias_lista = data.dias_lista;
+                                    }
                                     
                                     // Cambiar título
                                     $('.page-title').text('Editar Compra #' + data.compra.id_compra);
