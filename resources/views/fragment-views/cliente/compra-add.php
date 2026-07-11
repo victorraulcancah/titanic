@@ -485,6 +485,8 @@
             },
             watch: {
                 'venta.dias_pago'(newValue) {
+                    // No recalcular si estamos en edición (los datos vienen del servidor)
+                    if (this.compraId) return;
                     const listD = (newValue + "").split(",");
                     this.dias_lista = [];
                     if (listD.length > 0) {
@@ -558,11 +560,7 @@
                                     }
 
                                     // Cargar días de pago para créditos
-                                    if (data.compra.dias_pagos) {
-                                        self.venta.dias_pago = data.compra.dias_pagos;
-                                    } else if (data.compra.id_tipo_pago == 2) {
-                                        self.venta.dias_pago = '1';
-                                    }
+                                    // Primero cargar dias_lista, luego dias_pago para evitar que el watch sobreescriba
                                     if (data.dias_lista && data.dias_lista.length > 0 && parseFloat(data.dias_lista[0].monto) > 0) {
                                         self.venta.dias_lista = data.dias_lista;
                                     } else if (data.compra.id_tipo_pago == 2) {
@@ -572,6 +570,11 @@
                                             fecha: self.formatDate(fecha),
                                             monto: self.venta.total
                                         }];
+                                    }
+                                    if (data.compra.dias_pagos) {
+                                        self.venta.dias_pago = data.compra.dias_pagos;
+                                    } else if (data.compra.id_tipo_pago == 2) {
+                                        self.venta.dias_pago = '1';
                                     }
                                     
                                     // Cambiar título
@@ -1154,16 +1157,34 @@
                     this.venta.total = total;
                     if (this.venta.dias_lista && this.venta.dias_lista.length > 0) {
                         var self = this;
-                        var porcion = total / this.venta.dias_lista.length;
-                        var totalTemp = total;
-                        this.venta.dias_lista.forEach(function(item, idx) {
-                            if (idx === self.venta.dias_lista.length - 1) {
-                                item.monto = totalTemp;
+                        // Separar cuotas pagadas (no se modifican) y pendientes
+                        var pagadas = [];
+                        var pendientes = [];
+                        this.venta.dias_lista.forEach(function(item) {
+                            if (item.estado == '1') {
+                                pagadas.push(item);
                             } else {
-                                item.monto = porcion;
-                                totalTemp -= porcion;
+                                pendientes.push(item);
                             }
                         });
+                        var totalPagado = pagadas.reduce(function(sum, item) {
+                            return sum + parseFloat(item.monto || 0);
+                        }, 0);
+                        var saldoRestante = total - totalPagado;
+                        if (saldoRestante < 0) saldoRestante = 0;
+                        // Distribuir saldo restante solo entre cuotas pendientes
+                        if (pendientes.length > 0) {
+                            var porcion = saldoRestante / pendientes.length;
+                            var totalTemp = saldoRestante;
+                            pendientes.forEach(function(item, idx) {
+                                if (idx === pendientes.length - 1) {
+                                    item.monto = totalTemp;
+                                } else {
+                                    item.monto = porcion;
+                                    totalTemp -= porcion;
+                                }
+                            });
+                        }
                     }
                     return total.toFixed(2);
                 }

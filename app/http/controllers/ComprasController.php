@@ -273,14 +273,18 @@ class ComprasController extends Controller
                 
                 // Si es pago a crédito, actualizar días de pago
                 if ($tipo_pago == 2) {
-                    // Eliminar días anteriores
-                    $sqlDeleteDias = "DELETE FROM dias_compras WHERE id_compra = '$id'";
+                    // Eliminar solo cuotas pendientes (no pagadas), preservar las pagadas
+                    $sqlDeleteDias = "DELETE FROM dias_compras WHERE id_compra = '$id' AND estado = '0'";
                     $this->conectar->query($sqlDeleteDias);
                     
-                    // Insertar nuevos días
+                    // Insertar solo cuotas pendientes (estado != '1' y monto > 0)
                     $listaPagos = json_decode($_POST['dias_lista'], true);
                     foreach ($listaPagos as $fila) {
-                        $c_compra->insertDiasCompras($id, $fila['monto'], $fila['fecha']);
+                        $esPagada = isset($fila['estado']) && $fila['estado'] == '1';
+                        $montoValido = isset($fila['monto']) && floatval($fila['monto']) > 0;
+                        if (!$esPagada && $montoValido) {
+                            $c_compra->insertDiasCompras($id, $fila['monto'], $fila['fecha']);
+                        }
                     }
                 }
                 

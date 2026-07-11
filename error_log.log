@@ -684,3 +684,14 @@
             p.cnt_presenta, p.codigo, p.descripcion, p.codsunat,
             p.precio, p.precio2, p.precio3, p.costo, p.precio4, p.precio_unidad
 [11-Jul-2026 11:10:09 America/Lima] DEBUG: Productos encontrados: 5
+[11-Jul-2026 12:26:08 America/Lima] PHP Warning:  Undefined array key "user" in C:\laragon\www\well-known\app\http\controllers\UsuarioController.php on line 14
+[11-Jul-2026 12:26:08 America/Lima] PHP Warning:  Undefined array key "clave" in C:\laragon\www\well-known\app\http\controllers\UsuarioController.php on line 15
+[11-Jul-2026 12:26:08 America/Lima] PHP Warning:  Undefined array key "sucursal" in C:\laragon\www\well-known\app\http\controllers\UsuarioController.php on line 16
+[11-Jul-2026 12:26:52 America/Lima] PHP Warning:  Undefined array key "user" in C:\laragon\www\well-known\app\http\controllers\UsuarioController.php on line 14
+[11-Jul-2026 12:26:52 America/Lima] PHP Warning:  Undefined array key "clave" in C:\laragon\www\well-known\app\http\controllers\UsuarioController.php on line 15
+[11-Jul-2026 12:26:52 America/Lima] PHP Warning:  Undefined array key "sucursal" in C:\laragon\www\well-known\app\http\controllers\UsuarioController.php on line 16
+[11-Jul-2026 12:27:17 America/Lima] PHP Warning:  Undefined array key "sucursal" in C:\laragon\www\well-known\app\http\controllers\UsuarioController.php on line 16
+[11-Jul-2026 12:27:35 America/Lima] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\well-known\app\http\controllers\ComprasController.php on line 255
+[11-Jul-2026 12:27:35 America/Lima] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\well-known\app\http\controllers\ComprasController.php on line 282
+[11-Jul-2026 12:31:21 America/Lima] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\well-known\app\http\controllers\ComprasController.php on line 255
+[11-Jul-2026 12:31:21 America/Lima] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\well-known\app\http\controllers\ComprasController.php on line 282
