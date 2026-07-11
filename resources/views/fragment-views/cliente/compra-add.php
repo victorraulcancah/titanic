@@ -187,16 +187,26 @@
                                                                 </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                <tr v-for="(item,index) in productos">
-                                                                    <td>{{index+1}}</td>
-                                                                    <td>{{item.codigo_app}} |{{item.descripcion}}</td>
-                                                                    <td>{{item.cantidad}}</td>
-                                                                     <td><input type="text" class="form-control form-control-sm text-end" v-model="item.precio" style="width:100px"></td>
-                                                                    <td>{{item.precio*item.cantidad}}</td>
-                                                                    <td><button @click="eliminarItemPro(index)" type="button" class="btn btn-danger btn-xs">
-                                                                            <i class="fa fa-times"></i>
-                                                                        </button></td>
-                                                                </tr>
+                                                                 <tr v-for="(item,index) in productos">
+                                                                     <td>{{index+1}}</td>
+                                                                     <td>{{item.codigo_app}} |{{item.descripcion}}</td>
+                                                                     <td>
+                                                                         <span v-if="!item.editable">{{item.cantidad}}</span>
+                                                                         <input v-if="item.editable" v-model="item.cantidad" class="form-control form-control-sm text-center" type="text" style="width:80px">
+                                                                     </td>
+                                                                     <td>
+                                                                         <span v-if="!item.editable">{{item.precio}}</span>
+                                                                         <input v-if="item.editable" @keypress="onlyNumber" v-model="item.precio" class="form-control form-control-sm text-end" type="text" style="width:100px">
+                                                                     </td>
+                                                                     <td>{{item.precio*item.cantidad}}</td>
+                                                                     <td>
+                                                                         <button v-if="!item.editable" @click="cambiarEdiProd(item)" class="btn btn-info btn-xs"><i class="fa fa-pencil"></i></button>
+                                                                         <button v-if="item.editable" @click="cambiarEdiProd(item)" class="btn btn-warning btn-xs"><i class="fa fa-save"></i></button>
+                                                                         <button @click="eliminarItemPro(index)" type="button" class="btn btn-danger btn-xs">
+                                                                             <i class="fa fa-times"></i>
+                                                                         </button>
+                                                                     </td>
+                                                                 </tr>
                                                                 </tbody>
                                                             </table>
                                                         </div>
@@ -844,6 +854,13 @@
                 },
                 eliminarItemPro(index) {
                     this.productos.splice(index, 1)
+                },
+                cambiarEdiProd(item) {
+                    if (item.editable) {
+                        item.editable = false
+                    } else {
+                        this.$set(item, 'editable', true)
+                    }
                 },
 
                 buscarDocumentSS() {

@@ -624,3 +624,63 @@
         JOIN productos p ON p.id_producto = pc.id_producto
         WHERE pc.id_coti = '46814'
 [26-Mar-2026 13:03:39 America/Lima] DEBUG: Productos encontrados: 2
+[11-Jul-2026 11:05:00 America/Lima] DEBUG: Buscando cotización ID: 42561
+[11-Jul-2026 11:05:00 America/Lima] DEBUG: SQL sin filtros: SELECT * FROM cotizaciones where cotizacion_id='42561'
+[11-Jul-2026 11:05:00 America/Lima] DEBUG: Datos de cotización encontrados: {"cotizacion_id":"42561","numero":"40807","id_tido":"6","id_tipo_pago":"2","fecha":"2026-02-17","dias_pagos":"","direccion":"1","id_cliente":"1305","total":"242.00","estado":"0","id_empresa":"12","sucursal":"1","usar_precio":"5","moneda":"1","cm_tc":null,"id_usuario":"80","observacion":"Porfavor recoger frejol camanejo 4.270 y descontar 25.60","fecha_registro":"2026-02-17 07:30:41"}
+[11-Jul-2026 11:05:00 America/Lima] DEBUG: Buscando cliente con SQL: select * from clientes where id_cliente = '1305'
+[11-Jul-2026 11:05:00 America/Lima] DEBUG: SQL productos: SELECT p.cnt_presenta, pc.medida, pc.presenta, pc.presenta_cnt, p.codigo, pc.id_producto,
+            SUM(pc.cantidad) AS cantidad,
+            p.descripcion, p.codsunat, p.precio, p.precio2, p.precio3, p.costo,
+            MAX(pc.precio) AS precioVenta, p.precio4, p.precio_unidad
+        FROM productos_cotis pc
+        JOIN productos p ON p.id_producto = pc.id_producto
+        WHERE pc.id_coti = '42561'
+        GROUP BY pc.id_producto, pc.medida, pc.presenta_cnt, pc.presenta,
+            p.cnt_presenta, p.codigo, p.descripcion, p.codsunat,
+            p.precio, p.precio2, p.precio3, p.costo, p.precio4, p.precio_unidad
+[11-Jul-2026 11:05:01 America/Lima] DEBUG: Productos encontrados: 5
+[11-Jul-2026 11:08:19 America/Lima] DEBUG: Buscando cotización ID: 42561
+[11-Jul-2026 11:08:19 America/Lima] DEBUG: SQL sin filtros: SELECT * FROM cotizaciones where cotizacion_id='42561'
+[11-Jul-2026 11:08:19 America/Lima] DEBUG: Datos de cotización encontrados: {"cotizacion_id":"42561","numero":"40807","id_tido":"6","id_tipo_pago":"2","fecha":"2026-02-17","dias_pagos":"","direccion":"1","id_cliente":"1305","total":"242.00","estado":"0","id_empresa":"12","sucursal":"1","usar_precio":"5","moneda":"1","cm_tc":null,"id_usuario":"80","observacion":"Porfavor recoger frejol camanejo 4.270 y descontar 25.60","fecha_registro":"2026-02-17 07:30:41"}
+[11-Jul-2026 11:08:19 America/Lima] DEBUG: Buscando cliente con SQL: select * from clientes where id_cliente = '1305'
+[11-Jul-2026 11:08:19 America/Lima] DEBUG: SQL productos: SELECT p.cnt_presenta, pc.medida, pc.presenta, pc.presenta_cnt, p.codigo, pc.id_producto,
+            SUM(pc.cantidad) AS cantidad,
+            p.descripcion, p.codsunat, p.precio, p.precio2, p.precio3, p.costo,
+            MAX(pc.precio) AS precioVenta, p.precio4, p.precio_unidad
+        FROM productos_cotis pc
+        JOIN productos p ON p.id_producto = pc.id_producto
+        WHERE pc.id_coti = '42561'
+        GROUP BY pc.id_producto, pc.medida, pc.presenta_cnt, pc.presenta,
+            p.cnt_presenta, p.codigo, p.descripcion, p.codsunat,
+            p.precio, p.precio2, p.precio3, p.costo, p.precio4, p.precio_unidad
+[11-Jul-2026 11:08:19 America/Lima] DEBUG: Productos encontrados: 5
+[11-Jul-2026 11:09:52 America/Lima] DEBUG: Buscando cotización ID: 42561
+[11-Jul-2026 11:09:52 America/Lima] DEBUG: SQL sin filtros: SELECT * FROM cotizaciones where cotizacion_id='42561'
+[11-Jul-2026 11:09:52 America/Lima] DEBUG: Datos de cotización encontrados: {"cotizacion_id":"42561","numero":"40807","id_tido":"6","id_tipo_pago":"2","fecha":"2026-02-17","dias_pagos":"","direccion":"1","id_cliente":"1305","total":"1687.00","estado":"0","id_empresa":"12","sucursal":"1","usar_precio":"1","moneda":"1","cm_tc":null,"id_usuario":"80","observacion":"Porfavor recoger frejol camanejo 4.270 y descontar 25.60","fecha_registro":"2026-02-17 07:30:41"}
+[11-Jul-2026 11:09:52 America/Lima] DEBUG: Buscando cliente con SQL: select * from clientes where id_cliente = '1305'
+[11-Jul-2026 11:09:52 America/Lima] DEBUG: SQL productos: SELECT p.cnt_presenta, pc.medida, pc.presenta, pc.presenta_cnt, p.codigo, pc.id_producto,
+            SUM(pc.cantidad) AS cantidad,
+            p.descripcion, p.codsunat, p.precio, p.precio2, p.precio3, p.costo,
+            MAX(pc.precio) AS precioVenta, p.precio4, p.precio_unidad
+        FROM productos_cotis pc
+        JOIN productos p ON p.id_producto = pc.id_producto
+        WHERE pc.id_coti = '42561'
+        GROUP BY pc.id_producto, pc.medida, pc.presenta_cnt, pc.presenta,
+            p.cnt_presenta, p.codigo, p.descripcion, p.codsunat,
+            p.precio, p.precio2, p.precio3, p.costo, p.precio4, p.precio_unidad
+[11-Jul-2026 11:09:52 America/Lima] DEBUG: Productos encontrados: 5
+[11-Jul-2026 11:10:09 America/Lima] DEBUG: Buscando cotización ID: 42561
+[11-Jul-2026 11:10:09 America/Lima] DEBUG: SQL sin filtros: SELECT * FROM cotizaciones where cotizacion_id='42561'
+[11-Jul-2026 11:10:09 America/Lima] DEBUG: Datos de cotización encontrados: {"cotizacion_id":"42561","numero":"40807","id_tido":"6","id_tipo_pago":"2","fecha":"2026-02-17","dias_pagos":"","direccion":"1","id_cliente":"1305","total":"187.00","estado":"0","id_empresa":"12","sucursal":"1","usar_precio":"1","moneda":"1","cm_tc":null,"id_usuario":"80","observacion":"Porfavor recoger frejol camanejo 4.270 y descontar 25.60","fecha_registro":"2026-02-17 07:30:41"}
+[11-Jul-2026 11:10:09 America/Lima] DEBUG: Buscando cliente con SQL: select * from clientes where id_cliente = '1305'
+[11-Jul-2026 11:10:09 America/Lima] DEBUG: SQL productos: SELECT p.cnt_presenta, pc.medida, pc.presenta, pc.presenta_cnt, p.codigo, pc.id_producto,
+            SUM(pc.cantidad) AS cantidad,
+            p.descripcion, p.codsunat, p.precio, p.precio2, p.precio3, p.costo,
+            MAX(pc.precio) AS precioVenta, p.precio4, p.precio_unidad
+        FROM productos_cotis pc
+        JOIN productos p ON p.id_producto = pc.id_producto
+        WHERE pc.id_coti = '42561'
+        GROUP BY pc.id_producto, pc.medida, pc.presenta_cnt, pc.presenta,
+            p.cnt_presenta, p.codigo, p.descripcion, p.codsunat,
+            p.precio, p.precio2, p.precio3, p.costo, p.precio4, p.precio_unidad
+[11-Jul-2026 11:10:09 America/Lima] DEBUG: Productos encontrados: 5
