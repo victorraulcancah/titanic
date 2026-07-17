@@ -695,3 +695,9 @@
 [11-Jul-2026 12:27:35 America/Lima] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\well-known\app\http\controllers\ComprasController.php on line 282
 [11-Jul-2026 12:31:21 America/Lima] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\well-known\app\http\controllers\ComprasController.php on line 255
 [11-Jul-2026 12:31:21 America/Lima] PHP Warning:  foreach() argument must be of type array|object, null given in C:\laragon\www\well-known\app\http\controllers\ComprasController.php on line 282
+[16-Jul-2026 18:49:19 America/Lima] PHP Warning:  Undefined array key "id_empresa" in C:\laragon\www\well-known\app\http\controllers\CombinarReporteController.php on line 1314
+[16-Jul-2026 18:49:19 America/Lima] PHP Warning:  Undefined array key "sucursal" in C:\laragon\www\well-known\app\http\controllers\CombinarReporteController.php on line 1315
+[16-Jul-2026 18:49:48 America/Lima] PHP Warning:  Undefined array key "id_empresa" in C:\laragon\www\well-known\app\http\controllers\CombinarReporteController.php on line 1314
+[16-Jul-2026 18:49:48 America/Lima] PHP Warning:  Undefined array key "sucursal" in C:\laragon\www\well-known\app\http\controllers\CombinarReporteController.php on line 1315
+[16-Jul-2026 18:50:33 America/Lima] PHP Warning:  Undefined array key "id_empresa" in C:\laragon\www\well-known\app\http\controllers\CombinarReporteController.php on line 1314
+[16-Jul-2026 18:50:33 America/Lima] PHP Warning:  Undefined array key "sucursal" in C:\laragon\www\well-known\app\http\controllers\CombinarReporteController.php on line 1315

@@ -199,6 +199,12 @@ class CombinarReporteController extends Controller
             $totalDescuento += $tempDescuento;
             $observacion = $datoVenta['observacion'];
 
+            // Guardar valores numéricos ANTES de formatear (number_format con coma de miles
+            // rompe la aritmética posterior: "1,125.00" no es numérico)
+            $precioNum = floatval($precio);
+            $cantidadNum = floatval($prod['cantidad']);
+            $presentaCnt = (is_numeric($prod['presenta_cnt']) && floatval($prod['presenta_cnt']) != 0) ? floatval($prod['presenta_cnt']) : 1;
+
             $precio = number_format($precio, 2, '.', ',');
             $importe = number_format($importe, 2, '.', ',');
             $tempDescuento = number_format($tempDescuento, 2, '.', ',');
@@ -209,16 +215,15 @@ class CombinarReporteController extends Controller
             $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
 
             // Calcular total de paquetes (cantidad × presenta_cnt)
-            $total_paquetes = floatval($prod['cantidad']) * floatval($prod['presenta_cnt']);
+            $total_paquetes = $cantidadNum * floatval($prod['presenta_cnt']);
             $total_paquetes_fmt = number_format($total_paquetes, 0);
 
             // Calcular peso total (cantidad × peso_bruto)
             $peso_bruto = floatval($prod['peso_bruto'] ?? 0);
-            $cantidad_real = floatval(str_replace(',', '', $prod['cantidad']));
-            $peso_total = $cantidad_real * $peso_bruto;
+            $peso_total = $cantidadNum * $peso_bruto;
             $peso_total_fmt = number_format($peso_total, 2);
 
-            $precioDisminu = $precio / $prod['presenta_cnt'];
+            $precioDisminu = $precioNum / $presentaCnt;
             $precioDisminu = number_format($precioDisminu, 2, '.', ',');
 
             $rowHTML = $rowHTML . "
@@ -596,6 +601,11 @@ class CombinarReporteController extends Controller
             $importe -= $tempDescuento;
             $totalDescuento += $tempDescuento;
 
+            // Guardar valores numéricos ANTES de formatear (number_format con coma de miles
+            // rompe la aritmética posterior: "1,125.00" no es numérico)
+            $precioNum = floatval($precio);
+            $presentaCnt = (is_numeric($prod['presenta_cnt']) && floatval($prod['presenta_cnt']) != 0) ? floatval($prod['presenta_cnt']) : 1;
+
             $precio = number_format($precio, 2, '.', ',');
             $importe = number_format($importe, 2, '.', ',');
             $tempDescuento = number_format($tempDescuento, 2, '.', ',');
@@ -615,7 +625,7 @@ class CombinarReporteController extends Controller
             $peso_total = $cantidad_real * $peso_bruto;
             $peso_total_fmt = number_format($peso_total, 2);
 
-            $precioDisminu = $precio / $prod['presenta_cnt'];
+            $precioDisminu = $precioNum / $presentaCnt;
             $precioDisminu = number_format($precioDisminu, 2, '.', ',');
 
             $rowHTML .= "
@@ -942,6 +952,11 @@ class CombinarReporteController extends Controller
                 $importe -= $tempDescuento;
                 $totalDescuento += $tempDescuento;
 
+                // Guardar valores numéricos ANTES de formatear (number_format con coma de miles
+                // rompe la aritmética posterior: "1,125.00" no es numérico)
+                $precioNum = floatval($precio);
+                $presentaCnt = (is_numeric($prod['presenta_cnt']) && floatval($prod['presenta_cnt']) != 0) ? floatval($prod['presenta_cnt']) : 1;
+
                 $precio = number_format($precio, 2, '.', ',');
                 $importe = number_format($importe, 2, '.', ',');
                 $tempDescuento = number_format($tempDescuento, 2, '.', ',');
@@ -951,7 +966,7 @@ class CombinarReporteController extends Controller
                 $prod['cantidad'] = number_format($prod['cantidad'], 0);
                 $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
 
-                $precioDisminu = $precio / $prod['presenta_cnt'];
+                $precioDisminu = $precioNum / $presentaCnt;
                 $precioDisminu = number_format($precioDisminu, 2, '.', ',');
 
                 $rowHTML = $rowHTML . "
@@ -1457,6 +1472,11 @@ class CombinarReporteController extends Controller
                 $importe -= $tempDescuento;
                 $totalDescuento += $tempDescuento;
 
+                // Guardar valores numéricos ANTES de formatear (number_format con coma de miles
+                // rompe la aritmética posterior: "1,125.00" no es numérico)
+                $precioNum = floatval($precio);
+                $cantidadNum = floatval($prod['cantidad']);
+
                 $precio = number_format($precio, 2, '.', ',');
                 $importe = number_format($importe, 2, '.', ',');
                 $tempDescuento = number_format($tempDescuento, 2, '.', ',');
@@ -1466,11 +1486,11 @@ class CombinarReporteController extends Controller
                 $prod['cantidad'] = number_format($prod['cantidad'], 0);
                 $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
 
-                $descuento = ($prod['presenta_cnt'] && $prod['presenta_cnt'] != 0) ? $prod['presenta_cnt'] : 1;
+                $descuento = (is_numeric($prod['presenta_cnt']) && floatval($prod['presenta_cnt']) != 0) ? floatval($prod['presenta_cnt']) : 1;
                 $descuento_str = ($prod['presenta_cnt'] && $prod['presenta_cnt'] != 0) ? $prod['presenta_cnt'] : '-';
-                $precioDisminu = $precio / $descuento;
+                $precioDisminu = $precioNum / $descuento;
                 $precioDisminu = number_format($precioDisminu, 2, '.', ',');
-                $multi = $prod['cantidad'] * $prod['presenta_cnt'];
+                $multi = $cantidadNum * floatval($prod['presenta_cnt']);
                 $rows[] = "
               <tr>
                 <td class='' style='font-weight: bold; color: #000000; font-size: 13px; text-align: center;border-left: 1px solid #363636;'>$contador</td>
@@ -2482,7 +2502,6 @@ class CombinarReporteController extends Controller
                     $prod['codigo'] = trim($prod['codigo']);
                     $prod['total_cantidad'] = number_format($prod['total_cantidad'], 0);
                     $prod['total_multiplicado'] = number_format($prod['total_multiplicado'], 0);
-                    $multi = $prod['total_cantidad'] * $prod['total_medida'];
 
                     // $cnt4 = Tools::numeroParaDocumento($prod['cantidad'], 3);
                     $rowHTML .= "
